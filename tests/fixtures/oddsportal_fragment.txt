@@ -1,0 +1,28 @@
+=====PAGE 1
+03 Jan 2025
+Finished
+7
+Epsilon E.
+-
+Alfa A.
+5
+1.80
+2.00
+=====PAGE 2
+02 Jan 2025
+Finished
+7
+Epsilon E.
+-
+Alfa A.
+5
+1.80
+2.00
+Finished
+0
+Smith M.
+-
+Dobey C.
+4
+-
+-

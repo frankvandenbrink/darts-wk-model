@@ -1,0 +1,96 @@
+jaar,wedstrijd,datum,ronde,setsnodig,speler1,speler2,sets1,sets2,winnaar,walkover,avg1_achteraf,avg2_achteraf
+2025,1,2024-12-15,1,3,Thibault Tricole,Joe Comito,3,1,1,0,80.61,81.25
+2025,2,2024-12-15,1,3,Jermaine Wattimena,Stefan Bellmont,3,0,1,0,98.54,92.95
+2025,3,2024-12-15,1,3,Kim Huybrechts,Keane Barry,1,3,2,0,96.92,94.97
+2025,4,2024-12-15,2,3,Luke Humphries,Thibault Tricole,3,0,1,0,90.79,85.62
+2025,5,2024-12-16,1,3,Wesley Plaisier,Ryusei Azemoto,3,2,1,0,82.56,79.23
+2025,6,2024-12-16,1,3,Luke Woodhouse,Lourence Ilagan,3,0,1,0,94.38,81.11
+2025,7,2024-12-16,1,3,Alan Soutar,Kai Gotthardt,1,3,2,0,84.19,89.1
+2025,8,2024-12-16,2,3,James Wade,Jermaine Wattimena,0,3,2,0,97.01,99.17
+2025,9,2024-12-16,1,3,Niels Zonneveld,Robert Owen,1,3,2,0,93.19,91.64
+2025,10,2024-12-16,1,3,Connor Scutt,Ben Robb,3,0,1,0,101.92,82.64
+2025,11,2024-12-16,1,3,Cameron Menzies,Leonard Gates,1,3,2,0,83.77,82.96
+2025,12,2024-12-16,2,3,Gerwyn Price,Keane Barry,3,0,1,0,91.32,86.81
+2025,13,2024-12-17,1,3,James Hurrell,Jim Long,3,0,1,0,88.75,79.17
+2025,14,2024-12-17,1,3,Kevin Doets,Noa-Lynn van Leuven,3,1,1,0,88.13,87.02
+2025,15,2024-12-17,1,3,Ryan Joyce,Darius Labanauskas,3,1,1,0,92.97,89.62
+2025,16,2024-12-17,2,3,Mike De Decker,Luke Woodhouse,1,3,2,0,87.38,88.38
+2025,17,2024-12-17,1,3,Jeffrey de Graaf,Rashad Sweeting,3,1,1,0,92.3,82.88
+2025,18,2024-12-17,1,3,Ricardo Pietreczko,Xiaochen Zong,3,0,1,0,88.68,84.03
+2025,19,2024-12-17,1,3,Ryan Meikle,Fallon Sherrock,3,2,1,0,83.53,81.81
+2025,20,2024-12-17,2,3,Peter Wright,Wesley Plaisier,3,1,1,0,89.63,93.77
+2025,21,2024-12-18,1,3,Jim Williams,Paolo Nebrida,2,3,2,0,94.1,86.63
+2025,22,2024-12-18,1,3,Madars Razma,Christian Kist,3,1,1,0,90.65,94.9
+2025,23,2024-12-18,1,3,Ricky Evans,Gordon Mathers,3,2,1,0,86.23,87.57
+2025,24,2024-12-18,2,3,Nathan Aspinall,Leonard Gates,3,1,1,0,88.03,83.41
+2025,25,2024-12-19,1,3,Chris Landman,Lok Yin Lee,1,3,2,0,80.71,84.4
+2025,26,2024-12-19,1,3,Callan Rydz,Romeo Grbavac,3,0,1,0,107.06,97.92
+2025,27,2024-12-19,1,3,Martin Lukeman,Nitin Kumar,3,1,1,0,86.66,85.77
+2025,28,2024-12-19,2,3,Gabriel Clemens,Robert Owen,1,3,2,0,92.39,98.97
+2025,29,2024-12-19,1,3,Nick Kenny,Stowe Buntz,3,0,1,0,87.66,87.26
+2025,30,2024-12-19,1,3,Mensur Suljovic,Matt Campbell,2,3,2,0,88.44,93.31
+2025,31,2024-12-19,1,3,Scott Williams,Niko Springer,3,1,1,0,96.24,98.92
+2025,32,2024-12-19,2,3,Michael Smith,Kevin Doets,2,3,2,0,96.93,96.9
+2025,33,2024-12-20,1,3,Stephen Burton,Alexander Merkx,0,3,2,0,75.63,78.41
+2025,34,2024-12-20,1,3,Wessel Nijman,Cameron Carolissen,3,2,1,0,94.83,95.9
+2025,35,2024-12-20,1,3,Ian White,Sandro Eric Sosing,,,1,1,,
+2025,36,2024-12-20,2,3,Stephen Bunting,Kai Gotthardt,3,1,1,0,92.12,89.4
+2025,37,2024-12-20,1,3,Mickey Mansell,Tomoya Goto,3,1,1,0,81.34,82.22
+2025,38,2024-12-20,1,3,Florian Hempel,Jeffrey de Zwaan,3,1,1,0,92.73,94.36
+2025,39,2024-12-20,1,3,William O'Connor,Dylan Slevin,1,3,2,0,85.92,86.35
+2025,40,2024-12-20,2,3,Michael van Gerwen,James Hurrell,3,0,1,0,94.85,89.32
+2025,41,2024-12-21,1,3,Karel Sedláček,Rhys Griffin,0,3,2,0,82.58,91.1
+2025,42,2024-12-21,1,3,Richard Veenstra,Alexis Toylo,0,3,2,0,86.0,86.03
+2025,43,2024-12-21,2,3,Brendan Dolan,Lok Yin Lee,3,0,1,0,92.02,83.2
+2025,44,2024-12-21,2,3,Chris Dobey,Alexander Merkx,3,1,1,0,95.62,90.54
+2025,45,2024-12-21,2,3,Danny Noppert,Ryan Joyce,1,3,2,0,93.91,93.88
+2025,46,2024-12-21,2,3,Raymond van Barneveld,Nick Kenny,1,3,2,0,84.64,86.39
+2025,47,2024-12-21,2,3,Luke Littler,Ryan Meikle,3,1,1,0,100.85,91.93
+2025,48,2024-12-21,2,3,Damon Heta,Connor Scutt,3,1,1,0,97.96,98.47
+2025,49,2024-12-22,2,3,Ryan Searle,Matt Campbell,3,0,1,0,99.38,90.66
+2025,50,2024-12-22,2,3,Dirk van Duijvenbode,Madars Razma,1,3,2,0,88.72,91.33
+2025,51,2024-12-22,2,3,Joe Cullen,Wessel Nijman,3,0,1,0,98.18,98.01
+2025,52,2024-12-22,2,3,Ritchie Edhouse,Ian White,1,3,2,0,84.19,88.86
+2025,53,2024-12-22,2,3,Martin Schindler,Callan Rydz,0,3,2,0,89.37,91.05
+2025,54,2024-12-22,2,3,Ross Smith,Paolo Nebrida,0,3,2,0,89.79,91.07
+2025,55,2024-12-22,2,3,Gary Anderson,Jeffrey De Graaf,0,3,2,0,92.51,95.56
+2025,56,2024-12-22,2,3,Dimitri Van den Bergh,Dylan Slevin,3,0,1,0,96.0,95.02
+2025,57,2024-12-23,2,3,Krzysztof Ratajski,Alexis Toylo,3,1,1,0,95.32,96.39
+2025,58,2024-12-23,2,3,Andrew Gilding,Martin Lukeman,3,1,1,0,92.65,91.28
+2025,59,2024-12-23,2,3,Josh Rock,Rhys Griffin,3,0,1,0,87.13,85.99
+2025,60,2024-12-23,2,3,Jonny Clayton,Mickey Mansell,3,2,1,0,92.45,84.26
+2025,61,2024-12-23,2,3,Gian van Veen,Ricardo Pietreczko,1,3,2,0,91.99,91.64
+2025,62,2024-12-23,2,3,Daryl Gurney,Florian Hempel,3,2,1,0,98.31,96.44
+2025,63,2024-12-23,2,3,Dave Chisnall,Ricky Evans,2,3,2,0,94.54,94.3
+2025,64,2024-12-23,2,3,Rob Cross,Scott Williams,1,3,2,0,88.64,87.9
+2025,65,2024-12-27,3,4,Damon Heta,Luke Woodhouse,3,4,2,0,89.69,92.34
+2025,66,2024-12-27,3,4,Jonny Clayton,Daryl Gurney,4,3,1,0,90.11,92.6
+2025,67,2024-12-27,3,4,Stephen Bunting,Madars Razma,4,1,1,0,100.06,90.92
+2025,68,2024-12-27,3,4,Gerwyn Price,Joe Cullen,4,3,1,0,92.6,92.77
+2025,69,2024-12-27,3,4,Jermaine Wattimena,Peter Wright,2,4,2,0,96.5,96.19
+2025,70,2024-12-27,3,4,Luke Humphries,Nick Kenny,4,0,1,0,98.59,93.42
+2025,71,2024-12-28,3,4,Ryan Joyce,Ryan Searle,4,3,1,0,97.4,100.97
+2025,72,2024-12-28,3,4,Scott Williams,Ricardo Pietreczko,1,4,2,0,94.29,97.0
+2025,73,2024-12-28,3,4,Nathan Aspinall,Andrew Gilding,4,0,1,0,92.17,86.65
+2025,74,2024-12-28,3,4,Chris Dobey,Josh Rock,4,2,1,0,97.29,95.99
+2025,75,2024-12-28,3,4,Michael van Gerwen,Brendan Dolan,4,2,1,0,97.01,96.08
+2025,76,2024-12-28,3,4,Luke Littler,Ian White,4,1,1,0,97.84,96.4
+2025,77,2024-12-29,3,4,Jeffrey De Graaf,Paolo Nebrida,4,1,1,0,89.99,83.01
+2025,78,2024-12-29,3,4,Kevin Doets,Krzysztof Ratajski,4,3,1,0,89.67,94.55
+2025,79,2024-12-29,3,4,Dimitri Van Den Bergh,Callan Rydz,0,4,2,0,94.79,105.31
+2025,80,2024-12-29,3,4,Ricky Evans,Robert Owen,2,4,2,0,86.84,92.92
+2025,81,2024-12-29,4,4,Jonny Clayton,Gerwyn Price,2,4,2,0,91.73,92.28
+2025,82,2024-12-29,4,4,Luke Humphries,Peter Wright,1,4,2,0,99.23,100.93
+2025,83,2024-12-30,4,4,Kevin Doets,Chris Dobey,3,4,2,0,88.17,91.59
+2025,84,2024-12-30,4,4,Robert Owen,Callan Rydz,3,4,2,0,94.07,97.38
+2025,85,2024-12-30,4,4,Ricardo Pietreczko,Nathan Aspinall,0,4,2,0,78.46,94.28
+2025,86,2024-12-30,4,4,Stephen Bunting,Luke Woodhouse,4,0,1,0,96.78,90.61
+2025,87,2024-12-30,4,4,Michael van Gerwen,Jeffrey de Graaf,4,2,1,0,101.98,91.85
+2025,88,2024-12-30,4,4,Luke Littler,Ryan Joyce,4,3,1,0,103.14,97.73
+2025,89,2025-01-01,QF,5,Chris Dobey,Gerwyn Price,5,3,1,0,95.38,92.74
+2025,90,2025-01-01,QF,5,Michael van Gerwen,Callan Rydz,5,3,1,0,103.1,103.88
+2025,91,2025-01-01,QF,5,Peter Wright,Stephen Bunting,2,5,2,0,92.41,95.55
+2025,92,2025-01-01,QF,5,Luke Littler,Nathan Aspinall,5,2,1,0,101.54,96.31
+2025,93,2025-01-02,SF,6,Chris Dobey,Michael van Gerwen,1,6,2,0,94.77,98.84
+2025,94,2025-01-02,SF,6,Stephen Bunting,Luke Littler,1,6,2,0,100.1,105.48
+2025,95,2025-01-03,F,7,Luke Littler,Michael van Gerwen,7,3,1,0,102.73,100.69

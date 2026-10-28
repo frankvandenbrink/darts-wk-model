@@ -1,0 +1,169 @@
+{
+ "model": "vorm",
+ "train": [
+  2026
+ ],
+ "test": [
+  2025
+ ],
+ "parameters": {
+  "w": 0.0,
+  "L": 12,
+  "k": 0.04,
+  "kc": 0.0
+ },
+ "drempel": null,
+ "drempel_reden": "beste ROI op train is -6.8% (drempel 1.00) <= 0: niet wedden",
+ "train_resultaat": {
+  "n": 126,
+  "brier_model": 0.1898,
+  "logloss_model": 0.5669,
+  "brier_markt_proportioneel": 0.1843,
+  "logloss_markt_proportioneel": 0.549,
+  "brier_markt_shin": 0.1843,
+  "logloss_markt_shin": 0.5498,
+  "favoriet_won": "91/124",
+  "drempel": null,
+  "bets": 0,
+  "gewonnen": 0,
+  "underdog_bets": 0,
+  "gem_odd": null,
+  "winst_units": 0,
+  "roi": null,
+  "roi_90_geclusterd": [
+   null,
+   null
+  ]
+ },
+ "test_resultaat": {
+  "n": 94,
+  "brier_model": 0.2159,
+  "logloss_model": 0.6179,
+  "brier_markt_proportioneel": 0.2234,
+  "logloss_markt_proportioneel": 0.6343,
+  "brier_markt_shin": 0.2247,
+  "logloss_markt_shin": 0.6371,
+  "favoriet_won": "59/94",
+  "drempel": null,
+  "bets": 0,
+  "gewonnen": 0,
+  "underdog_bets": 0,
+  "gem_odd": null,
+  "winst_units": 0,
+  "roi": null,
+  "roi_90_geclusterd": [
+   null,
+   null
+  ]
+ },
+ "ter_info_vaste_drempel": {
+  "drempel": 1.05,
+  "toelichting": "zonder stopregel; niet het hoofdresultaat",
+  "train": {
+   "n": 126,
+   "brier_model": 0.1898,
+   "logloss_model": 0.5669,
+   "brier_markt_proportioneel": 0.1843,
+   "logloss_markt_proportioneel": 0.549,
+   "brier_markt_shin": 0.1843,
+   "logloss_markt_shin": 0.5498,
+   "favoriet_won": "91/124",
+   "drempel": 1.05,
+   "bets": 78,
+   "gewonnen": 21,
+   "underdog_bets": 74,
+   "gem_odd": 5.9,
+   "winst_units": -9.07,
+   "roi": -0.1163,
+   "roi_90_geclusterd": [
+    -0.388,
+    0.113
+   ]
+  },
+  "test": {
+   "n": 94,
+   "brier_model": 0.2159,
+   "logloss_model": 0.6179,
+   "brier_markt_proportioneel": 0.2234,
+   "logloss_markt_proportioneel": 0.6343,
+   "brier_markt_shin": 0.2247,
+   "logloss_markt_shin": 0.6371,
+   "favoriet_won": "59/94",
+   "drempel": 1.05,
+   "bets": 56,
+   "gewonnen": 23,
+   "underdog_bets": 53,
+   "gem_odd": 5.38,
+   "winst_units": 28.94,
+   "roi": 0.5168,
+   "roi_90_geclusterd": [
+    -0.07,
+    0.775
+   ]
+  }
+ },
+ "drempeltabel_train": [
+  {
+   "drempel": 1.0,
+   "bets": 100,
+   "roi": -0.0682
+  },
+  {
+   "drempel": 1.05,
+   "bets": 78,
+   "roi": -0.1163
+  },
+  {
+   "drempel": 1.1,
+   "bets": 65,
+   "roi": -0.132
+  },
+  {
+   "drempel": 1.15,
+   "bets": 52,
+   "roi": -0.2375
+  },
+  {
+   "drempel": 1.2,
+   "bets": 48,
+   "roi": -0.2677
+  },
+  {
+   "drempel": 1.3,
+   "bets": 34,
+   "roi": -0.2279
+  }
+ ],
+ "drempeltabel_test_ter_info": [
+  {
+   "drempel": 1.0,
+   "bets": 75,
+   "roi": 0.3485
+  },
+  {
+   "drempel": 1.05,
+   "bets": 56,
+   "roi": 0.5168
+  },
+  {
+   "drempel": 1.1,
+   "bets": 51,
+   "roi": 0.5737
+  },
+  {
+   "drempel": 1.15,
+   "bets": 41,
+   "roi": 0.4149
+  },
+  {
+   "drempel": 1.2,
+   "bets": 36,
+   "roi": 0.4767
+  },
+  {
+   "drempel": 1.3,
+   "bets": 24,
+   "roi": 0.1888
+  }
+ ]
+}

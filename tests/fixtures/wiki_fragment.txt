@@ -1,0 +1,20 @@
+==Overview==
+Testfragment (verzonnen spelers en uitslagen) in het formaat van het Wikipedia-artikel.
+
+==Schedule==
+{{hidden begin|expanded=yes|title=Sunday, 15 December}}
+{| class="wikitable"
+! Match no. !! Round !! Player 1 !! Score !! Player 2
+|- style=text-align:center;"
+| 01 || rowspan=2| 1 || {{PDCFlag|Anna Alfa|avg=91.79|b=1}} || {{dart score|3|1}} || {{PDCFlag|Bert Beta|avg=88.26}} || {{dart score|3|1}}
+|- style=text-align:center;"
+| 02 || {{PDCFlag|Carla Gamma|b=1|avg=}} || [[Walkover|w/o]] || {{PDCFlag|Dirk Delta|avg=}} || colspan=5{{n/a}}
+|}{{hidden end}}
+{{hidden begin|expanded=yes|title=Friday, 3 January}}
+{| class="wikitable"
+|- style=text-align:center;
+| 03 || F || [[Anna Alfa]] 95.10 || {{dart score|5|7}} || '''[[Eva Epsilon (darts player)|Eva Epsilon]]''' 99.02 || {{dart score|3|1}}
+|}{{hidden end}}
+
+==Draw==
+| 99 || 1 || {{PDCFlag|Niet Meetellen}} || {{dart score|3|0}} || {{PDCFlag|Ook Niet}}
