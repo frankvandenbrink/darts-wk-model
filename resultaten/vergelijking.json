@@ -1,0 +1,2733 @@
+{
+ "data": {
+  "2024": {
+   "cutoff_voor": "2023-12-15",
+   "events": 100,
+   "gebruikt": 60,
+   "paywall": 40,
+   "ontbreekt": 0,
+   "wedstrijden": 5874,
+   "sets_wedstrijden": 249,
+   "laatste_event": "2023-10-20",
+   "wk_spelers": 98,
+   "wk_spelers_zonder_data": 14
+  },
+  "2025": {
+   "cutoff_voor": "2024-12-15",
+   "events": 150,
+   "gebruikt": 71,
+   "paywall": 79,
+   "ontbreekt": 0,
+   "wedstrijden": 6868,
+   "sets_wedstrijden": 249,
+   "laatste_event": "2024-10-30",
+   "wk_spelers": 98,
+   "wk_spelers_zonder_data": 11
+  },
+  "2026": {
+   "cutoff_voor": "2025-12-11",
+   "events": 205,
+   "gebruikt": 72,
+   "paywall": 133,
+   "ontbreekt": 0,
+   "wedstrijden": 6995,
+   "sets_wedstrijden": 249,
+   "laatste_event": "2025-03-11",
+   "wk_spelers": 128,
+   "wk_spelers_zonder_data": 21
+  }
+ },
+ "blind_underdog": {
+  "2024": {
+   "bets": 92,
+   "roi": -0.0445
+  },
+  "2025": {
+   "bets": 94,
+   "roi": 0.2502
+  },
+  "2026": {
+   "bets": 124,
+   "roi": 0.0123
+  }
+ },
+ "meldingen": {
+  "2024": [
+   "2 dubbele Oddsportal-rij(en) verwijderd",
+   "geen odds op Oddsportal: Michael Smith - Chris Dobey",
+   "Bhav Patel -> Bhaval Patel (difflib:bhaval patel)",
+   "David Cameron -> Dave Cameron (difflib:dave cameron)",
+   "Man Lok Leung -> Hugo Leung Man Lok (alias)",
+   "Radek Szaganski -> Radoslaw Szaganski (alias)",
+   "Xiaochen Zong -> Zong Xiaochen (omgekeerd)"
+  ],
+  "2025": [
+   "2 dubbele Oddsportal-rij(en) verwijderd",
+   "Xiaochen Zong -> Zong Xiaochen (omgekeerd)",
+   "walkover overgeslagen: Ian White - Sandro Eric Sosing"
+  ],
+  "2026": [
+   "3 dubbele Oddsportal-rij(en) verwijderd",
+   "David Cameron -> Dave Cameron (difflib:dave cameron)",
+   "Man Lok Leung -> Hugo Leung Man Lok (alias)",
+   "Xiaochen Zong -> Zong Xiaochen (omgekeerd)",
+   "walkover overgeslagen: Jonny Clayton - Dom Taylor"
+  ]
+ },
+ "runs": [
+  {
+   "model": "vorm",
+   "train": [
+    2026
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "richting",
+   "parameters": {
+    "w": 0.0,
+    "L": 12,
+    "k": 0.04,
+    "kc": 0.0
+   },
+   "drempel_reden": "beste ROI op train is -6.8% (drempel 1.00) <= 0: niet wedden",
+   "train_resultaat": {
+    "n": 126,
+    "brier_model": 0.1898,
+    "logloss_model": 0.5669,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0179,
+    "logloss_verschil_se": 0.0144,
+    "helling_model": 1.1,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": null,
+    "bets": 0,
+    "gewonnen": 0,
+    "underdog_bets": 0,
+    "gem_odd": null,
+    "winst_units": 0,
+    "roi": null,
+    "roi_90_geclusterd": [
+     null,
+     null
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2159,
+    "logloss_model": 0.6179,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0164,
+    "logloss_verschil_se": 0.0169,
+    "helling_model": 0.918,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": null,
+    "bets": 0,
+    "gewonnen": 0,
+    "underdog_bets": 0,
+    "gem_odd": null,
+    "winst_units": 0,
+    "roi": null,
+    "roi_90_geclusterd": [
+     null,
+     null
+    ]
+   }
+  },
+  {
+   "model": "rating",
+   "train": [
+    2026
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 365,
+    "lam": 0.5,
+    "onbekend": 0.0,
+    "k": 0.6,
+    "g": 0.0
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+19.6%)",
+   "train_resultaat": {
+    "n": 126,
+    "brier_model": 0.2074,
+    "logloss_model": 0.6,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.051,
+    "logloss_verschil_se": 0.032,
+    "helling_model": 1.04,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.3,
+    "bets": 64,
+    "gewonnen": 16,
+    "underdog_bets": 61,
+    "gem_odd": 7.26,
+    "winst_units": 12.57,
+    "roi": 0.1964,
+    "roi_90_geclusterd": [
+     -0.465,
+     0.383
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.228,
+    "logloss_model": 0.6494,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0152,
+    "logloss_verschil_se": 0.0276,
+    "helling_model": 0.77,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.3,
+    "bets": 39,
+    "gewonnen": 12,
+    "underdog_bets": 39,
+    "gem_odd": 6.13,
+    "winst_units": 12.76,
+    "roi": 0.3272,
+    "roi_90_geclusterd": [
+     -0.2,
+     0.752
+    ]
+   }
+  },
+  {
+   "model": "rating-platt",
+   "train": [
+    2026
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 365,
+     "lam": 0.5,
+     "onbekend": 0.0,
+     "k": 0.6,
+     "g": 0.0
+    },
+    "c": 1.0401,
+    "c_se": 0.2398
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+21.5%)",
+   "train_resultaat": {
+    "n": 126,
+    "brier_model": 0.2075,
+    "logloss_model": 0.5999,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0509,
+    "logloss_verschil_se": 0.0321,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.3,
+    "bets": 63,
+    "gewonnen": 16,
+    "underdog_bets": 60,
+    "gem_odd": 7.32,
+    "winst_units": 13.57,
+    "roi": 0.2154,
+    "roi_90_geclusterd": [
+     -0.465,
+     0.417
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2285,
+    "logloss_model": 0.6507,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0165,
+    "logloss_verschil_se": 0.0275,
+    "helling_model": 0.741,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.3,
+    "bets": 37,
+    "gewonnen": 10,
+    "underdog_bets": 37,
+    "gem_odd": 6.22,
+    "winst_units": 5.76,
+    "roi": 0.1557,
+    "roi_90_geclusterd": [
+     -0.497,
+     0.752
+    ]
+   }
+  },
+  {
+   "model": "rating+markt",
+   "train": [
+    2026
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 365,
+     "lam": 0.5,
+     "onbekend": 0.0,
+     "k": 0.6,
+     "g": 0.0
+    },
+    "a": 0.8638,
+    "a_se": 0.2564,
+    "b": 0.1543,
+    "b_se": 0.3281,
+    "lr_b_train": 0.223
+   },
+   "drempel_reden": "drempel 1.10 heeft de hoogste ROI op train (+40.5%)",
+   "train_resultaat": {
+    "n": 126,
+    "brier_model": 0.1842,
+    "logloss_model": 0.5478,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": -0.0012,
+    "logloss_verschil_se": 0.0045,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.1,
+    "bets": 21,
+    "gewonnen": 3,
+    "underdog_bets": 21,
+    "gem_odd": 10.81,
+    "winst_units": 8.5,
+    "roi": 0.4048,
+    "roi_90_geclusterd": [
+     -1.0,
+     1.269
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2224,
+    "logloss_model": 0.6324,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0019,
+    "logloss_verschil_se": 0.0037,
+    "helling_model": 0.702,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.1,
+    "bets": 7,
+    "gewonnen": 0,
+    "underdog_bets": 7,
+    "gem_odd": 12.57,
+    "winst_units": -7.0,
+    "roi": -1.0,
+    "roi_90_geclusterd": [
+     -1.0,
+     -1.0
+    ]
+   }
+  },
+  {
+   "model": "rating+avg",
+   "train": [
+    2026
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 365,
+    "lam": 0.5,
+    "onbekend": 0.0,
+    "k": 0.5,
+    "g": 0.08
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+27.4%)",
+   "train_resultaat": {
+    "n": 126,
+    "brier_model": 0.1978,
+    "logloss_model": 0.5755,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0265,
+    "logloss_verschil_se": 0.0314,
+    "helling_model": 0.96,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.3,
+    "bets": 58,
+    "gewonnen": 15,
+    "underdog_bets": 54,
+    "gem_odd": 7.19,
+    "winst_units": 15.9,
+    "roi": 0.2741,
+    "roi_90_geclusterd": [
+     -0.782,
+     0.614
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2388,
+    "logloss_model": 0.6717,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0374,
+    "logloss_verschil_se": 0.0292,
+    "helling_model": 0.559,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.3,
+    "bets": 31,
+    "gewonnen": 9,
+    "underdog_bets": 29,
+    "gem_odd": 6.13,
+    "winst_units": 2.3,
+    "roi": 0.0742,
+    "roi_90_geclusterd": [
+     -0.275,
+     0.555
+    ]
+   }
+  },
+  {
+   "model": "markt-krimp",
+   "train": [
+    2026
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "richting",
+   "parameters": {
+    "a": 0.9472,
+    "a_se": 0.1891
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+30.8%)",
+   "train_resultaat": {
+    "n": 126,
+    "brier_model": 0.1843,
+    "logloss_model": 0.5487,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": -0.0003,
+    "logloss_verschil_se": 0.0023,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.05,
+    "bets": 26,
+    "gewonnen": 3,
+    "underdog_bets": 26,
+    "gem_odd": 12.18,
+    "winst_units": 8.0,
+    "roi": 0.3077,
+    "roi_90_geclusterd": [
+     -1.0,
+     1.061
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.222,
+    "logloss_model": 0.6306,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0036,
+    "logloss_verschil_se": 0.0026,
+    "helling_model": 0.714,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 9,
+    "gewonnen": 2,
+    "underdog_bets": 9,
+    "gem_odd": 11.72,
+    "winst_units": 4.5,
+    "roi": 0.5,
+    "roi_90_geclusterd": [
+     -0.143,
+     0.95
+    ]
+   }
+  },
+  {
+   "model": "vorm",
+   "train": [
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "richting",
+   "parameters": {
+    "w": 0.25,
+    "L": 12,
+    "k": 0.04,
+    "kc": 0.0
+   },
+   "drempel_reden": "drempel 1.10 heeft de hoogste ROI op train (+50.9%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2157,
+    "logloss_model": 0.6171,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0171,
+    "logloss_verschil_se": 0.0168,
+    "helling_model": 0.926,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.1,
+    "bets": 50,
+    "gewonnen": 19,
+    "underdog_bets": 49,
+    "gem_odd": 5.64,
+    "winst_units": 25.46,
+    "roi": 0.5092,
+    "roi_90_geclusterd": [
+     -0.106,
+     0.738
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.1905,
+    "logloss_model": 0.568,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.019,
+    "logloss_verschil_se": 0.0133,
+    "helling_model": 1.11,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.1,
+    "bets": 68,
+    "gewonnen": 13,
+    "underdog_bets": 67,
+    "gem_odd": 6.43,
+    "winst_units": -18.3,
+    "roi": -0.2691,
+    "roi_90_geclusterd": [
+     -0.562,
+     0.072
+    ]
+   }
+  },
+  {
+   "model": "rating",
+   "train": [
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 5.0,
+    "onbekend": -0.6,
+    "k": 0.5,
+    "g": 0.0
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+33.6%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2174,
+    "logloss_model": 0.6238,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0104,
+    "logloss_verschil_se": 0.0297,
+    "helling_model": 1.012,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 75,
+    "gewonnen": 31,
+    "underdog_bets": 67,
+    "gem_odd": 4.61,
+    "winst_units": 25.23,
+    "roi": 0.3364,
+    "roi_90_geclusterd": [
+     -0.213,
+     0.694
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.2205,
+    "logloss_model": 0.6369,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0879,
+    "logloss_verschil_se": 0.034,
+    "helling_model": 0.706,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.05,
+    "bets": 105,
+    "gewonnen": 28,
+    "underdog_bets": 79,
+    "gem_odd": 5.26,
+    "winst_units": -6.99,
+    "roi": -0.0666,
+    "roi_90_geclusterd": [
+     -0.55,
+     0.072
+    ]
+   }
+  },
+  {
+   "model": "rating-platt",
+   "train": [
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 5.0,
+     "onbekend": -0.6,
+     "k": 0.5,
+     "g": 0.0
+    },
+    "c": 1.0123,
+    "c_se": 0.3098
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+33.6%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2174,
+    "logloss_model": 0.6238,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0104,
+    "logloss_verschil_se": 0.0296,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 75,
+    "gewonnen": 31,
+    "underdog_bets": 67,
+    "gem_odd": 4.61,
+    "winst_units": 25.23,
+    "roi": 0.3364,
+    "roi_90_geclusterd": [
+     -0.213,
+     0.694
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.2207,
+    "logloss_model": 0.6377,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0886,
+    "logloss_verschil_se": 0.0342,
+    "helling_model": 0.697,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.05,
+    "bets": 105,
+    "gewonnen": 28,
+    "underdog_bets": 79,
+    "gem_odd": 5.26,
+    "winst_units": -6.99,
+    "roi": -0.0666,
+    "roi_90_geclusterd": [
+     -0.55,
+     0.072
+    ]
+   }
+  },
+  {
+   "model": "rating+markt",
+   "train": [
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 5.0,
+     "onbekend": -0.6,
+     "k": 0.5,
+     "g": 0.0
+    },
+    "a": 0.3972,
+    "a_se": 0.3257,
+    "b": 0.5167,
+    "b_se": 0.4944,
+    "lr_b_train": 1.129
+   },
+   "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+34.6%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2142,
+    "logloss_model": 0.6157,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0186,
+    "logloss_verschil_se": 0.0185,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.15,
+    "bets": 47,
+    "gewonnen": 15,
+    "underdog_bets": 46,
+    "gem_odd": 5.81,
+    "winst_units": 16.26,
+    "roi": 0.346,
+    "roi_90_geclusterd": [
+     -0.314,
+     0.809
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.1981,
+    "logloss_model": 0.5806,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0316,
+    "logloss_verschil_se": 0.0191,
+    "helling_model": 1.034,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.15,
+    "bets": 71,
+    "gewonnen": 17,
+    "underdog_bets": 64,
+    "gem_odd": 6.79,
+    "winst_units": 9.17,
+    "roi": 0.1292,
+    "roi_90_geclusterd": [
+     -0.553,
+     0.318
+    ]
+   }
+  },
+  {
+   "model": "rating+avg",
+   "train": [
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 2.0,
+    "onbekend": -0.6,
+    "k": 0.4,
+    "g": 0.02
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+37.5%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2172,
+    "logloss_model": 0.6234,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0108,
+    "logloss_verschil_se": 0.0287,
+    "helling_model": 1.062,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 71,
+    "gewonnen": 29,
+    "underdog_bets": 66,
+    "gem_odd": 4.76,
+    "winst_units": 26.64,
+    "roi": 0.3752,
+    "roi_90_geclusterd": [
+     -0.179,
+     0.724
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.2145,
+    "logloss_model": 0.6194,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0704,
+    "logloss_verschil_se": 0.0318,
+    "helling_model": 0.829,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.05,
+    "bets": 104,
+    "gewonnen": 29,
+    "underdog_bets": 79,
+    "gem_odd": 5.31,
+    "winst_units": -1.92,
+    "roi": -0.0185,
+    "roi_90_geclusterd": [
+     -0.475,
+     0.097
+    ]
+   }
+  },
+  {
+   "model": "markt-krimp",
+   "train": [
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "richting",
+   "parameters": {
+    "a": 0.6764,
+    "a_se": 0.2007
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+29.2%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2174,
+    "logloss_model": 0.6217,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0126,
+    "logloss_verschil_se": 0.0159,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 72,
+    "gewonnen": 24,
+    "underdog_bets": 72,
+    "gem_odd": 5.05,
+    "winst_units": 21.06,
+    "roi": 0.2925,
+    "roi_90_geclusterd": [
+     -0.403,
+     0.55
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.1876,
+    "logloss_model": 0.5578,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0088,
+    "logloss_verschil_se": 0.0139,
+    "helling_model": 1.4,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.05,
+    "bets": 99,
+    "gewonnen": 22,
+    "underdog_bets": 99,
+    "gem_odd": 6.03,
+    "winst_units": 2.89,
+    "roi": 0.0292,
+    "roi_90_geclusterd": [
+     -0.415,
+     0.134
+    ]
+   }
+  },
+  {
+   "model": "vorm",
+   "train": [
+    2025
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "w": 0.25,
+    "L": 12,
+    "k": 0.04,
+    "kc": 0.0
+   },
+   "drempel_reden": "drempel 1.10 heeft de hoogste ROI op train (+50.9%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2157,
+    "logloss_model": 0.6171,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0171,
+    "logloss_verschil_se": 0.0168,
+    "helling_model": 0.926,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.1,
+    "bets": 50,
+    "gewonnen": 19,
+    "underdog_bets": 49,
+    "gem_odd": 5.64,
+    "winst_units": 25.46,
+    "roi": 0.5092,
+    "roi_90_geclusterd": [
+     -0.106,
+     0.738
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2061,
+    "logloss_model": 0.5985,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0287,
+    "logloss_verschil_se": 0.0233,
+    "helling_model": 1.143,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.1,
+    "bets": 63,
+    "gewonnen": 15,
+    "underdog_bets": 60,
+    "gem_odd": 4.45,
+    "winst_units": 4.13,
+    "roi": 0.0656,
+    "roi_90_geclusterd": [
+     -0.197,
+     0.508
+    ]
+   }
+  },
+  {
+   "model": "rating",
+   "train": [
+    2025
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 5.0,
+    "onbekend": -0.6,
+    "k": 0.5,
+    "g": 0.0
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+33.6%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2174,
+    "logloss_model": 0.6238,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0104,
+    "logloss_verschil_se": 0.0297,
+    "helling_model": 1.012,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 75,
+    "gewonnen": 31,
+    "underdog_bets": 67,
+    "gem_odd": 4.61,
+    "winst_units": 25.23,
+    "roi": 0.3364,
+    "roi_90_geclusterd": [
+     -0.213,
+     0.694
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2071,
+    "logloss_model": 0.6048,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.035,
+    "logloss_verschil_se": 0.03,
+    "helling_model": 1.071,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.05,
+    "bets": 73,
+    "gewonnen": 23,
+    "underdog_bets": 64,
+    "gem_odd": 4.34,
+    "winst_units": 5.61,
+    "roi": 0.0768,
+    "roi_90_geclusterd": [
+     -0.183,
+     0.478
+    ]
+   }
+  },
+  {
+   "model": "rating-platt",
+   "train": [
+    2025
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 5.0,
+     "onbekend": -0.6,
+     "k": 0.5,
+     "g": 0.0
+    },
+    "c": 1.0123,
+    "c_se": 0.3098
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+33.6%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2174,
+    "logloss_model": 0.6238,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0104,
+    "logloss_verschil_se": 0.0296,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 75,
+    "gewonnen": 31,
+    "underdog_bets": 67,
+    "gem_odd": 4.61,
+    "winst_units": 25.23,
+    "roi": 0.3364,
+    "roi_90_geclusterd": [
+     -0.213,
+     0.694
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.207,
+    "logloss_model": 0.6047,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.035,
+    "logloss_verschil_se": 0.0299,
+    "helling_model": 1.058,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.05,
+    "bets": 73,
+    "gewonnen": 23,
+    "underdog_bets": 64,
+    "gem_odd": 4.34,
+    "winst_units": 5.61,
+    "roi": 0.0768,
+    "roi_90_geclusterd": [
+     -0.183,
+     0.478
+    ]
+   }
+  },
+  {
+   "model": "rating+markt",
+   "train": [
+    2025
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 5.0,
+     "onbekend": -0.6,
+     "k": 0.5,
+     "g": 0.0
+    },
+    "a": 0.3972,
+    "a_se": 0.3257,
+    "b": 0.5167,
+    "b_se": 0.4944,
+    "lr_b_train": 1.129
+   },
+   "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+34.6%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2142,
+    "logloss_model": 0.6157,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0186,
+    "logloss_verschil_se": 0.0185,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.15,
+    "bets": 47,
+    "gewonnen": 15,
+    "underdog_bets": 46,
+    "gem_odd": 5.81,
+    "winst_units": 16.26,
+    "roi": 0.346,
+    "roi_90_geclusterd": [
+     -0.314,
+     0.809
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.1953,
+    "logloss_model": 0.5798,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.01,
+    "logloss_verschil_se": 0.0186,
+    "helling_model": 1.254,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.15,
+    "bets": 48,
+    "gewonnen": 11,
+    "underdog_bets": 47,
+    "gem_odd": 5.35,
+    "winst_units": 6.13,
+    "roi": 0.1277,
+    "roi_90_geclusterd": [
+     -0.225,
+     0.714
+    ]
+   }
+  },
+  {
+   "model": "rating+avg",
+   "train": [
+    2025
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 2.0,
+    "onbekend": -0.6,
+    "k": 0.4,
+    "g": 0.02
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+37.5%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2172,
+    "logloss_model": 0.6234,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0108,
+    "logloss_verschil_se": 0.0287,
+    "helling_model": 1.062,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 71,
+    "gewonnen": 29,
+    "underdog_bets": 66,
+    "gem_odd": 4.76,
+    "winst_units": 26.64,
+    "roi": 0.3752,
+    "roi_90_geclusterd": [
+     -0.179,
+     0.724
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2036,
+    "logloss_model": 0.597,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0272,
+    "logloss_verschil_se": 0.0284,
+    "helling_model": 1.225,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.05,
+    "bets": 71,
+    "gewonnen": 21,
+    "underdog_bets": 65,
+    "gem_odd": 4.53,
+    "winst_units": 8.07,
+    "roi": 0.1137,
+    "roi_90_geclusterd": [
+     -0.193,
+     0.524
+    ]
+   }
+  },
+  {
+   "model": "markt-krimp",
+   "train": [
+    2025
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "a": 0.6764,
+    "a_se": 0.2007
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+29.2%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.2174,
+    "logloss_model": 0.6217,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0126,
+    "logloss_verschil_se": 0.0159,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.05,
+    "bets": 72,
+    "gewonnen": 24,
+    "underdog_bets": 72,
+    "gem_odd": 5.05,
+    "winst_units": 21.06,
+    "roi": 0.2925,
+    "roi_90_geclusterd": [
+     -0.403,
+     0.55
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.1951,
+    "logloss_model": 0.5786,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0089,
+    "logloss_verschil_se": 0.0164,
+    "helling_model": 1.422,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.05,
+    "bets": 73,
+    "gewonnen": 18,
+    "underdog_bets": 73,
+    "gem_odd": 4.83,
+    "winst_units": 5.81,
+    "roi": 0.0796,
+    "roi_90_geclusterd": [
+     -0.071,
+     0.385
+    ]
+   }
+  },
+  {
+   "model": "vorm",
+   "train": [
+    2025,
+    2026
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "w": 0.0,
+    "L": 12,
+    "k": 0.04,
+    "kc": 0.0
+   },
+   "drempel_reden": "drempel 1.10 heeft de hoogste ROI op train (+17.8%)",
+   "train_resultaat": {
+    "n": 220,
+    "brier_model": 0.2009,
+    "logloss_model": 0.5887,
+    "brier_markt_proportioneel": 0.201,
+    "logloss_markt_proportioneel": 0.5854,
+    "brier_markt_shin": 0.2016,
+    "logloss_markt_shin": 0.5871,
+    "logloss_verschil_vs_markt": 0.0033,
+    "logloss_verschil_se": 0.011,
+    "helling_model": 1.024,
+    "helling_markt_proportioneel": 0.829,
+    "favoriet_won": "150/218",
+    "drempel": 1.1,
+    "bets": 116,
+    "gewonnen": 36,
+    "underdog_bets": 112,
+    "gem_odd": 6.07,
+    "winst_units": 20.68,
+    "roi": 0.1783,
+    "roi_90_geclusterd": [
+     -0.179,
+     0.526
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2058,
+    "logloss_model": 0.5973,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0276,
+    "logloss_verschil_se": 0.0233,
+    "helling_model": 1.138,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.1,
+    "bets": 65,
+    "gewonnen": 14,
+    "underdog_bets": 62,
+    "gem_odd": 4.38,
+    "winst_units": -0.5,
+    "roi": -0.0077,
+    "roi_90_geclusterd": [
+     -0.273,
+     0.422
+    ]
+   }
+  },
+  {
+   "model": "rating",
+   "train": [
+    2025,
+    2026
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 1460,
+    "lam": 2.0,
+    "onbekend": 0.0,
+    "k": 0.6,
+    "g": 0.0
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+19.6%)",
+   "train_resultaat": {
+    "n": 220,
+    "brier_model": 0.2149,
+    "logloss_model": 0.6175,
+    "brier_markt_proportioneel": 0.201,
+    "logloss_markt_proportioneel": 0.5854,
+    "brier_markt_shin": 0.2016,
+    "logloss_markt_shin": 0.5871,
+    "logloss_verschil_vs_markt": 0.0321,
+    "logloss_verschil_se": 0.0222,
+    "helling_model": 0.995,
+    "helling_markt_proportioneel": 0.829,
+    "favoriet_won": "150/218",
+    "drempel": 1.3,
+    "bets": 106,
+    "gewonnen": 27,
+    "underdog_bets": 104,
+    "gem_odd": 6.75,
+    "winst_units": 20.76,
+    "roi": 0.1958,
+    "roi_90_geclusterd": [
+     -0.187,
+     0.402
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2055,
+    "logloss_model": 0.5997,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0299,
+    "logloss_verschil_se": 0.03,
+    "helling_model": 1.37,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.3,
+    "bets": 45,
+    "gewonnen": 9,
+    "underdog_bets": 45,
+    "gem_odd": 5.72,
+    "winst_units": 6.5,
+    "roi": 0.1444,
+    "roi_90_geclusterd": [
+     -0.292,
+     1.185
+    ]
+   }
+  },
+  {
+   "model": "rating-platt",
+   "train": [
+    2025,
+    2026
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 1460,
+     "lam": 2.0,
+     "onbekend": 0.0,
+     "k": 0.6,
+     "g": 0.0
+    },
+    "c": 0.9953,
+    "c_se": 0.1889
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+19.6%)",
+   "train_resultaat": {
+    "n": 220,
+    "brier_model": 0.2149,
+    "logloss_model": 0.6175,
+    "brier_markt_proportioneel": 0.201,
+    "logloss_markt_proportioneel": 0.5854,
+    "brier_markt_shin": 0.2016,
+    "logloss_markt_shin": 0.5871,
+    "logloss_verschil_vs_markt": 0.0321,
+    "logloss_verschil_se": 0.0222,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.829,
+    "favoriet_won": "150/218",
+    "drempel": 1.3,
+    "bets": 106,
+    "gewonnen": 27,
+    "underdog_bets": 104,
+    "gem_odd": 6.75,
+    "winst_units": 20.76,
+    "roi": 0.1958,
+    "roi_90_geclusterd": [
+     -0.187,
+     0.402
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2056,
+    "logloss_model": 0.5999,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0301,
+    "logloss_verschil_se": 0.0301,
+    "helling_model": 1.376,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.3,
+    "bets": 45,
+    "gewonnen": 9,
+    "underdog_bets": 45,
+    "gem_odd": 5.72,
+    "winst_units": 6.5,
+    "roi": 0.1444,
+    "roi_90_geclusterd": [
+     -0.292,
+     1.185
+    ]
+   }
+  },
+  {
+   "model": "rating+markt",
+   "train": [
+    2025,
+    2026
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 1460,
+     "lam": 2.0,
+     "onbekend": 0.0,
+     "k": 0.6,
+     "g": 0.0
+    },
+    "a": 0.7666,
+    "a_se": 0.2038,
+    "b": 0.116,
+    "b_se": 0.284,
+    "lr_b_train": 0.167
+   },
+   "drempel_reden": "drempel 1.20 heeft de hoogste ROI op train (+33.3%)",
+   "train_resultaat": {
+    "n": 220,
+    "brier_model": 0.1996,
+    "logloss_model": 0.5817,
+    "brier_markt_proportioneel": 0.201,
+    "logloss_markt_proportioneel": 0.5854,
+    "brier_markt_shin": 0.2016,
+    "logloss_markt_shin": 0.5871,
+    "logloss_verschil_vs_markt": -0.0037,
+    "logloss_verschil_se": 0.0059,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.829,
+    "favoriet_won": "150/218",
+    "drempel": 1.2,
+    "bets": 48,
+    "gewonnen": 8,
+    "underdog_bets": 48,
+    "gem_odd": 10.5,
+    "winst_units": 16.0,
+    "roi": 0.3333,
+    "roi_90_geclusterd": [
+     -0.387,
+     0.732
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.1911,
+    "logloss_model": 0.5703,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0006,
+    "logloss_verschil_se": 0.0089,
+    "helling_model": 1.169,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.2,
+    "bets": 19,
+    "gewonnen": 3,
+    "underdog_bets": 19,
+    "gem_odd": 8.39,
+    "winst_units": 8.0,
+    "roi": 0.4211,
+    "roi_90_geclusterd": [
+     -0.3,
+     2.2
+    ]
+   }
+  },
+  {
+   "model": "rating+avg",
+   "train": [
+    2025,
+    2026
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 0.5,
+    "onbekend": -0.3,
+    "k": 0.3,
+    "g": 0.08
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+23.0%)",
+   "train_resultaat": {
+    "n": 220,
+    "brier_model": 0.2103,
+    "logloss_model": 0.6066,
+    "brier_markt_proportioneel": 0.201,
+    "logloss_markt_proportioneel": 0.5854,
+    "brier_markt_shin": 0.2016,
+    "logloss_markt_shin": 0.5871,
+    "logloss_verschil_vs_markt": 0.0212,
+    "logloss_verschil_se": 0.0211,
+    "helling_model": 1.074,
+    "helling_markt_proportioneel": 0.829,
+    "favoriet_won": "150/218",
+    "drempel": 1.3,
+    "bets": 102,
+    "gewonnen": 26,
+    "underdog_bets": 99,
+    "gem_odd": 6.84,
+    "winst_units": 23.48,
+    "roi": 0.2302,
+    "roi_90_geclusterd": [
+     -0.201,
+     0.518
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2018,
+    "logloss_model": 0.5929,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0232,
+    "logloss_verschil_se": 0.0267,
+    "helling_model": 1.39,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.3,
+    "bets": 44,
+    "gewonnen": 10,
+    "underdog_bets": 44,
+    "gem_odd": 5.72,
+    "winst_units": 10.7,
+    "roi": 0.2432,
+    "roi_90_geclusterd": [
+     -0.22,
+     1.227
+    ]
+   }
+  },
+  {
+   "model": "markt-krimp",
+   "train": [
+    2025,
+    2026
+   ],
+   "test": [
+    2024
+   ],
+   "soort": "richting",
+   "parameters": {
+    "a": 0.8293,
+    "a_se": 0.1363
+   },
+   "drempel_reden": "drempel 1.20 heeft de hoogste ROI op train (+24.5%)",
+   "train_resultaat": {
+    "n": 220,
+    "brier_model": 0.1996,
+    "logloss_model": 0.5821,
+    "brier_markt_proportioneel": 0.201,
+    "logloss_markt_proportioneel": 0.5854,
+    "brier_markt_shin": 0.2016,
+    "logloss_markt_shin": 0.5871,
+    "logloss_verschil_vs_markt": -0.0034,
+    "logloss_verschil_se": 0.0055,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.829,
+    "favoriet_won": "150/218",
+    "drempel": 1.2,
+    "bets": 49,
+    "gewonnen": 7,
+    "underdog_bets": 49,
+    "gem_odd": 10.54,
+    "winst_units": 12.0,
+    "roi": 0.2449,
+    "roi_90_geclusterd": [
+     -0.548,
+     0.688
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.1917,
+    "logloss_model": 0.5715,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0017,
+    "logloss_verschil_se": 0.0087,
+    "helling_model": 1.16,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.2,
+    "bets": 17,
+    "gewonnen": 3,
+    "underdog_bets": 17,
+    "gem_odd": 8.74,
+    "winst_units": 10.0,
+    "roi": 0.5882,
+    "roi_90_geclusterd": [
+     -0.3,
+     2.2
+    ]
+   }
+  },
+  {
+   "model": "vorm",
+   "train": [
+    2024
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "w": 0.0,
+    "L": 6,
+    "k": 0.04,
+    "kc": 0.02
+   },
+   "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+25.4%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.1989,
+    "logloss_model": 0.5814,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0116,
+    "logloss_verschil_se": 0.0261,
+    "helling_model": 1.009,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.15,
+    "bets": 43,
+    "gewonnen": 14,
+    "underdog_bets": 41,
+    "gem_odd": 4.39,
+    "winst_units": 10.93,
+    "roi": 0.2542,
+    "roi_90_geclusterd": [
+     0.03,
+     0.771
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2256,
+    "logloss_model": 0.6461,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0118,
+    "logloss_verschil_se": 0.0186,
+    "helling_model": 0.634,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.15,
+    "bets": 34,
+    "gewonnen": 14,
+    "underdog_bets": 28,
+    "gem_odd": 4.75,
+    "winst_units": 5.74,
+    "roi": 0.1688,
+    "roi_90_geclusterd": [
+     -0.249,
+     0.436
+    ]
+   }
+  },
+  {
+   "model": "rating",
+   "train": [
+    2024
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 0.1,
+    "onbekend": 0.0,
+    "k": 0.8,
+    "g": 0.0
+   },
+   "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+32.7%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.197,
+    "logloss_model": 0.5774,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0077,
+    "logloss_verschil_se": 0.0257,
+    "helling_model": 0.915,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.15,
+    "bets": 49,
+    "gewonnen": 18,
+    "underdog_bets": 42,
+    "gem_odd": 4.85,
+    "winst_units": 16.01,
+    "roi": 0.3267,
+    "roi_90_geclusterd": [
+     -0.208,
+     1.14
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2273,
+    "logloss_model": 0.6888,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0545,
+    "logloss_verschil_se": 0.0535,
+    "helling_model": 0.45,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.15,
+    "bets": 47,
+    "gewonnen": 18,
+    "underdog_bets": 36,
+    "gem_odd": 4.65,
+    "winst_units": 8.25,
+    "roi": 0.1755,
+    "roi_90_geclusterd": [
+     -0.248,
+     0.63
+    ]
+   }
+  },
+  {
+   "model": "rating-platt",
+   "train": [
+    2024
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 0.1,
+     "onbekend": 0.0,
+     "k": 0.8,
+     "g": 0.0
+    },
+    "c": 0.9152,
+    "c_se": 0.235
+   },
+   "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+36.8%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.197,
+    "logloss_model": 0.5768,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.007,
+    "logloss_verschil_se": 0.0258,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.15,
+    "bets": 52,
+    "gewonnen": 19,
+    "underdog_bets": 46,
+    "gem_odd": 4.91,
+    "winst_units": 19.14,
+    "roi": 0.3681,
+    "roi_90_geclusterd": [
+     -0.149,
+     1.081
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2257,
+    "logloss_model": 0.6774,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0431,
+    "logloss_verschil_se": 0.0482,
+    "helling_model": 0.492,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.15,
+    "bets": 47,
+    "gewonnen": 19,
+    "underdog_bets": 39,
+    "gem_odd": 4.8,
+    "winst_units": 14.14,
+    "roi": 0.3009,
+    "roi_90_geclusterd": [
+     -0.242,
+     0.782
+    ]
+   }
+  },
+  {
+   "model": "rating+markt",
+   "train": [
+    2024
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 0.1,
+     "onbekend": 0.0,
+     "k": 0.8,
+     "g": 0.0
+    },
+    "a": 0.6227,
+    "a_se": 0.3487,
+    "b": 0.3974,
+    "b_se": 0.3301,
+    "lr_b_train": 1.771
+   },
+   "drempel_reden": "drempel 1.00 heeft de hoogste ROI op train (+22.1%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.1871,
+    "logloss_model": 0.5602,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": -0.0096,
+    "logloss_verschil_se": 0.0107,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.0,
+    "bets": 65,
+    "gewonnen": 27,
+    "underdog_bets": 48,
+    "gem_odd": 4.13,
+    "winst_units": 14.38,
+    "roi": 0.2212,
+    "roi_90_geclusterd": [
+     -0.331,
+     0.819
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2231,
+    "logloss_model": 0.6444,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0101,
+    "logloss_verschil_se": 0.0211,
+    "helling_model": 0.619,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.0,
+    "bets": 64,
+    "gewonnen": 28,
+    "underdog_bets": 42,
+    "gem_odd": 3.93,
+    "winst_units": 9.42,
+    "roi": 0.1472,
+    "roi_90_geclusterd": [
+     -0.221,
+     0.544
+    ]
+   }
+  },
+  {
+   "model": "rating+avg",
+   "train": [
+    2024
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 0.1,
+    "onbekend": 0.0,
+    "k": 0.8,
+    "g": 0.0
+   },
+   "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+32.7%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.197,
+    "logloss_model": 0.5774,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": 0.0077,
+    "logloss_verschil_se": 0.0257,
+    "helling_model": 0.915,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.15,
+    "bets": 49,
+    "gewonnen": 18,
+    "underdog_bets": 42,
+    "gem_odd": 4.85,
+    "winst_units": 16.01,
+    "roi": 0.3267,
+    "roi_90_geclusterd": [
+     -0.208,
+     1.14
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2273,
+    "logloss_model": 0.6888,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": 0.0545,
+    "logloss_verschil_se": 0.0535,
+    "helling_model": 0.45,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.15,
+    "bets": 47,
+    "gewonnen": 18,
+    "underdog_bets": 36,
+    "gem_odd": 4.65,
+    "winst_units": 8.25,
+    "roi": 0.1755,
+    "roi_90_geclusterd": [
+     -0.248,
+     0.63
+    ]
+   }
+  },
+  {
+   "model": "markt-krimp",
+   "train": [
+    2024
+   ],
+   "test": [
+    2025
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "a": 0.9618,
+    "a_se": 0.2297
+   },
+   "drempel_reden": "drempel 1.00 heeft de hoogste ROI op train (+58.8%)",
+   "train_resultaat": {
+    "n": 94,
+    "brier_model": 0.1903,
+    "logloss_model": 0.5696,
+    "brier_markt_proportioneel": 0.1901,
+    "logloss_markt_proportioneel": 0.5698,
+    "brier_markt_shin": 0.1902,
+    "logloss_markt_shin": 0.5722,
+    "logloss_verschil_vs_markt": -0.0001,
+    "logloss_verschil_se": 0.002,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.962,
+    "favoriet_won": "70/92",
+    "drempel": 1.0,
+    "bets": 17,
+    "gewonnen": 3,
+    "underdog_bets": 17,
+    "gem_odd": 8.74,
+    "winst_units": 10.0,
+    "roi": 0.5882,
+    "roi_90_geclusterd": [
+     -0.3,
+     2.2
+    ]
+   },
+   "test_resultaat": {
+    "n": 94,
+    "brier_model": 0.2224,
+    "logloss_model": 0.6316,
+    "brier_markt_proportioneel": 0.2234,
+    "logloss_markt_proportioneel": 0.6343,
+    "brier_markt_shin": 0.2247,
+    "logloss_markt_shin": 0.6371,
+    "logloss_verschil_vs_markt": -0.0027,
+    "logloss_verschil_se": 0.0019,
+    "helling_model": 0.703,
+    "helling_markt_proportioneel": 0.676,
+    "favoriet_won": "59/94",
+    "drempel": 1.0,
+    "bets": 28,
+    "gewonnen": 6,
+    "underdog_bets": 28,
+    "gem_odd": 7.57,
+    "winst_units": 7.25,
+    "roi": 0.2589,
+    "roi_90_geclusterd": [
+     -0.35,
+     0.739
+    ]
+   }
+  },
+  {
+   "model": "vorm",
+   "train": [
+    2024,
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "w": 0.0,
+    "L": 6,
+    "k": 0.04,
+    "kc": 0.0
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+28.3%)",
+   "train_resultaat": {
+    "n": 188,
+    "brier_model": 0.2091,
+    "logloss_model": 0.6047,
+    "brier_markt_proportioneel": 0.2067,
+    "logloss_markt_proportioneel": 0.602,
+    "brier_markt_shin": 0.2074,
+    "logloss_markt_shin": 0.6046,
+    "logloss_verschil_vs_markt": 0.0027,
+    "logloss_verschil_se": 0.0151,
+    "helling_model": 1.051,
+    "helling_markt_proportioneel": 0.809,
+    "favoriet_won": "129/186",
+    "drempel": 1.3,
+    "bets": 59,
+    "gewonnen": 14,
+    "underdog_bets": 59,
+    "gem_odd": 6.37,
+    "winst_units": 16.71,
+    "roi": 0.2832,
+    "roi_90_geclusterd": [
+     -0.091,
+     0.859
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.1918,
+    "logloss_model": 0.5725,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0235,
+    "logloss_verschil_se": 0.0149,
+    "helling_model": 1.087,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.3,
+    "bets": 37,
+    "gewonnen": 4,
+    "underdog_bets": 37,
+    "gem_odd": 8.75,
+    "winst_units": -16.15,
+    "roi": -0.4365,
+    "roi_90_geclusterd": [
+     -1.0,
+     0.117
+    ]
+   }
+  },
+  {
+   "model": "rating",
+   "train": [
+    2024,
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 2.0,
+    "onbekend": -0.3,
+    "k": 0.6,
+    "g": 0.0
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+22.8%)",
+   "train_resultaat": {
+    "n": 188,
+    "brier_model": 0.21,
+    "logloss_model": 0.6087,
+    "brier_markt_proportioneel": 0.2067,
+    "logloss_markt_proportioneel": 0.602,
+    "brier_markt_shin": 0.2074,
+    "logloss_markt_shin": 0.6046,
+    "logloss_verschil_vs_markt": 0.0067,
+    "logloss_verschil_se": 0.0193,
+    "helling_model": 0.991,
+    "helling_markt_proportioneel": 0.809,
+    "favoriet_won": "129/186",
+    "drempel": 1.05,
+    "bets": 136,
+    "gewonnen": 50,
+    "underdog_bets": 119,
+    "gem_odd": 4.6,
+    "winst_units": 31.02,
+    "roi": 0.2281,
+    "roi_90_geclusterd": [
+     -0.082,
+     0.548
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.2168,
+    "logloss_model": 0.6236,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0746,
+    "logloss_verschil_se": 0.0334,
+    "helling_model": 0.726,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.05,
+    "bets": 103,
+    "gewonnen": 30,
+    "underdog_bets": 73,
+    "gem_odd": 5.15,
+    "winst_units": -4.18,
+    "roi": -0.0406,
+    "roi_90_geclusterd": [
+     -0.616,
+     0.138
+    ]
+   }
+  },
+  {
+   "model": "rating-platt",
+   "train": [
+    2024,
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 2.0,
+     "onbekend": -0.3,
+     "k": 0.6,
+     "g": 0.0
+    },
+    "c": 0.9907,
+    "c_se": 0.1936
+   },
+   "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+22.8%)",
+   "train_resultaat": {
+    "n": 188,
+    "brier_model": 0.21,
+    "logloss_model": 0.6087,
+    "brier_markt_proportioneel": 0.2067,
+    "logloss_markt_proportioneel": 0.602,
+    "brier_markt_shin": 0.2074,
+    "logloss_markt_shin": 0.6046,
+    "logloss_verschil_vs_markt": 0.0067,
+    "logloss_verschil_se": 0.0193,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.809,
+    "favoriet_won": "129/186",
+    "drempel": 1.05,
+    "bets": 136,
+    "gewonnen": 50,
+    "underdog_bets": 119,
+    "gem_odd": 4.6,
+    "winst_units": 31.02,
+    "roi": 0.2281,
+    "roi_90_geclusterd": [
+     -0.082,
+     0.548
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.2167,
+    "logloss_model": 0.6231,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0741,
+    "logloss_verschil_se": 0.0332,
+    "helling_model": 0.733,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.05,
+    "bets": 103,
+    "gewonnen": 30,
+    "underdog_bets": 73,
+    "gem_odd": 5.15,
+    "winst_units": -4.18,
+    "roi": -0.0406,
+    "roi_90_geclusterd": [
+     -0.616,
+     0.138
+    ]
+   }
+  },
+  {
+   "model": "rating+markt",
+   "train": [
+    2024,
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "basis": {
+     "halfwaarde": 100000,
+     "lam": 2.0,
+     "onbekend": -0.3,
+     "k": 0.6,
+     "g": 0.0
+    },
+    "a": 0.5752,
+    "a_se": 0.2557,
+    "b": 0.3633,
+    "b_se": 0.3283,
+    "lr_b_train": 1.242
+   },
+   "drempel_reden": "drempel 1.20 heeft de hoogste ROI op train (+46.2%)",
+   "train_resultaat": {
+    "n": 188,
+    "brier_model": 0.2037,
+    "logloss_model": 0.5947,
+    "brier_markt_proportioneel": 0.2067,
+    "logloss_markt_proportioneel": 0.602,
+    "brier_markt_shin": 0.2074,
+    "logloss_markt_shin": 0.6046,
+    "logloss_verschil_vs_markt": -0.0073,
+    "logloss_verschil_se": 0.0085,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.809,
+    "favoriet_won": "129/186",
+    "drempel": 1.2,
+    "bets": 52,
+    "gewonnen": 14,
+    "underdog_bets": 52,
+    "gem_odd": 7.16,
+    "winst_units": 24.05,
+    "roi": 0.4625,
+    "roi_90_geclusterd": [
+     0.045,
+     0.951
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.1902,
+    "logloss_model": 0.561,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.012,
+    "logloss_verschil_se": 0.0134,
+    "helling_model": 1.042,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.2,
+    "bets": 49,
+    "gewonnen": 12,
+    "underdog_bets": 48,
+    "gem_odd": 8.39,
+    "winst_units": 17.53,
+    "roi": 0.3578,
+    "roi_90_geclusterd": [
+     -0.391,
+     0.553
+    ]
+   }
+  },
+  {
+   "model": "rating+avg",
+   "train": [
+    2024,
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "halfwaarde": 100000,
+    "lam": 0.5,
+    "onbekend": -0.6,
+    "k": 0.4,
+    "g": 0.04
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+24.0%)",
+   "train_resultaat": {
+    "n": 188,
+    "brier_model": 0.2088,
+    "logloss_model": 0.6071,
+    "brier_markt_proportioneel": 0.2067,
+    "logloss_markt_proportioneel": 0.602,
+    "brier_markt_shin": 0.2074,
+    "logloss_markt_shin": 0.6046,
+    "logloss_verschil_vs_markt": 0.0051,
+    "logloss_verschil_se": 0.0188,
+    "helling_model": 0.974,
+    "helling_markt_proportioneel": 0.809,
+    "favoriet_won": "129/186",
+    "drempel": 1.3,
+    "bets": 77,
+    "gewonnen": 20,
+    "underdog_bets": 76,
+    "gem_odd": 5.97,
+    "winst_units": 18.51,
+    "roi": 0.2404,
+    "roi_90_geclusterd": [
+     -0.115,
+     0.643
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.214,
+    "logloss_model": 0.6183,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0693,
+    "logloss_verschil_se": 0.0328,
+    "helling_model": 0.73,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.3,
+    "bets": 61,
+    "gewonnen": 15,
+    "underdog_bets": 54,
+    "gem_odd": 6.81,
+    "winst_units": 11.07,
+    "roi": 0.1815,
+    "roi_90_geclusterd": [
+     -0.465,
+     0.401
+    ]
+   }
+  },
+  {
+   "model": "markt-krimp",
+   "train": [
+    2024,
+    2025
+   ],
+   "test": [
+    2026
+   ],
+   "soort": "walk-forward",
+   "parameters": {
+    "a": 0.8093,
+    "a_se": 0.151
+   },
+   "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+44.7%)",
+   "train_resultaat": {
+    "n": 188,
+    "brier_model": 0.2055,
+    "logloss_model": 0.598,
+    "brier_markt_proportioneel": 0.2067,
+    "logloss_markt_proportioneel": 0.602,
+    "brier_markt_shin": 0.2074,
+    "logloss_markt_shin": 0.6046,
+    "logloss_verschil_vs_markt": -0.004,
+    "logloss_verschil_se": 0.0067,
+    "helling_model": 1.0,
+    "helling_markt_proportioneel": 0.809,
+    "favoriet_won": "129/186",
+    "drempel": 1.3,
+    "bets": 19,
+    "gewonnen": 3,
+    "underdog_bets": 19,
+    "gem_odd": 11.08,
+    "winst_units": 8.5,
+    "roi": 0.4474,
+    "roi_90_geclusterd": [
+     -0.5,
+     1.654
+    ]
+   },
+   "test_resultaat": {
+    "n": 126,
+    "brier_model": 0.1852,
+    "logloss_model": 0.5509,
+    "brier_markt_proportioneel": 0.1843,
+    "logloss_markt_proportioneel": 0.549,
+    "brier_markt_shin": 0.1843,
+    "logloss_markt_shin": 0.5498,
+    "logloss_verschil_vs_markt": 0.0019,
+    "logloss_verschil_se": 0.0082,
+    "helling_model": 1.17,
+    "helling_markt_proportioneel": 0.947,
+    "favoriet_won": "91/124",
+    "drempel": 1.3,
+    "bets": 28,
+    "gewonnen": 3,
+    "underdog_bets": 28,
+    "gem_odd": 11.89,
+    "winst_units": 6.0,
+    "roi": 0.2143,
+    "roi_90_geclusterd": [
+     -1.0,
+     1.0
+    ]
+   }
+  }
+ ],
+ "walk_forward_totaal": {
+  "vorm": {
+   "n": 220,
+   "brier_model": 0.2062,
+   "logloss_model": 0.6039,
+   "brier_markt_proportioneel": 0.201,
+   "logloss_markt_proportioneel": 0.5854,
+   "brier_markt_shin": 0.2016,
+   "logloss_markt_shin": 0.5871,
+   "logloss_verschil_vs_markt": 0.0185,
+   "logloss_verschil_se": 0.0117,
+   "helling_model": 0.846,
+   "helling_markt_proportioneel": 0.829,
+   "favoriet_won": "150/218",
+   "drempel": "per stap",
+   "bets": 71,
+   "gewonnen": 18,
+   "underdog_bets": 65,
+   "gem_odd": 6.83,
+   "winst_units": -10.41,
+   "roi": -0.1466,
+   "roi_90_geclusterd": [
+    -0.48,
+    0.22
+   ]
+  },
+  "rating": {
+   "n": 220,
+   "brier_model": 0.2213,
+   "logloss_model": 0.6515,
+   "brier_markt_proportioneel": 0.201,
+   "logloss_markt_proportioneel": 0.5854,
+   "brier_markt_shin": 0.2016,
+   "logloss_markt_shin": 0.5871,
+   "logloss_verschil_vs_markt": 0.066,
+   "logloss_verschil_se": 0.0297,
+   "helling_model": 0.59,
+   "helling_markt_proportioneel": 0.829,
+   "favoriet_won": "150/218",
+   "drempel": "per stap",
+   "bets": 150,
+   "gewonnen": 48,
+   "underdog_bets": 109,
+   "gem_odd": 4.99,
+   "winst_units": 4.07,
+   "roi": 0.0271,
+   "roi_90_geclusterd": [
+    -0.266,
+    0.213
+   ]
+  },
+  "rating-platt": {
+   "n": 220,
+   "brier_model": 0.2205,
+   "logloss_model": 0.6463,
+   "brier_markt_proportioneel": 0.201,
+   "logloss_markt_proportioneel": 0.5854,
+   "brier_markt_shin": 0.2016,
+   "logloss_markt_shin": 0.5871,
+   "logloss_verschil_vs_markt": 0.0608,
+   "logloss_verschil_se": 0.028,
+   "helling_model": 0.622,
+   "helling_markt_proportioneel": 0.829,
+   "favoriet_won": "150/218",
+   "drempel": "per stap",
+   "bets": 150,
+   "gewonnen": 49,
+   "underdog_bets": 112,
+   "gem_odd": 5.04,
+   "winst_units": 9.96,
+   "roi": 0.0664,
+   "roi_90_geclusterd": [
+    -0.242,
+    0.28
+   ]
+  },
+  "rating+markt": {
+   "n": 220,
+   "brier_model": 0.2043,
+   "logloss_model": 0.5966,
+   "brier_markt_proportioneel": 0.201,
+   "logloss_markt_proportioneel": 0.5854,
+   "brier_markt_shin": 0.2016,
+   "logloss_markt_shin": 0.5871,
+   "logloss_verschil_vs_markt": 0.0112,
+   "logloss_verschil_se": 0.0118,
+   "helling_model": 0.83,
+   "helling_markt_proportioneel": 0.829,
+   "favoriet_won": "150/218",
+   "drempel": "per stap",
+   "bets": 113,
+   "gewonnen": 40,
+   "underdog_bets": 90,
+   "gem_odd": 5.86,
+   "winst_units": 26.95,
+   "roi": 0.2385,
+   "roi_90_geclusterd": [
+    -0.094,
+    0.486
+   ]
+  },
+  "rating+avg": {
+   "n": 220,
+   "brier_model": 0.2197,
+   "logloss_model": 0.6484,
+   "brier_markt_proportioneel": 0.201,
+   "logloss_markt_proportioneel": 0.5854,
+   "brier_markt_shin": 0.2016,
+   "logloss_markt_shin": 0.5871,
+   "logloss_verschil_vs_markt": 0.063,
+   "logloss_verschil_se": 0.0295,
+   "helling_model": 0.594,
+   "helling_markt_proportioneel": 0.829,
+   "favoriet_won": "150/218",
+   "drempel": "per stap",
+   "bets": 108,
+   "gewonnen": 33,
+   "underdog_bets": 90,
+   "gem_odd": 5.87,
+   "winst_units": 19.32,
+   "roi": 0.1789,
+   "roi_90_geclusterd": [
+    -0.168,
+    0.406
+   ]
+  },
+  "markt-krimp": {
+   "n": 220,
+   "brier_model": 0.2011,
+   "logloss_model": 0.5854,
+   "brier_markt_proportioneel": 0.201,
+   "logloss_markt_proportioneel": 0.5854,
+   "brier_markt_shin": 0.2016,
+   "logloss_markt_shin": 0.5871,
+   "logloss_verschil_vs_markt": -0.0,
+   "logloss_verschil_se": 0.0048,
+   "helling_model": 0.936,
+   "helling_markt_proportioneel": 0.829,
+   "favoriet_won": "150/218",
+   "drempel": "per stap",
+   "bets": 56,
+   "gewonnen": 9,
+   "underdog_bets": 56,
+   "gem_odd": 9.73,
+   "winst_units": 13.25,
+   "roi": 0.2366,
+   "roi_90_geclusterd": [
+    -0.5,
+    0.714
+   ]
+  }
+ }
+}

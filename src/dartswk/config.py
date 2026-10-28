@@ -47,6 +47,17 @@ GRID = dict(
     k=[0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15],
     kc=[0.0, 0.01, 0.02, 0.04],
 )
+# Ratingmodel (rating.py): grid, afgestemd op log-loss op train. Ratings op de logit-schaal van een leg.
+RATING_GRID = dict(
+    # Twee keer verbreed omdat het optimum op de rand lag (eerst k=0.6, halfwaarde=730, lam=0.5, onbekend=0;
+    # daarna halfwaarde=1460). 100000 dagen = in feite geen tijdsweging.
+    halfwaarde=[90, 180, 365, 730, 1460, 2920, 100000],  # dagen
+    lam=[0.1, 0.5, 2.0, 5.0, 20.0],            # prior-precisie
+    onbekend=[-0.9, -0.6, -0.3, 0.0, 0.3],     # rating van WK-spelers zonder data
+    k=[0.3, 0.4, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5],  # schaal ratingverschil op het WK
+    g=[0.0, 0.02, 0.04, 0.08],            # alleen rating+avg: gewicht per averagepunt
+)
+
 DREMPELS = [1.00, 1.05, 1.10, 1.15, 1.20, 1.30]
 VASTE_DREMPEL = 1.05  # vooraf genoemde regel 'eigen kans x odd > 1,05'; alleen ter informatie
 MIN_BETS_DREMPEL = 10   # een drempel telt alleen mee bij minstens zoveel bets op train

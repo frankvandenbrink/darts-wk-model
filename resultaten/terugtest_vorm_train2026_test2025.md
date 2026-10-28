@@ -1,13 +1,13 @@
 # Terugtest model `vorm`: train 2026, test 2025
 
-Parameters (afgestemd op log-loss, train): w=0.0, L=12, k=0.04, kc=0.0
+Parameters (afgestemd op train): w=0.0, L=12, k=0.04, kc=0.0
 
 Drempelkeuze: beste ROI op train is -6.8% (drempel 1.00) <= 0: niet wedden.
 
-| Set | Jaren | n | Log-loss model | Log-loss markt (prop.) | Log-loss markt (Shin) | Brier model | Brier markt (prop.) | Drempel | Bets | Underdog | ROI | 90%-int. (geclusterd per ronde) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| train | 2026 | 126 | 0.5669 | 0.5490 | 0.5498 | 0.1898 | 0.1843 | niet wedden | 0 | 0 | – | – |
-| test | 2025 | 94 | 0.6179 | 0.6343 | 0.6371 | 0.2159 | 0.2234 | niet wedden | 0 | 0 | – | – |
+| Set | Jaren | n | Log-loss model | Log-loss markt (prop.) | Log-loss markt (Shin) | Brier model | Brier markt (prop.) | Helling model | Helling markt | Drempel | Bets | Underdog | ROI | 90%-int. (geclusterd per ronde) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| train | 2026 | 126 | 0.5669 | 0.5490 | 0.5498 | 0.1898 | 0.1843 | 1.10 | 0.95 | niet wedden | 0 | 0 | – | – |
+| test | 2025 | 94 | 0.6179 | 0.6343 | 0.6371 | 0.2159 | 0.2234 | 0.92 | 0.68 | niet wedden | 0 | 0 | – | – |
 
 ## Drempeltabel train (basis voor de keuze)
 
@@ -33,7 +33,7 @@ Drempelkeuze: beste ROI op train is -6.8% (drempel 1.00) <= 0: niet wedden.
 
 ## Ter informatie: vaste drempel 1.05 zonder stopregel (niet het hoofdresultaat)
 
-| Set | Jaren | n | Log-loss model | Log-loss markt (prop.) | Log-loss markt (Shin) | Brier model | Brier markt (prop.) | Drempel | Bets | Underdog | ROI | 90%-int. (geclusterd per ronde) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| train | 2026 | 126 | 0.5669 | 0.5490 | 0.5498 | 0.1898 | 0.1843 | 1.05 | 78 | 74 | -11.6% | [-38.8%, +11.3%] |
-| test | 2025 | 94 | 0.6179 | 0.6343 | 0.6371 | 0.2159 | 0.2234 | 1.05 | 56 | 53 | +51.7% | [-7.0%, +77.5%] |
+| Set | Jaren | n | Log-loss model | Log-loss markt (prop.) | Log-loss markt (Shin) | Brier model | Brier markt (prop.) | Helling model | Helling markt | Drempel | Bets | Underdog | ROI | 90%-int. (geclusterd per ronde) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| train | 2026 | 126 | 0.5669 | 0.5490 | 0.5498 | 0.1898 | 0.1843 | 1.10 | 0.95 | 1.05 | 78 | 74 | -11.6% | [-38.8%, +11.3%] |
+| test | 2025 | 94 | 0.6179 | 0.6343 | 0.6371 | 0.2159 | 0.2234 | 0.92 | 0.68 | 1.05 | 56 | 53 | +51.7% | [-7.0%, +77.5%] |
