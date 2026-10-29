@@ -529,7 +529,8 @@ def lees_inhoud(map_: Path) -> dict:
 
 
 def _wf(res: dict) -> list[dict]:
-    return [u for u in res.get("uitkomsten", []) if u.get("soort") == "walk-forward"]
+    """Walk-forward-uitkomsten met een vergelijking met de markt (niet E027/E028, die hebben een eigen vorm)."""
+    return [u for u in res.get("uitkomsten", []) if u.get("soort") == "walk-forward" and "verschil_markt" in u]
 
 
 def _reg(exp: dict) -> dict:
@@ -609,6 +610,23 @@ def _exp_rij(reg, res, u) -> str:
                 f'<td title="{hyp}">{kort}</td>{cel}<td>{crit_txt}</td></tr>')
     h = u.get("helling")
     split = f"{jaren_label(u['train'])} → {u['test'][0]}"
+    if "verschil_naief" in u:  # E028: setstanden, vergelijking met een naïeve verdeling
+        d, se = u["verschil_naief"], u["verschil_se"]
+        oord = "binnen de ruis" if abs(d) <= 2 * se else ("beter dan naïef" if d < 0 else "slechter dan naïef")
+        cellen = [f'<td data-s="{e(split)}">{e(split)}</td>',
+                  f'<td data-s="{u["logloss_dp"]}" title="log-loss van de exacte setstand">{fmt(u["logloss_dp"])}</td>',
+                  f'<td data-s="{d}" title="set-DP − binomiaal (niet t.o.v. de markt)">{fmt_teken(d)} ± {fmt(se)} '
+                  "(vs naïef)</td>", f"<td>{e(oord)}</td>"] + [f"<td>{STREEP}</td>"] * 5
+        return (f"<tr{klasse}><td>{e(res['id'])}</td><td>{e(x.get('naam', res.get('model')))}{vlag}</td>"
+                f'<td title="{hyp}">{kort}</td>' + "".join(cellen) + f"<td>{crit_txt}</td></tr>")
+    if "kelly" in u:  # E027: inzetbeleid, zie de euro-simulatie
+        r1 = u["vast_1"] / u["bets"] if u["bets"] else None
+        cellen = [f'<td data-s="{e(split)}">{e(split)}</td>', f"<td>{STREEP}</td>",
+                  '<td><a href="#inzet">euro-simulatie</a></td>'] + [f"<td>{STREEP}</td>"] * 3 + [
+                  f'<td data-s="{u["bets"]}">{u["bets"]}</td>',
+                  f'<td data-s="{r1 if _getal(r1) else ""}">{pct(r1)}</td>', f"<td>{STREEP}</td>"]
+        return (f"<tr{klasse}><td>{e(res['id'])}</td><td>{e(x.get('naam', res.get('model')))}{vlag}</td>"
+                f'<td title="{hyp}">{kort}</td>' + "".join(cellen) + f"<td>{crit_txt}</td></tr>")
     cellen = [
         f'<td data-s="{e(split)}">{e(split)}</td>',
         f'<td data-s="{u["logloss"]}">{fmt(u["logloss"])}</td>',
@@ -618,7 +636,8 @@ def _exp_rij(reg, res, u) -> str:
         f'<td data-s="{h if _getal(h) else ""}">{fmt(h, 2)}</td>',
         f'<td data-s="{u["bets"]}">{u["bets"]}</td>',
         f'<td data-s="{u["roi"] if _getal(u.get("roi")) else ""}">{pct(u.get("roi"))}</td>',
-        f'<td>{_ci_tekst(u.get("roi_90"))}</td>',
+        f'<td>{_ci_tekst(u.get("roi_90"))}' + (f' <small>({u["clusters"]} cl.)</small>' if u.get("clusters") else "")
+        + "</td>",
     ]
     return (f"<tr{klasse}><td>{e(res['id'])}</td><td>{e(x.get('naam', res.get('model')))}{vlag}</td>"
             f'<td title="{hyp}">{kort}</td>' + "".join(cellen) + f"<td>{crit_txt}</td></tr>")
@@ -653,6 +672,102 @@ def sectie_experimenten(exp) -> str:
             "<h3>Walk-forward (hoofdresultaat)</h3>" + _exp_tabel(exp, "walk-forward")
             + "<details><summary>Vaste richtingen (ter vergelijking)</summary>" + _exp_tabel(exp, "richting")
             + "</details>")
+
+
+def sectie_werkwijze() -> str:
+    stappen = [
+        "<strong>Hypothese registreren.</strong> Vóór er iets draait, komen model, features, grid, hypothese en een "
+        "succescriterium in <code>experimenten/register.json</code>, en dat wordt gecommit.",
+        "<strong>Afstemmen op train.</strong> Hyperparameters, kalibratie, regularisatie en de wed-drempel worden "
+        "alleen op de trainjaren gekozen. Het testjaar blijft buiten beeld.",
+        "<strong>Eén keer toetsen.</strong> Het afgestemde model gaat ongewijzigd naar het testjaar (walk-forward: "
+        "2024 → 2025, 2024+2025 → 2026). Daar wordt het vergeleken met de markt.",
+        "<strong>Loggen.</strong> Elke run komt in <code>experimenten/runlog.jsonl</code>, ook mislukkingen, met een "
+        "vingerafdruk van het register, een hash van config en splits, en de git-commit.",
+        "<strong>Beslissen.</strong> Haalt het model het vooraf vastgelegde criterium, dan is het een kandidaat. Zo "
+        "niet, dan blijft de markt de maatstaf. Wordt er na het zien van testcijfers iets aangepast, dan komt dat "
+        "in <code>na_test_aangepast</code> en wordt het een nieuw experiment.",
+    ]
+    return ("<ol>" + "".join(f"<li>{x}</li>" for x in stappen) + "</ol>"
+            f'<p>Details: <a href="{REPO_URL}/blob/main/docs/protocol.md">docs/protocol.md</a> · kritische review '
+            f'van het kader: <a href="{REPO_URL}/blob/main/docs/review-ronde2.md">docs/review-ronde2.md</a>.</p>')
+
+
+def _inzet_res(exp):
+    if not exp:
+        return None
+    return next((r for r in exp["resultaten"] if r.get("model") == "inzet" and r.get("status") == "ok"), None)
+
+
+def sectie_inzet(exp) -> str:
+    """E027: ¼-Kelly en vaste inzet met weekbudget, in euro's, walk-forward."""
+    res = _inzet_res(exp)
+    if not res:
+        return '<p class="melding">E027 is nog niet gedraaid.</p>'
+    g = _reg(exp).get(res["id"], {}).get("grid", {})
+    us = sorted([u for u in res["uitkomsten"] if u.get("soort") == "walk-forward"], key=lambda u: u["test"][0])
+    rijen = []
+    for u in us:
+        k = u["kelly"]
+        rijen.append(f"<tr><td>WK {u['test'][0]}</td><td>{u['bets']}</td><td>¼-Kelly (start €{k['start']:.0f})</td>"
+                     f"<td>€{k['ingezet']:.2f}</td><td>€{k['winst']:+.2f}</td><td>€{k['max_drawdown']:.2f}</td>"
+                     f"<td>{STREEP}</td></tr>")
+        for w in u["weekbudget"]:
+            rijen.append(f"<tr><td>WK {u['test'][0]}</td><td>{w['bets']}"
+                         + (f" <small>({w['overgeslagen']} overgeslagen)</small>" if w["overgeslagen"] else "")
+                         + f"</td><td>€{w['inzet']:.0f} vast, max €{w['budget']:.0f}/week</td>"
+                         f"<td>€{w['ingezet']:.2f}</td><td>€{w['eind']:+.2f}</td><td>€{w['max_drawdown']:.2f}</td>"
+                         f"<td>{w['weken_budget_op']} van {len(w['weken'])}</td></tr>")
+    tabel = ('<div class="tabel-wrap"><table><thead><tr><th scope="col">Test</th><th scope="col">Bets</th>'
+             '<th scope="col">Beleid</th><th scope="col">Ingezet</th><th scope="col">Winst</th>'
+             '<th scope="col">Max. drawdown</th><th scope="col">Weken budget op</th></tr></thead><tbody>'
+             + "".join(rijen) + "</tbody></table></div>")
+    return ("<p>Dezelfde bets als E020 (marktblend, drempel op train) in euro's. Weken lopen van maandag tot en met "
+            f"zondag, op speeldatum. Bij vaste inzet gaat er hoogstens €{g.get('weekbudget', 50)} per week in; "
+            "past een bet niet meer in het budget, dan valt hij af. Dit zijn twee WK's, dus de winst is vooral ruis.</p>"
+            + tabel + svg_inzet_weken(us))
+
+
+def svg_inzet_weken(us: list[dict]) -> str:
+    """Cumulatieve winst per week voor elke vaste inzet; weken van WK 2025 en daarna WK 2026 achter elkaar."""
+    if not us or not us[0]["weekbudget"]:
+        return ""
+    reeksen = []
+    for i, w0 in enumerate(us[0]["weekbudget"]):
+        labels, waarden, som = [], [], 0.0
+        for u in us:
+            for wk in u["weekbudget"][i]["weken"]:
+                som += wk["winst"]
+                labels.append(wk["week"])
+                waarden.append(round(som, 2))
+        reeksen.append((f"€{w0['inzet']:.0f} vast", labels, waarden))
+    n = max(len(l) for _, l, _ in reeksen)
+    if not n:
+        return ""
+    alle = [0.0] + [v for _, _, l in reeksen for v in l]
+    lo, hi = min(alle), max(alle)
+    marge = (hi - lo) * 0.08 or 1
+    lo, hi = lo - marge, hi + marge
+    links, rechts, boven, onder, breedte, hoogte = 56, 20, 16, 52, 720, 280
+    x = _schaal(0, n, links, breedte - rechts)
+    y = _schaal(lo, hi, hoogte - onder, boven)
+    d = [f'<svg viewBox="0 0 {breedte} {hoogte}" role="img" aria-labelledby="iw-titel" class="grafiek">',
+         '<title id="iw-titel">Cumulatieve winst in euro per week bij vaste inzet met weekbudget, walk-forward.</title>']
+    for t in _ticks(lo, hi):
+        d.append(f'<line class="grid" x1="{links}" x2="{breedte - rechts}" y1="{y(t):.1f}" y2="{y(t):.1f}"/>')
+        d.append(f'<text class="as" x="{links - 6}" y="{y(t) + 4:.1f}" text-anchor="end">€{fmt(t, 0)}</text>')
+    for j, lab in enumerate(reeksen[0][1]):
+        d.append(f'<text class="as" x="{x(j + 1):.1f}" y="{hoogte - onder + 16}" text-anchor="middle">{e(lab[5:])}</text>')
+    d.append(f'<text class="as" x="{breedte - rechts}" y="{hoogte - 4}" text-anchor="end">week (maandag)</text>')
+    d.append(f'<line class="nul" x1="{links}" x2="{breedte - rechts}" y1="{y(0):.1f}" y2="{y(0):.1f}"/>')
+    legenda = []
+    for i, (label, labs, l) in enumerate(reeksen):
+        punten = " ".join(f"{x(j):.1f},{y(v):.1f}" for j, v in enumerate([0.0] + l))
+        d.append(f'<polyline class="lijn s{i + 1}" points="{punten}"><title>{e(label)}: eind €{l[-1]:+.2f}</title></polyline>')
+        legenda.append(f'<li><span class="sw s{i + 1}"></span><strong>{e(label)}</strong>: eind €{l[-1]:+.2f}</li>')
+    d.append("</svg>")
+    return ('<ul class="legenda lijst">' + "".join(legenda) + '</ul>\n<div class="grafiek-wrap">' + "\n".join(d)
+            + "</div>")
 
 
 def svg_delta(exp) -> str:
@@ -1049,6 +1164,9 @@ def sectie_bronnen() -> str:
             '<li><a href="https://dartsorakel.com/">Dartsorakel</a>: spelersstatistieken en eventuitslagen '
             "(niet herverspreid)</li>"
             f'<li><a href="{REPO_URL}/blob/main/docs/review-claude.md">Review (docs/review-claude.md)</a></li>'
+            f'<li><a href="{REPO_URL}/blob/main/docs/onderzoek-odds-en-toto.md">Onderzoek odds-API\'s en '
+            "TOTO-voorwaarden (docs/onderzoek-odds-en-toto.md)</a></li>"
+            f'<li><a href="{REPO_URL}/blob/main/docs/review-ronde2.md">Review ronde 2 (docs/review-ronde2.md)</a></li>'
             "</ul>")
 
 
@@ -1070,8 +1188,8 @@ def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | N
     protocol_html = (markdown_html(protocol) if protocol else
                      '<p class="melding">docs/protocol.md niet gevonden.</p>')
     nav = "".join(f'<a href="#{i}">{t}</a>' for i, t in (
-        ("samenvatting", "Samenvatting"), ("experimenten", "Experimenten"), ("vergelijking", "Vergelijking"),
-        ("kalibratie", "Kalibratie"), ("roi", "ROI"), ("protocol", "Protocol"), ("ideeen", "Ideeën"),
+        ("samenvatting", "Samenvatting"), ("werkwijze", "Werkwijze"), ("experimenten", "Experimenten"),
+        ("vergelijking", "Vergelijking"), ("kalibratie", "Kalibratie"), ("roi", "ROI"), ("inzet", "Inzet in €"), ("protocol", "Protocol"), ("ideeen", "Ideeën"),
         ("roadmap", "Roadmap"), ("live", "Live"), ("sentiment", "Sentiment"), ("bronnen", "Bronnen")))
     return f"""<!DOCTYPE html>
 <html lang="nl">
@@ -1100,6 +1218,11 @@ def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | N
 {sectie_samenvatting(experimenten)}
 </section>
 
+<section id="werkwijze">
+<h2>Hoe we een model verbeteren (werkwijze)</h2>
+{sectie_werkwijze()}
+</section>
+
 <section id="experimenten">
 <h2>Experimenten</h2>
 {sectie_experimenten(experimenten)}
@@ -1118,6 +1241,11 @@ def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | N
 <section id="roi">
 <h2>Winstverloop (ROI-curves)</h2>
 {svg_roi_curves(experimenten)}
+</section>
+
+<section id="inzet">
+<h2>Inzetbeleid in euro's (E027)</h2>
+{sectie_inzet(experimenten)}
 </section>
 
 <section id="protocol">
@@ -1176,7 +1304,7 @@ train-jaren.</p>
 
 <footer>
 <p>{e(DISCLAIMER)}</p>
-<p>Gegenereerd op {e(nu.strftime("%Y-%m-%d %H:%M %Z").strip())} · {commit} ·
+<p>Laatst bijgewerkt: {e(nu.strftime("%Y-%m-%d %H:%M %Z").strip())} · {commit} ·
 <a href="data.json">data.json</a></p>
 </footer>
 </main>

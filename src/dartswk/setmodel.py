@@ -59,6 +59,29 @@ def wedstrijd_kans(hold_a: float, hold_b: float, n: int) -> float:
     return 0.5 * (g(True) + g(False))
 
 
+def setstand_verdeling(hold_a: float, hold_b: float, n: int) -> dict[tuple[int, int], float]:
+    """Kans op elke eindstand in sets (sa, sb), first to n sets, gemiddeld over wie de bull wint."""
+    pa, pb = hold_a, 1 - hold_b
+    uit: dict = {}
+    for a_eerst in (True, False):
+        kans = {(0, 0): 1.0}
+        for totaal in range(2 * n - 1):
+            for sa in range(totaal + 1):
+                sb = totaal - sa
+                p = kans.pop((sa, sb), 0.0)
+                if not p or sa >= n or sb >= n:
+                    if p:
+                        kans[(sa, sb)] = p
+                    continue
+                a_begint = a_eerst if totaal % 2 == 0 else not a_eerst
+                ps = set_kans(pa, pb, a_begint, sa == n - 1 and sb == n - 1)
+                kans[(sa + 1, sb)] = kans.get((sa + 1, sb), 0.0) + p * ps
+                kans[(sa, sb + 1)] = kans.get((sa, sb + 1), 0.0) + p * (1 - ps)
+        for k, v in kans.items():
+            uit[k] = uit.get(k, 0.0) + 0.5 * v
+    return uit
+
+
 def hold_kansen(x: float, hold: float) -> tuple[float, float]:
     """Hold-kansen van A en B bij sterkteverschil x (logit-schaal) en basis-holdkans `hold`."""
     h = math.log(hold / (1 - hold))

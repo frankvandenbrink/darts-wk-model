@@ -20,7 +20,10 @@ Dit protocol geldt voor alles wat via `dartswk experimenten` draait. Het registe
    (rating, Elo, Glicko) gebruikt alleen events met datum strikt vóór de WK-start (asserts in `events`,
    `rating.fit_bt` en `experimenten.elo_ratings`). In-wedstrijd-averages worden nooit gebruikt.
 6. **Alles wordt gelogd**, ook mislukkingen en experimenten die niet gedraaid konden worden (bijvoorbeeld GBM
-   zonder sklearn). De log bewaart een vingerafdruk van hypothese, criterium, model, features en grid.
+   zonder sklearn). De log bewaart een vingerafdruk van hypothese, criterium, model, features en grid. Sinds ronde 2 (zie
+   [docs/review-ronde2.md](review-ronde2.md)) ook een hash `context` van splits, config-grids, drempels, hold en
+   bootstrap, de git-commit en of `register.json` tijdens de run niet-gecommitte wijzigingen had. Een gewijzigde
+   context na de eerste run geeft ook een protocolwaarschuwing; `na_test_aangepast: true` vraagt een toelichting.
 7. **Aanpassen na het zien van testcijfers mag, maar moet gemeld worden** in `na_test_aangepast`
    (`waarde: true` en een toelichting). Verandert de vingerafdruk na een eerdere run zonder die melding, dan
    krijgt het resultaat een protocolwaarschuwing.
@@ -35,7 +38,8 @@ Dit protocol geldt voor alles wat via `dartswk experimenten` draait. Het registe
 - kalibratiehelling: c in logit P(winst) = c·logit(p) (1 = goed, < 1 = te stellig);
 - kalibratiebins: 5 bins op de kans van de favoriet volgens het model (0.5–1.0), met gemiddelde kans,
   werkelijke frequentie en aantal;
-- aantal bets, ROI bij inzet 1 met 90%-interval (bootstrap die per (jaar, ronde) resamplet), en het
+- aantal bets, ROI bij inzet 1 met 90%-interval (bootstrap die per (jaar, ronde) resamplet, met het aantal
+  clusters erbij: een WK heeft hoogstens 7 rondes, dus het interval is grof), en het
   cumulatieve winstverloop per bet (`verloop`).
 
 ## Waarom deze keuzes
