@@ -189,6 +189,50 @@ Marktkans (proportioneel) → legverschil → exacte set-DP, tegen een binomiale
 | 2025 → 2024 | richting | 94 | 1.7169 | 1.7124 | +0.0045 (0.0027) | 0.5698 |
 | 2025+2026 → 2024 | richting | 94 | 1.7169 | 1.7124 | +0.0045 (0.0027) | 0.5698 |
 
+## E029: correct score, Correct score: basis-holdkans afgestemd op train
+
+Parameter gekozen op train (log-loss van de setstand); getoetst tegen de basis (set-DP, hold 0,60, σ 0).
+
+| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |
+|---|---|---|---|---|---|---|
+| 2024 → 2025 | walk-forward | 94 | hold 0.5, σ 0.0 | 1.8508 | 1.8514 | -0.0006 (0.0005) |
+| 2024+2025 → 2026 | walk-forward | 126 | hold 0.5, σ 0.0 | 1.6988 | 1.7001 | -0.0013 (0.0004) |
+| 2026 → 2025 | richting | 94 | hold 0.5, σ 0.0 | 1.8508 | 1.8514 | -0.0006 (0.0005) |
+| 2025 → 2026 | richting | 126 | hold 0.5, σ 0.0 | 1.6988 | 1.7001 | -0.0013 (0.0004) |
+| 2025 → 2024 | richting | 94 | hold 0.5, σ 0.0 | 1.7159 | 1.7169 | -0.0009 (0.0005) |
+| 2025+2026 → 2024 | richting | 94 | hold 0.5, σ 0.0 | 1.7159 | 1.7169 | -0.0009 (0.0005) |
+
+## E030: correct score, Correct score: dagvorm-spreiding
+
+Parameter gekozen op train (log-loss van de setstand); getoetst tegen de basis (set-DP, hold 0,60, σ 0).
+
+| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |
+|---|---|---|---|---|---|---|
+| 2024 → 2025 | walk-forward | 94 | hold 0.6, σ 0.3 | 1.8415 | 1.8514 | -0.0099 (0.0174) |
+| 2024+2025 → 2026 | walk-forward | 126 | hold 0.6, σ 0.3 | 1.6674 | 1.7001 | -0.0326 (0.0151) |
+| 2026 → 2025 | richting | 94 | hold 0.6, σ 0.4 | 1.8492 | 1.8514 | -0.0022 (0.0268) |
+| 2025 → 2026 | richting | 126 | hold 0.6, σ 0.3 | 1.6674 | 1.7001 | -0.0326 (0.0151) |
+| 2025 → 2024 | richting | 94 | hold 0.6, σ 0.3 | 1.6960 | 1.7169 | -0.0209 (0.0176) |
+| 2025+2026 → 2024 | richting | 94 | hold 0.6, σ 0.3 | 1.6960 | 1.7169 | -0.0209 (0.0176) |
+
+## E031: correct score, meest waarschijnlijke setstand
+
+ROI bij inzet 1 tegen odds 1/(kans·(1+marge)). Niets afgestemd, dus train speelt geen rol.
+
+| Test | n | Raak | Trefkans (verwacht) | Gem. eerlijke odd | ROI marge 0% | ROI marge 5% | ROI marge 10% | ROI marge 15% | ROI marge 20% | ROI marge 25% | 90%-int. ROI eerlijk |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2025 | 94 | 20 | 21.3% (26.0%) | 4.13 | -12.4% | -16.6% | -20.3% | -23.8% | -27.0% | -29.9% | [-35.3%, +23.6%] |
+| 2026 | 126 | 35 | 27.8% (27.8%) | 3.94 | -2.1% | -6.8% | -11.0% | -14.9% | -18.4% | -21.7% | [-26.5%, +13.4%] |
+| 2024 | 94 | 38 | 40.4% (26.1%) | 4.11 | +49.9% | +42.8% | +36.3% | +30.3% | +24.9% | +19.9% | [+7.0%, +65.5%] |
+
+Uitslagtypen (verwacht volgens het model / werkelijk), per testjaar:
+
+| Test | fav 3-0 | fav 3-1 | fav 3-2 | fav 4-0 | fav 4-1 | fav 4-2 | fav 4-3 | fav 5-0 | fav 5-1 | fav 5-2 | fav 5-3 | fav 5-4 | fav 6-0 | fav 6-1 | fav 6-2 | fav 6-3 | fav 6-4 | fav 6-5 | fav 7-0 | fav 7-1 | fav 7-2 | fav 7-3 | fav 7-4 | fav 7-5 | fav 7-6 | und 3-0 | und 3-1 | und 3-2 | und 4-0 | und 4-1 | und 4-2 | und 4-3 | und 5-0 | und 5-1 | und 5-2 | und 5-3 | und 5-4 | und 6-0 | und 6-1 | und 6-2 | und 6-3 | und 6-4 | und 6-5 | und 7-0 | und 7-1 | und 7-2 | und 7-3 | und 7-4 | und 7-5 | und 7-6 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2025 | 16.3 / 14 | 17.0 / 16 | 12.7 / 6 | 3.2 / 4 | 4.9 / 3 | 4.7 / 4 | 3.9 / 5 | 0.3 / 0 | 0.6 / 0 | 0.7 / 2 | 0.7 / 2 | 0.6 / 0 | 0.1 / 0 | 0.2 / 2 | 0.3 / 0 | 0.3 / 0 | 0.3 / 0 | 0.2 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 1 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 3.5 / 8 | 6.3 / 15 | 7.2 / 4 | 0.7 / 1 | 1.6 / 2 | 2.3 / 2 | 2.6 / 3 | 0.1 / 0 | 0.2 / 0 | 0.3 / 0 | 0.4 / 0 | 0.4 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.2 / 0 | 0.0 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 |
+| 2026 | 25.7 / 32 | 25.6 / 25 | 18.6 / 11 | 3.5 / 4 | 5.0 / 6 | 4.7 / 4 | 3.8 / 3 | 0.3 / 1 | 0.6 / 0 | 0.7 / 2 | 0.6 / 0 | 0.5 / 0 | 0.1 / 0 | 0.2 / 1 | 0.3 / 0 | 0.3 / 1 | 0.3 / 0 | 0.2 / 0 | 0.0 / 0 | 0.1 / 1 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 5.2 / 9 | 9.3 / 8 | 10.6 / 10 | 0.7 / 1 | 1.6 / 2 | 2.3 / 2 | 2.5 / 2 | 0.1 / 0 | 0.2 / 1 | 0.3 / 0 | 0.4 / 0 | 0.4 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.0 / 0 | 0.0 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 |
+| 2024 | 16.3 / 19 | 17.2 / 21 | 13.0 / 8 | 3.1 / 4 | 4.7 / 5 | 4.6 / 5 | 3.7 / 3 | 0.3 / 0 | 0.6 / 2 | 0.7 / 0 | 0.7 / 0 | 0.5 / 0 | 0.1 / 1 | 0.2 / 0 | 0.3 / 1 | 0.3 / 0 | 0.3 / 0 | 0.2 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 1 | 0.1 / 0 | 0.1 / 0 | 3.6 / 4 | 6.5 / 7 | 7.4 / 5 | 0.7 / 0 | 1.5 / 2 | 2.2 / 2 | 2.4 / 2 | 0.1 / 0 | 0.1 / 0 | 0.2 / 0 | 0.3 / 1 | 0.3 / 1 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.2 / 0 | 0.2 / 0 | 0.0 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 |
+
 ## Hypothesen, criteria en beoordeling
 
 ### E001: Markt (proportioneel)
@@ -384,6 +428,27 @@ Marktkans (proportioneel) → legverschil → exacte set-DP, tegen een binomiale
 
 - Hypothese (2026-10-29): De exacte set-DP (wisselende beginner, beslissende set) geeft een lagere log-loss op de exacte setstand dan een binomiale setverdeling met dezelfde wedstrijdkans, maar het verschil is klein.
 - Criterium: log-loss van de setstand (DP) lager dan naïef in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se → niet gehaald (WK2025: -0.0035 (se 0.0028); WK2026: +0.0058 (se 0.0024))
+- Na test aangepast: nee
+- Status: ok
+
+### E029: Correct score: basis-holdkans afgestemd op train
+
+- Hypothese (2026-10-29): Een op train afgestemde basis-holdkans verandert de log-loss van de exacte setstand t.o.v. hold 0,60 met minder dan 1 se; de wedstrijdkans ligt vast door de markt, dus hold verschuift alleen de verdeling binnen winst en verlies een beetje.
+- Criterium: log-loss van de setstand lager dan de basis (set-DP, hold 0,60, σ 0, zoals E028) in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se → **gehaald** (WK2025: -0.0006 (se 0.0005); WK2026: -0.0013 (se 0.0004))
+- Na test aangepast: nee
+- Status: ok
+
+### E030: Correct score: dagvorm-spreiding
+
+- Hypothese (2026-10-29): Spelers hebben goede en slechte dagen: legs binnen een wedstrijd zijn niet onafhankelijk. Een normaal verdeeld legverschil per wedstrijd (σ op train, d0 zo dat de wedstrijdkans gelijk blijft aan de markt) geeft vaker 3-0's en verlaagt de setstand-log-loss t.o.v. σ = 0 met meer dan 1 se in beide testjaren.
+- Criterium: log-loss van de setstand lager dan de basis (set-DP, hold 0,60, σ 0, zoals E028) in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se → niet gehaald (WK2025: -0.0099 (se 0.0174); WK2026: -0.0326 (se 0.0151))
+- Na test aangepast: nee
+- Status: ok
+
+### E031: Correct score: strategie 'meest waarschijnlijke setstand' en break-even-marge
+
+- Hypothese (2026-10-29): Wie elke wedstrijd de meest waarschijnlijke setstand kiest, raakt in R1/R2 (first to 3) zo'n 30-40% en in latere rondes minder. Tegen eerlijke odds (1/kans) is de ROI rond 0; bij de gebruikelijke correct-score-marges van 15-25% is de ROI duidelijk negatief. Het model heeft alleen de markt als input, dus het vindt geen structurele waarde.
+- Criterium: beschrijvend: trefkans, ROI tegen eerlijke odds en tegen odds met marge, kalibratie per uitslagtype (geen toets) → n.v.t. (geen toetsbaar criterium (controle of beschrijvend))
 - Na test aangepast: nee
 - Status: ok
 

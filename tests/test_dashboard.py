@@ -244,6 +244,31 @@ def test_inzet_setstand_werkwijze(bd, resultaten, tmp_path):
     bd.main(["--resultaten", str(resultaten), "--uit", str(uit)])
     pagina = (uit / "index.html").read_text(encoding="utf-8")
     _controleer_html(pagina)
-    assert "iw-titel" in pagina and "€5 vast" in pagina and "(vs naïef)" in pagina
+    assert "iw-titel" in pagina and "€5 vast" in pagina and "(vs basis)" in pagina
     assert "blob/main/docs/review-ronde2.md" in pagina and "blob/main/docs/onderzoek-odds-en-toto.md" in pagina
     assert 'id="werkwijze"' in pagina and "Laatst bijgewerkt" in pagina
+
+
+def test_correct_score_sectie(bd, resultaten, tmp_path):
+    exp = _experimenten()
+    exp["register"] += [{"id": i, "naam": i, "model": m, "hypothese": "h", "na_test_aangepast": {"waarde": False}}
+                        for i, m in (("E030", "cs-dagvorm"), ("E031", "cs-strategie"))]
+    roi = {"0": -0.1, "0.25": -0.3}
+    exp["resultaten"] += [
+        {"id": "E030", "model": "cs-dagvorm", "status": "ok", "beoordeling": {"succes": False}, "uitkomsten": [
+            {"train": [2024], "test": [2025], "soort": "walk-forward", "n": 94, "gekozen": {"hold": 0.6, "sigma": 0.3},
+             "logloss_dp": 1.84, "logloss_naief": 1.85, "verschil_naief": -0.01, "verschil_se": 0.017,
+             "basis": "set-DP hold 0,60"}]},
+        {"id": "E031", "model": "cs-strategie", "status": "ok", "beoordeling": {"succes": None}, "uitkomsten": [
+            {"train": [2024], "test": [2025], "soort": "walk-forward", "roi_90_eerlijk": [-0.35, 0.24],
+             "totaal": {"n": 94, "raak": 20, "trefkans": 0.213, "verwachte_trefkans": 0.26, "gem_eerlijke_odd": 4.13,
+                        "roi": roi, "keuzes": {"fav 3-1": 50}},
+             "uitslagtypen": {"fav 3-2": {"verwacht": 12.7, "echt": 6}}}]}]
+    _schrijf(resultaten / "experimenten.json", exp)
+    uit = tmp_path / "site"
+    bd.main(["--resultaten", str(resultaten), "--uit", str(uit)])
+    pagina = (uit / "index.html").read_text(encoding="utf-8")
+    _controleer_html(pagina)
+    assert 'id="correct-score"' in pagina and 'href="#correct-score"' in pagina
+    assert "21.3% (26.0%)" in pagina and "fav 3-2" in pagina and "dartswk cs-odds" in pagina
+    assert "6.61" in pagina  # eerlijke odd 3-0 bij 50%, σ 0,3

@@ -10,6 +10,7 @@ on:
       - "inhoud/**"
       - "docs/**"
       - "experimenten/**"
+      - "src/dartswk/correctscore.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -30,6 +31,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: numpy (voor de correct-score-oddstabel)
+        run: pip install numpy
       - name: Dashboard bouwen
         run: python scripts/bouw_dashboard.py
       - uses: actions/configure-pages@v5

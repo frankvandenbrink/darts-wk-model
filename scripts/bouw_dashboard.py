@@ -610,13 +610,24 @@ def _exp_rij(reg, res, u) -> str:
                 f'<td title="{hyp}">{kort}</td>{cel}<td>{crit_txt}</td></tr>')
     h = u.get("helling")
     split = f"{jaren_label(u['train'])} → {u['test'][0]}"
-    if "verschil_naief" in u:  # E028: setstanden, vergelijking met een naïeve verdeling
+    if "verschil_naief" in u:  # E028–E030: setstanden, vergelijking met een basisverdeling (niet de markt)
         d, se = u["verschil_naief"], u["verschil_se"]
-        oord = "binnen de ruis" if abs(d) <= 2 * se else ("beter dan naïef" if d < 0 else "slechter dan naïef")
+        basis = u.get("basis") or "binomiaal"
+        oord = "binnen de ruis" if abs(d) <= 2 * se else ("beter dan basis" if d < 0 else "slechter dan basis")
         cellen = [f'<td data-s="{e(split)}">{e(split)}</td>',
                   f'<td data-s="{u["logloss_dp"]}" title="log-loss van de exacte setstand">{fmt(u["logloss_dp"])}</td>',
-                  f'<td data-s="{d}" title="set-DP − binomiaal (niet t.o.v. de markt)">{fmt_teken(d)} ± {fmt(se)} '
-                  "(vs naïef)</td>", f"<td>{e(oord)}</td>"] + [f"<td>{STREEP}</td>"] * 5
+                  f'<td data-s="{d}" title="model − basis: {e(basis)} (niet t.o.v. de markt)">{fmt_teken(d)} ± {fmt(se)} '
+                  "(vs basis)</td>", f"<td>{e(oord)}</td>"] + [f"<td>{STREEP}</td>"] * 5
+        return (f"<tr{klasse}><td>{e(res['id'])}</td><td>{e(x.get('naam', res.get('model')))}{vlag}</td>"
+                f'<td title="{hyp}">{kort}</td>' + "".join(cellen) + f"<td>{crit_txt}</td></tr>")
+    if "totaal" in u and "uitslagtypen" in u:  # E031: correct score, zie de sectie
+        t = u["totaal"]
+        r0 = t["roi"].get("0")
+        cellen = [f'<td data-s="{e(split)}">{e(split)}</td>', f"<td>{STREEP}</td>",
+                  '<td><a href="#correct-score">correct score</a></td>'] + [f"<td>{STREEP}</td>"] * 3 + [
+                  f'<td data-s="{t["n"]}">{t["n"]}</td>',
+                  f'<td data-s="{r0 if _getal(r0) else ""}" title="ROI tegen eerlijke odds">{pct(r0)}</td>',
+                  f"<td>{STREEP}</td>"]
         return (f"<tr{klasse}><td>{e(res['id'])}</td><td>{e(x.get('naam', res.get('model')))}{vlag}</td>"
                 f'<td title="{hyp}">{kort}</td>' + "".join(cellen) + f"<td>{crit_txt}</td></tr>")
     if "kelly" in u:  # E027: inzetbeleid, zie de euro-simulatie
@@ -726,6 +737,128 @@ def sectie_inzet(exp) -> str:
             f"zondag, op speeldatum. Bij vaste inzet gaat er hoogstens €{g.get('weekbudget', 50)} per week in; "
             "past een bet niet meer in het budget, dan valt hij af. Dit zijn twee WK's, dus de winst is vooral ruis.</p>"
             + tabel + svg_inzet_weken(us))
+
+
+CS_KANSEN = (0.5, 0.6, 0.7, 0.8, 0.9)
+
+
+def _cs_res(exp, id_: str):
+    for r in (exp or {}).get("resultaten", []):
+        if r.get("id") == id_ and r.get("status") == "ok":
+            return r
+    return None
+
+
+def _per_testjaar(res) -> list[dict]:
+    """Eén uitkomst per testjaar (walk-forward eerst), chronologisch."""
+    gezien = {}
+    for u in sorted(res.get("uitkomsten", []), key=lambda u: u.get("soort") != "walk-forward"):
+        gezien.setdefault(u["test"][0], u)
+    return [gezien[j] for j in sorted(gezien)]
+
+
+def tabel_cs_odds(n: int, sigma: float = 0.3, hold: float = 0.6) -> str:
+    """Generieke eerlijke odds per setstand voor een paar wedstrijdkansen (geen odds per wedstrijd)."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+        from dartswk import correctscore as cs
+    except Exception as fout:  # pragma: no cover
+        return f'<p class="melding">Odds-tabel niet beschikbaar: {e(fout)}</p>'
+    st = [f"{a}-{b}" for a, b in cs.standen(n)]
+    rijen = []
+    for p in CS_KANSEN:
+        o = cs.eerlijke_odds(p, n, hold, sigma)
+        rijen.append(f"<tr><td>{p:.0%}</td>" + "".join(f"<td>{o[k]:.2f}</td>" for k in st) + "</tr>")
+    kop = "".join(f"<th>{k}</th>" for k in st)
+    return (f'<div class="tabelwrap"><table><thead><tr><th>Kans fav. wint</th>{kop}</tr></thead>'
+            f'<tbody>{"".join(rijen)}</tbody></table></div>')
+
+
+def sectie_correct_score(exp) -> str:
+    delen = ["""<p>Frank wil graag op de exacte setstand wedden (TOTO biedt bij darts 'Correct Score' in sets).
+Het model zet de marktkans (marge eraf) om in een legkans en daarmee in een verdeling over alle setstanden, met de
+PDC-regels: sets tot 3 legs, beslissende set met 2 legs verschil en sudden death bij 5-5. Optioneel 'dagvorm':
+het legverschil schommelt per wedstrijd (normaal verdeeld, spreiding σ), wat whitewashes waarschijnlijker maakt.
+Historische correct-score-odds hebben we niet, dus de ROI hieronder rekent met <em>eerlijke odds</em> min een
+aangenomen bookmakermarge, niet met echte TOTO-odds.</p>"""]
+    rij = []
+    for id_ in ("E029", "E030"):
+        r = _cs_res(exp, id_)
+        if not r:
+            continue
+        for u in _per_testjaar(r):
+            g = u.get("gekozen") or {}
+            rij.append(f"<tr><td>{id_}</td><td>{e(jaren_label(u['train']))} → {u['test'][0]}</td>"
+                       f"<td>{e(u.get('soort', ''))}</td><td>hold {g.get('hold')}, σ {g.get('sigma')}</td>"
+                       f"<td>{fmt(u['logloss_dp'])}</td><td>{fmt(u['logloss_naief'])}</td>"
+                       f"<td>{fmt_teken(u['verschil_naief'])} ± {fmt(u['verschil_se'])}</td></tr>")
+    if rij:
+        delen.append("<h3>Welke verdeling past het best? (log-loss van de setstand, lager is beter)</h3>"
+                     '<div class="tabelwrap"><table><thead><tr><th>Exp.</th><th>Train → test</th><th>Soort</th>'
+                     "<th>Gekozen op train</th><th>Model</th><th>Basis (hold 0,60, σ 0)</th><th>Verschil</th>"
+                     f'</tr></thead><tbody>{"".join(rij)}</tbody></table></div>'
+                     "<p>E029 (holdkans) haalt het criterium formeel, maar de winst is ongeveer 0,001: praktisch "
+                     "niets, en de gekozen waarde ligt op de rand van het rooster. E030 (dagvorm, steeds σ 0,3 "
+                     "gekozen) wint in alle splits, in WK 2026 ruim 2 se, maar in WK 2025 binnen de ruis: "
+                     "criterium niet gehaald. Toch gebruiken we σ 0,3 als standaard voor de odds hieronder.</p>")
+    r = _cs_res(exp, "E031")
+    if r:
+        us = _per_testjaar(r)
+        marges = sorted({m for u in us for m in u["totaal"]["roi"]}, key=float)
+        kop = "".join(f"<th>ROI marge {float(m):.0%}</th>" for m in marges)
+        rijen = []
+        n_tot = sum(u["totaal"]["n"] for u in us)
+        for u in us:
+            t = u["totaal"]
+            rijen.append(f"<tr><td>WK {u['test'][0]}</td><td>{t['n']}</td><td>{t['raak']}</td>"
+                         f"<td>{t['trefkans']:.1%} ({t['verwachte_trefkans']:.1%})</td>"
+                         f"<td>{fmt(t['gem_eerlijke_odd'], 2)}</td>"
+                         + "".join(f"<td>{pct(t['roi'][m])}</td>" for m in marges)
+                         + f"<td>{interval(u.get('roi_90_eerlijk'))}</td></tr>")
+        if n_tot:
+            raak = sum(u["totaal"]["raak"] for u in us)
+            rijen.append(f"<tr><td><strong>Samen</strong></td><td>{n_tot}</td><td>{raak}</td>"
+                         f"<td>{raak / n_tot:.1%}</td><td>{STREEP}</td>"
+                         + "".join(f"<td>{pct(sum(u['totaal']['roi'][m] * u['totaal']['n'] for u in us) / n_tot)}</td>"
+                                   for m in marges) + f"<td>{STREEP}</td></tr>")
+        delen.append("<h3>Strategie: altijd de meest waarschijnlijke setstand (E031, inzet 1)</h3>"
+                     '<div class="tabelwrap"><table><thead><tr><th>Test</th><th>n</th><th>Raak</th>'
+                     "<th>Trefkans (verwacht)</th><th>Gem. eerlijke odd</th>" + kop +
+                     f'<th>90%-int. ROI eerlijk</th></tr></thead><tbody>{"".join(rijen)}</tbody></table></div>'
+                     "<p>Bijna altijd is dat 'favoriet 3-1' of 'favoriet 3-0' (bij langere formats 4-1/4-2). "
+                     "De winst komt helemaal uit WK 2024; 2025 en 2026 zijn negatief. Bij een realistische "
+                     "correct-score-marge van 15–25% is het samen −4% tot −12%.</p>")
+        ve, ec = {}, {}
+        for u in us:
+            for k, t in u["uitslagtypen"].items():
+                ve[k] = ve.get(k, 0) + t["verwacht"]
+                ec[k] = ec.get(k, 0) + t["echt"]
+        sl = [k for k in ("fav 3-0", "fav 3-1", "fav 3-2", "und 3-2", "und 3-1", "und 3-0",
+                          "fav 4-0", "fav 4-1", "fav 4-2", "fav 4-3", "und 4-3", "und 4-2", "und 4-1", "und 4-0")
+              if k in ve]
+        if sl:
+            delen.append("<h3>Kalibratie per uitslagtype (alle testjaren samen, σ 0)</h3>"
+                         '<div class="tabelwrap"><table><thead><tr><th>Uitslag</th><th>Verwacht</th><th>Echt</th>'
+                         "</tr></thead><tbody>" + "".join(
+                             f"<tr><td>{e(k)}</td><td>{ve[k]:.1f}</td><td>{ec[k]}</td></tr>" for k in sl)
+                         + "</tbody></table></div>"
+                         "<p>Opvallend: in 'first to 3' eindigt het veel minder vaak in 3-2 dan het model met "
+                         "vaste legkansen zegt, en vaker in een whitewash (3-0 of 0-3). Dat past bij dagvorm. "
+                         "Bij 'first to 4' klopt het model goed.</p>")
+    delen.append("<h3>Eerlijke odds per setstand (σ 0,3, hold 0,60)</h3>"
+                 "<p>Algemene tabel, geen odds per wedstrijd. Linkergetal = sets favoriet.</p>"
+                 "<h4>Ronde 1 en 2 (first to 3)</h4>" + tabel_cs_odds(3)
+                 + "<h4>Ronde 3 en 4 (first to 4)</h4>" + tabel_cs_odds(4)
+                 + "<p>Voor een concrete wedstrijd: <code>dartswk cs-odds 1.40 2.90 --sets 3 --sigma 0.3</code> "
+                   "geeft per setstand de kans, de eerlijke odd en de minimale odd (eerlijk + 10%).</p>")
+    delen.append("""<h3>Advies</h3><ul>
+<li>Geen bewezen voorsprong: correct score is vooral een leuke gok met een hogere marge dan winnaar-markten.</li>
+<li>Alleen spelen als de TOTO-odd minstens 10% boven de eerlijke odd (σ 0,3) ligt; in first to 3 vooral bij
+whitewashes kijken, 3-2 niet spelen.</li>
+<li>Kleine vaste inzet (€1–2), samen hooguit €10 per week binnen het budget van €50, en elke bet pas na akkoord.</li>
+<li>Eerst in de eerste WK-week de TOTO-odds handmatig noteren (papieren test), zodat we de echte marge kennen.</li>
+</ul>""")
+    return "\n".join(delen)
 
 
 def svg_inzet_weken(us: list[dict]) -> str:
@@ -1189,7 +1322,7 @@ def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | N
                      '<p class="melding">docs/protocol.md niet gevonden.</p>')
     nav = "".join(f'<a href="#{i}">{t}</a>' for i, t in (
         ("samenvatting", "Samenvatting"), ("werkwijze", "Werkwijze"), ("experimenten", "Experimenten"),
-        ("vergelijking", "Vergelijking"), ("kalibratie", "Kalibratie"), ("roi", "ROI"), ("inzet", "Inzet in €"), ("protocol", "Protocol"), ("ideeen", "Ideeën"),
+        ("vergelijking", "Vergelijking"), ("kalibratie", "Kalibratie"), ("roi", "ROI"), ("inzet", "Inzet in €"), ("correct-score", "Correct score"), ("protocol", "Protocol"), ("ideeen", "Ideeën"),
         ("roadmap", "Roadmap"), ("live", "Live"), ("sentiment", "Sentiment"), ("bronnen", "Bronnen")))
     return f"""<!DOCTYPE html>
 <html lang="nl">
@@ -1246,6 +1379,11 @@ def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | N
 <section id="inzet">
 <h2>Inzetbeleid in euro's (E027)</h2>
 {sectie_inzet(experimenten)}
+</section>
+
+<section id="correct-score">
+<h2>Correct score: exacte setstand (E029–E031)</h2>
+{sectie_correct_score(experimenten)}
 </section>
 
 <section id="protocol">

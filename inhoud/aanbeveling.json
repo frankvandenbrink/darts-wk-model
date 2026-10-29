@@ -8,6 +8,7 @@
   "Dus: nog geen echt geld inzetten op basis van het model. Eerst een papieren test: in november bij elke PDC-wedstrijd die we volgen vooraf de kans vastleggen en de odd handmatig loggen.",
   "Wil Frank tijdens het WK toch voor de leuk wedden: kleine vaste inzetten van €2 tot €5 per bet, binnen het weekbudget van €50, alleen als eigen kans × odd > 1,05 en alleen na Franks akkoord per bet.",
   "Stopregel: is het weekbudget op, dan stoppen we die week. Staan we na ronde 2 meer dan €50 in totaal achter, of ligt de log-loss van het model na 64 wedstrijden boven die van de markt, dan pauzeren we de modelbets en loggen we alleen nog.",
-  "Verder werken: meer toetsdata (andere PDC-toernooien met rechtmatig verkregen odds), betere ratingdata, en elke nieuwe poging eerst in het register zetten met hypothese en criterium."
+  "Verder werken: meer toetsdata (andere PDC-toernooien met rechtmatig verkregen odds), betere ratingdata, en elke nieuwe poging eerst in het register zetten met hypothese en criterium.",
+  "Correct score (E029–E031, zie #correct-score): geen bewezen voorsprong. Dagvorm (σ 0,3) beschrijft de setstanden beter: in first to 3 komt 3-2 veel minder vaak voor dan gedacht, whitewashes vaker. Alleen voor de lol: €1–2 per bet, alleen als de TOTO-odd ≥ eerlijke odd + 10% (dartswk cs-odds), na Franks akkoord."
  ]
 }

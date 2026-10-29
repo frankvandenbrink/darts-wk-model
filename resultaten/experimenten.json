@@ -933,6 +933,104 @@
     "toelichting": ""
    },
    "test_vooraf_bekend": false
+  },
+  {
+   "id": "E029",
+   "naam": "Correct score: basis-holdkans afgestemd op train",
+   "datum": "2026-10-29",
+   "soort": "setstand",
+   "model": "cs-hold",
+   "features": [
+    "marktkans (proportioneel) omgezet naar legkans"
+   ],
+   "grid": {
+    "hold": [
+     0.5,
+     0.55,
+     0.6,
+     0.65,
+     0.7,
+     0.75
+    ],
+    "sigma": 0.0
+   },
+   "hypothese": "Een op train afgestemde basis-holdkans verandert de log-loss van de exacte setstand t.o.v. hold 0,60 met minder dan 1 se; de wedstrijdkans ligt vast door de markt, dus hold verschuift alleen de verdeling binnen winst en verlies een beetje.",
+   "criterium": {
+    "tekst": "log-loss van de setstand lager dan de basis (set-DP, hold 0,60, σ 0, zoals E028) in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_naief",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E030",
+   "naam": "Correct score: dagvorm-spreiding",
+   "datum": "2026-10-29",
+   "soort": "setstand",
+   "model": "cs-dagvorm",
+   "features": [
+    "marktkans (proportioneel) omgezet naar legkans",
+    "legverschil d ~ N(d0, σ²) per wedstrijd"
+   ],
+   "grid": {
+    "hold": 0.6,
+    "sigma": [
+     0.0,
+     0.1,
+     0.2,
+     0.3,
+     0.4,
+     0.5,
+     0.6
+    ]
+   },
+   "hypothese": "Spelers hebben goede en slechte dagen: legs binnen een wedstrijd zijn niet onafhankelijk. Een normaal verdeeld legverschil per wedstrijd (σ op train, d0 zo dat de wedstrijdkans gelijk blijft aan de markt) geeft vaker 3-0's en verlaagt de setstand-log-loss t.o.v. σ = 0 met meer dan 1 se in beide testjaren.",
+   "criterium": {
+    "tekst": "log-loss van de setstand lager dan de basis (set-DP, hold 0,60, σ 0, zoals E028) in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_naief",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E031",
+   "naam": "Correct score: strategie 'meest waarschijnlijke setstand' en break-even-marge",
+   "datum": "2026-10-29",
+   "soort": "setstand",
+   "model": "cs-strategie",
+   "features": [
+    "setstandverdeling uit de marktkans (hold 0,60, σ 0)"
+   ],
+   "grid": {
+    "hold": 0.6,
+    "sigma": 0.0,
+    "marges": [
+     0.0,
+     0.05,
+     0.1,
+     0.15,
+     0.2,
+     0.25
+    ]
+   },
+   "hypothese": "Wie elke wedstrijd de meest waarschijnlijke setstand kiest, raakt in R1/R2 (first to 3) zo'n 30-40% en in latere rondes minder. Tegen eerlijke odds (1/kans) is de ROI rond 0; bij de gebruikelijke correct-score-marges van 15-25% is de ROI duidelijk negatief. Het model heeft alleen de markt als input, dus het vindt geen structurele waarde.",
+   "criterium": {
+    "tekst": "beschrijvend: trefkans, ROI tegen eerlijke odds en tegen odds met marge, kalibratie per uitslagtype (geen toets)",
+    "regel": "geen"
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
   }
  ],
  "resultaten": [
@@ -25315,6 +25413,2434 @@
     "toelichting": "WK2025: -0.0035 (se 0.0028); WK2026: +0.0058 (se 0.0024)"
    },
    "duur_s": 0.6
+  },
+  {
+   "id": "E029",
+   "model": "cs-hold",
+   "vingerafdruk": "69e5ec8ddc75",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.5,
+      "sigma": 0.0
+     },
+     "train_logloss": {
+      "hold=0.5,sigma=0.0": 1.7159,
+      "hold=0.55,sigma=0.0": 1.7162,
+      "hold=0.6,sigma=0.0": 1.7169,
+      "hold=0.65,sigma=0.0": 1.7183,
+      "hold=0.7,sigma=0.0": 1.7207,
+      "hold=0.75,sigma=0.0": 1.7251
+     },
+     "logloss_dp": 1.8508,
+     "logloss_naief": 1.8514,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0006,
+     "verschil_se": 0.0005
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "n": 126,
+     "gekozen": {
+      "hold": 0.5,
+      "sigma": 0.0
+     },
+     "train_logloss": {
+      "hold=0.5,sigma=0.0": 1.7834,
+      "hold=0.55,sigma=0.0": 1.7836,
+      "hold=0.6,sigma=0.0": 1.7841,
+      "hold=0.65,sigma=0.0": 1.7853,
+      "hold=0.7,sigma=0.0": 1.7874,
+      "hold=0.75,sigma=0.0": 1.7914
+     },
+     "logloss_dp": 1.6988,
+     "logloss_naief": 1.7001,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0013,
+     "verschil_se": 0.0004
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.5,
+      "sigma": 0.0
+     },
+     "train_logloss": {
+      "hold=0.5,sigma=0.0": 1.6988,
+      "hold=0.55,sigma=0.0": 1.6991,
+      "hold=0.6,sigma=0.0": 1.7001,
+      "hold=0.65,sigma=0.0": 1.7019,
+      "hold=0.7,sigma=0.0": 1.7051,
+      "hold=0.75,sigma=0.0": 1.7107
+     },
+     "logloss_dp": 1.8508,
+     "logloss_naief": 1.8514,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0006,
+     "verschil_se": 0.0005
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "n": 126,
+     "gekozen": {
+      "hold": 0.5,
+      "sigma": 0.0
+     },
+     "train_logloss": {
+      "hold=0.5,sigma=0.0": 1.8508,
+      "hold=0.55,sigma=0.0": 1.8509,
+      "hold=0.6,sigma=0.0": 1.8514,
+      "hold=0.65,sigma=0.0": 1.8523,
+      "hold=0.7,sigma=0.0": 1.8541,
+      "hold=0.75,sigma=0.0": 1.8577
+     },
+     "logloss_dp": 1.6988,
+     "logloss_naief": 1.7001,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0013,
+     "verschil_se": 0.0004
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.5,
+      "sigma": 0.0
+     },
+     "train_logloss": {
+      "hold=0.5,sigma=0.0": 1.8508,
+      "hold=0.55,sigma=0.0": 1.8509,
+      "hold=0.6,sigma=0.0": 1.8514,
+      "hold=0.65,sigma=0.0": 1.8523,
+      "hold=0.7,sigma=0.0": 1.8541,
+      "hold=0.75,sigma=0.0": 1.8577
+     },
+     "logloss_dp": 1.7159,
+     "logloss_naief": 1.7169,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0009,
+     "verschil_se": 0.0005
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.5,
+      "sigma": 0.0
+     },
+     "train_logloss": {
+      "hold=0.5,sigma=0.0": 1.7637,
+      "hold=0.55,sigma=0.0": 1.764,
+      "hold=0.6,sigma=0.0": 1.7647,
+      "hold=0.65,sigma=0.0": 1.7662,
+      "hold=0.7,sigma=0.0": 1.7688,
+      "hold=0.75,sigma=0.0": 1.7735
+     },
+     "logloss_dp": 1.7159,
+     "logloss_naief": 1.7169,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0009,
+     "verschil_se": 0.0005
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": true,
+    "toelichting": "WK2025: -0.0006 (se 0.0005); WK2026: -0.0013 (se 0.0004)"
+   },
+   "duur_s": 5.4
+  },
+  {
+   "id": "E030",
+   "model": "cs-dagvorm",
+   "vingerafdruk": "b5913c280168",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.6,
+      "sigma": 0.3
+     },
+     "train_logloss": {
+      "hold=0.6,sigma=0.0": 1.7169,
+      "hold=0.6,sigma=0.1": 1.7119,
+      "hold=0.6,sigma=0.2": 1.702,
+      "hold=0.6,sigma=0.3": 1.696,
+      "hold=0.6,sigma=0.4": 1.699,
+      "hold=0.6,sigma=0.5": 1.712,
+      "hold=0.6,sigma=0.6": 1.7333
+     },
+     "logloss_dp": 1.8415,
+     "logloss_naief": 1.8514,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0099,
+     "verschil_se": 0.0174
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "n": 126,
+     "gekozen": {
+      "hold": 0.6,
+      "sigma": 0.3
+     },
+     "train_logloss": {
+      "hold=0.6,sigma=0.0": 1.7841,
+      "hold=0.6,sigma=0.1": 1.78,
+      "hold=0.6,sigma=0.2": 1.7722,
+      "hold=0.6,sigma=0.3": 1.7687,
+      "hold=0.6,sigma=0.4": 1.7741,
+      "hold=0.6,sigma=0.5": 1.7889,
+      "hold=0.6,sigma=0.6": 1.8116
+     },
+     "logloss_dp": 1.6674,
+     "logloss_naief": 1.7001,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0326,
+     "verschil_se": 0.0151
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.6,
+      "sigma": 0.4
+     },
+     "train_logloss": {
+      "hold=0.6,sigma=0.0": 1.7001,
+      "hold=0.6,sigma=0.1": 1.6936,
+      "hold=0.6,sigma=0.2": 1.6795,
+      "hold=0.6,sigma=0.3": 1.6674,
+      "hold=0.6,sigma=0.4": 1.6636,
+      "hold=0.6,sigma=0.5": 1.6693,
+      "hold=0.6,sigma=0.6": 1.6835
+     },
+     "logloss_dp": 1.8492,
+     "logloss_naief": 1.8514,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0022,
+     "verschil_se": 0.0268
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "n": 126,
+     "gekozen": {
+      "hold": 0.6,
+      "sigma": 0.3
+     },
+     "train_logloss": {
+      "hold=0.6,sigma=0.0": 1.8514,
+      "hold=0.6,sigma=0.1": 1.8481,
+      "hold=0.6,sigma=0.2": 1.8425,
+      "hold=0.6,sigma=0.3": 1.8415,
+      "hold=0.6,sigma=0.4": 1.8492,
+      "hold=0.6,sigma=0.5": 1.8658,
+      "hold=0.6,sigma=0.6": 1.8898
+     },
+     "logloss_dp": 1.6674,
+     "logloss_naief": 1.7001,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0326,
+     "verschil_se": 0.0151
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.6,
+      "sigma": 0.3
+     },
+     "train_logloss": {
+      "hold=0.6,sigma=0.0": 1.8514,
+      "hold=0.6,sigma=0.1": 1.8481,
+      "hold=0.6,sigma=0.2": 1.8425,
+      "hold=0.6,sigma=0.3": 1.8415,
+      "hold=0.6,sigma=0.4": 1.8492,
+      "hold=0.6,sigma=0.5": 1.8658,
+      "hold=0.6,sigma=0.6": 1.8898
+     },
+     "logloss_dp": 1.696,
+     "logloss_naief": 1.7169,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0209,
+     "verschil_se": 0.0176
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "gekozen": {
+      "hold": 0.6,
+      "sigma": 0.3
+     },
+     "train_logloss": {
+      "hold=0.6,sigma=0.0": 1.7647,
+      "hold=0.6,sigma=0.1": 1.7596,
+      "hold=0.6,sigma=0.2": 1.7491,
+      "hold=0.6,sigma=0.3": 1.7418,
+      "hold=0.6,sigma=0.4": 1.7429,
+      "hold=0.6,sigma=0.5": 1.7533,
+      "hold=0.6,sigma=0.6": 1.7716
+     },
+     "logloss_dp": 1.696,
+     "logloss_naief": 1.7169,
+     "basis": "set-DP, hold 0,60, σ 0",
+     "verschil_naief": -0.0209,
+     "verschil_se": 0.0176
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": false,
+    "toelichting": "WK2025: -0.0099 (se 0.0174); WK2026: -0.0326 (se 0.0151)"
+   },
+   "duur_s": 5.2
+  },
+  {
+   "id": "E031",
+   "model": "cs-strategie",
+   "vingerafdruk": "f1e96c0bad69",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "n": 94,
+     "totaal": {
+      "n": 94,
+      "raak": 20,
+      "trefkans": 0.2128,
+      "verwachte_trefkans": 0.2601,
+      "gem_eerlijke_odd": 4.13,
+      "roi": {
+       "0": -0.1238,
+       "0.05": -0.1655,
+       "0.1": -0.2035,
+       "0.15": -0.2381,
+       "0.2": -0.2699,
+       "0.25": -0.2991
+      },
+      "keuzes": {
+       "fav 3-0": 19,
+       "fav 3-1": 44,
+       "fav 4-1": 11,
+       "fav 4-2": 13,
+       "fav 5-2": 2,
+       "fav 5-3": 2,
+       "fav 6-3": 2,
+       "fav 7-4": 1
+      }
+     },
+     "roi_90_eerlijk": [
+      -0.353,
+      0.236
+     ],
+     "clusters": 7,
+     "per_format": {
+      "3": {
+       "n": 63,
+       "raak": 13,
+       "trefkans": 0.2063,
+       "verwachte_trefkans": 0.2882,
+       "gem_eerlijke_odd": 3.64,
+       "roi": {
+        "0": -0.2492,
+        "0.05": -0.2849,
+        "0.1": -0.3174,
+        "0.15": -0.3471,
+        "0.2": -0.3743,
+        "0.25": -0.3994
+       },
+       "keuzes": {
+        "fav 3-0": 19,
+        "fav 3-1": 44
+       }
+      },
+      "4": {
+       "n": 24,
+       "raak": 5,
+       "trefkans": 0.2083,
+       "verwachte_trefkans": 0.2142,
+       "gem_eerlijke_odd": 4.84,
+       "roi": {
+        "0": -0.0289,
+        "0.05": -0.0752,
+        "0.1": -0.1172,
+        "0.15": -0.1556,
+        "0.2": -0.1908,
+        "0.25": -0.2231
+       },
+       "keuzes": {
+        "fav 4-1": 11,
+        "fav 4-2": 13
+       }
+      },
+      "5": {
+       "n": 4,
+       "raak": 2,
+       "trefkans": 0.5,
+       "verwachte_trefkans": 0.1729,
+       "gem_eerlijke_odd": 5.92,
+       "roi": {
+        "0": 1.9385,
+        "0.05": 1.7986,
+        "0.1": 1.6714,
+        "0.15": 1.5553,
+        "0.2": 1.4488,
+        "0.25": 1.3508
+       },
+       "keuzes": {
+        "fav 5-2": 2,
+        "fav 5-3": 2
+       }
+      },
+      "6": {
+       "n": 2,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1633,
+       "gem_eerlijke_odd": 6.15,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 6-3": 2
+       }
+      },
+      "7": {
+       "n": 1,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1377,
+       "gem_eerlijke_odd": 7.26,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 7-4": 1
+       }
+      }
+     },
+     "uitslagtypen": {
+      "fav 3-0": {
+       "verwacht": 16.3,
+       "echt": 14
+      },
+      "fav 3-1": {
+       "verwacht": 16.99,
+       "echt": 16
+      },
+      "fav 3-2": {
+       "verwacht": 12.69,
+       "echt": 6
+      },
+      "fav 4-0": {
+       "verwacht": 3.22,
+       "echt": 4
+      },
+      "fav 4-1": {
+       "verwacht": 4.88,
+       "echt": 3
+      },
+      "fav 4-2": {
+       "verwacht": 4.73,
+       "echt": 4
+      },
+      "fav 4-3": {
+       "verwacht": 3.87,
+       "echt": 5
+      },
+      "fav 5-0": {
+       "verwacht": 0.27,
+       "echt": 0
+      },
+      "fav 5-1": {
+       "verwacht": 0.55,
+       "echt": 0
+      },
+      "fav 5-2": {
+       "verwacht": 0.67,
+       "echt": 2
+      },
+      "fav 5-3": {
+       "verwacht": 0.65,
+       "echt": 2
+      },
+      "fav 5-4": {
+       "verwacht": 0.56,
+       "echt": 0
+      },
+      "fav 6-0": {
+       "verwacht": 0.09,
+       "echt": 0
+      },
+      "fav 6-1": {
+       "verwacht": 0.21,
+       "echt": 2
+      },
+      "fav 6-2": {
+       "verwacht": 0.3,
+       "echt": 0
+      },
+      "fav 6-3": {
+       "verwacht": 0.33,
+       "echt": 0
+      },
+      "fav 6-4": {
+       "verwacht": 0.3,
+       "echt": 0
+      },
+      "fav 6-5": {
+       "verwacht": 0.25,
+       "echt": 0
+      },
+      "fav 7-0": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "fav 7-1": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "fav 7-2": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "fav 7-3": {
+       "verwacht": 0.13,
+       "echt": 1
+      },
+      "fav 7-4": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "fav 7-5": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "fav 7-6": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "und 3-0": {
+       "verwacht": 3.51,
+       "echt": 8
+      },
+      "und 3-1": {
+       "verwacht": 6.3,
+       "echt": 15
+      },
+      "und 3-2": {
+       "verwacht": 7.21,
+       "echt": 4
+      },
+      "und 4-0": {
+       "verwacht": 0.72,
+       "echt": 1
+      },
+      "und 4-1": {
+       "verwacht": 1.65,
+       "echt": 2
+      },
+      "und 4-2": {
+       "verwacht": 2.34,
+       "echt": 2
+      },
+      "und 4-3": {
+       "verwacht": 2.59,
+       "echt": 3
+      },
+      "und 5-0": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 5-1": {
+       "verwacht": 0.17,
+       "echt": 0
+      },
+      "und 5-2": {
+       "verwacht": 0.29,
+       "echt": 0
+      },
+      "und 5-3": {
+       "verwacht": 0.37,
+       "echt": 0
+      },
+      "und 5-4": {
+       "verwacht": 0.41,
+       "echt": 0
+      },
+      "und 6-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 6-1": {
+       "verwacht": 0.03,
+       "echt": 0
+      },
+      "und 6-2": {
+       "verwacht": 0.07,
+       "echt": 0
+      },
+      "und 6-3": {
+       "verwacht": 0.11,
+       "echt": 0
+      },
+      "und 6-4": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "und 6-5": {
+       "verwacht": 0.16,
+       "echt": 0
+      },
+      "und 7-0": {
+       "verwacht": 0.0,
+       "echt": 0
+      },
+      "und 7-1": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 7-2": {
+       "verwacht": 0.03,
+       "echt": 0
+      },
+      "und 7-3": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "und 7-4": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 7-5": {
+       "verwacht": 0.08,
+       "echt": 0
+      },
+      "und 7-6": {
+       "verwacht": 0.09,
+       "echt": 0
+      }
+     }
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "n": 126,
+     "totaal": {
+      "n": 126,
+      "raak": 35,
+      "trefkans": 0.2778,
+      "verwachte_trefkans": 0.278,
+      "gem_eerlijke_odd": 3.94,
+      "roi": {
+       "0": -0.0209,
+       "0.05": -0.0675,
+       "0.1": -0.1099,
+       "0.15": -0.1486,
+       "0.2": -0.1841,
+       "0.25": -0.2167
+      },
+      "keuzes": {
+       "fav 3-0": 31,
+       "fav 3-1": 62,
+       "fav 3-2": 2,
+       "fav 4-1": 10,
+       "fav 4-2": 14,
+       "fav 5-1": 1,
+       "fav 5-2": 1,
+       "fav 5-3": 2,
+       "fav 6-2": 1,
+       "fav 6-4": 1,
+       "fav 7-4": 1
+      }
+     },
+     "roi_90_eerlijk": [
+      -0.265,
+      0.134
+     ],
+     "clusters": 7,
+     "per_format": {
+      "3": {
+       "n": 95,
+       "raak": 29,
+       "trefkans": 0.3053,
+       "verwachte_trefkans": 0.3003,
+       "gem_eerlijke_odd": 3.58,
+       "roi": {
+        "0": 0.0255,
+        "0.05": -0.0234,
+        "0.1": -0.0678,
+        "0.15": -0.1083,
+        "0.2": -0.1454,
+        "0.25": -0.1796
+       },
+       "keuzes": {
+        "fav 3-0": 31,
+        "fav 3-1": 62,
+        "fav 3-2": 2
+       }
+      },
+      "4": {
+       "n": 24,
+       "raak": 5,
+       "trefkans": 0.2083,
+       "verwachte_trefkans": 0.22,
+       "gem_eerlijke_odd": 4.77,
+       "roi": {
+        "0": -0.1606,
+        "0.05": -0.2006,
+        "0.1": -0.2369,
+        "0.15": -0.2701,
+        "0.2": -0.3005,
+        "0.25": -0.3285
+       },
+       "keuzes": {
+        "fav 4-1": 10,
+        "fav 4-2": 14
+       }
+      },
+      "5": {
+       "n": 4,
+       "raak": 1,
+       "trefkans": 0.25,
+       "verwachte_trefkans": 0.1818,
+       "gem_eerlijke_odd": 5.73,
+       "roi": {
+        "0": 0.4494,
+        "0.05": 0.3804,
+        "0.1": 0.3177,
+        "0.15": 0.2604,
+        "0.2": 0.2079,
+        "0.25": 0.1595
+       },
+       "keuzes": {
+        "fav 5-1": 1,
+        "fav 5-2": 1,
+        "fav 5-3": 2
+       }
+      },
+      "6": {
+       "n": 2,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1748,
+       "gem_eerlijke_odd": 5.91,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 6-2": 1,
+        "fav 6-4": 1
+       }
+      },
+      "7": {
+       "n": 1,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1434,
+       "gem_eerlijke_odd": 6.97,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 7-4": 1
+       }
+      }
+     },
+     "uitslagtypen": {
+      "fav 3-0": {
+       "verwacht": 25.72,
+       "echt": 32
+      },
+      "fav 3-1": {
+       "verwacht": 25.6,
+       "echt": 25
+      },
+      "fav 3-2": {
+       "verwacht": 18.62,
+       "echt": 11
+      },
+      "fav 4-0": {
+       "verwacht": 3.46,
+       "echt": 4
+      },
+      "fav 4-1": {
+       "verwacht": 5.01,
+       "echt": 6
+      },
+      "fav 4-2": {
+       "verwacht": 4.7,
+       "echt": 4
+      },
+      "fav 4-3": {
+       "verwacht": 3.76,
+       "echt": 3
+      },
+      "fav 5-0": {
+       "verwacht": 0.31,
+       "echt": 1
+      },
+      "fav 5-1": {
+       "verwacht": 0.58,
+       "echt": 0
+      },
+      "fav 5-2": {
+       "verwacht": 0.68,
+       "echt": 2
+      },
+      "fav 5-3": {
+       "verwacht": 0.63,
+       "echt": 0
+      },
+      "fav 5-4": {
+       "verwacht": 0.54,
+       "echt": 0
+      },
+      "fav 6-0": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "fav 6-1": {
+       "verwacht": 0.25,
+       "echt": 1
+      },
+      "fav 6-2": {
+       "verwacht": 0.32,
+       "echt": 0
+      },
+      "fav 6-3": {
+       "verwacht": 0.32,
+       "echt": 1
+      },
+      "fav 6-4": {
+       "verwacht": 0.28,
+       "echt": 0
+      },
+      "fav 6-5": {
+       "verwacht": 0.23,
+       "echt": 0
+      },
+      "fav 7-0": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "fav 7-1": {
+       "verwacht": 0.06,
+       "echt": 1
+      },
+      "fav 7-2": {
+       "verwacht": 0.11,
+       "echt": 0
+      },
+      "fav 7-3": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "fav 7-4": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "fav 7-5": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "fav 7-6": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "und 3-0": {
+       "verwacht": 5.23,
+       "echt": 9
+      },
+      "und 3-1": {
+       "verwacht": 9.28,
+       "echt": 8
+      },
+      "und 3-2": {
+       "verwacht": 10.55,
+       "echt": 10
+      },
+      "und 4-0": {
+       "verwacht": 0.71,
+       "echt": 1
+      },
+      "und 4-1": {
+       "verwacht": 1.61,
+       "echt": 2
+      },
+      "und 4-2": {
+       "verwacht": 2.26,
+       "echt": 2
+      },
+      "und 4-3": {
+       "verwacht": 2.49,
+       "echt": 2
+      },
+      "und 5-0": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 5-1": {
+       "verwacht": 0.17,
+       "echt": 1
+      },
+      "und 5-2": {
+       "verwacht": 0.28,
+       "echt": 0
+      },
+      "und 5-3": {
+       "verwacht": 0.36,
+       "echt": 0
+      },
+      "und 5-4": {
+       "verwacht": 0.39,
+       "echt": 0
+      },
+      "und 6-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 6-1": {
+       "verwacht": 0.03,
+       "echt": 0
+      },
+      "und 6-2": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 6-3": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "und 6-4": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "und 6-5": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "und 7-0": {
+       "verwacht": 0.0,
+       "echt": 0
+      },
+      "und 7-1": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 7-2": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "und 7-3": {
+       "verwacht": 0.04,
+       "echt": 0
+      },
+      "und 7-4": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 7-5": {
+       "verwacht": 0.07,
+       "echt": 0
+      },
+      "und 7-6": {
+       "verwacht": 0.08,
+       "echt": 0
+      }
+     }
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "n": 94,
+     "totaal": {
+      "n": 94,
+      "raak": 20,
+      "trefkans": 0.2128,
+      "verwachte_trefkans": 0.2601,
+      "gem_eerlijke_odd": 4.13,
+      "roi": {
+       "0": -0.1238,
+       "0.05": -0.1655,
+       "0.1": -0.2035,
+       "0.15": -0.2381,
+       "0.2": -0.2699,
+       "0.25": -0.2991
+      },
+      "keuzes": {
+       "fav 3-0": 19,
+       "fav 3-1": 44,
+       "fav 4-1": 11,
+       "fav 4-2": 13,
+       "fav 5-2": 2,
+       "fav 5-3": 2,
+       "fav 6-3": 2,
+       "fav 7-4": 1
+      }
+     },
+     "roi_90_eerlijk": [
+      -0.353,
+      0.236
+     ],
+     "clusters": 7,
+     "per_format": {
+      "3": {
+       "n": 63,
+       "raak": 13,
+       "trefkans": 0.2063,
+       "verwachte_trefkans": 0.2882,
+       "gem_eerlijke_odd": 3.64,
+       "roi": {
+        "0": -0.2492,
+        "0.05": -0.2849,
+        "0.1": -0.3174,
+        "0.15": -0.3471,
+        "0.2": -0.3743,
+        "0.25": -0.3994
+       },
+       "keuzes": {
+        "fav 3-0": 19,
+        "fav 3-1": 44
+       }
+      },
+      "4": {
+       "n": 24,
+       "raak": 5,
+       "trefkans": 0.2083,
+       "verwachte_trefkans": 0.2142,
+       "gem_eerlijke_odd": 4.84,
+       "roi": {
+        "0": -0.0289,
+        "0.05": -0.0752,
+        "0.1": -0.1172,
+        "0.15": -0.1556,
+        "0.2": -0.1908,
+        "0.25": -0.2231
+       },
+       "keuzes": {
+        "fav 4-1": 11,
+        "fav 4-2": 13
+       }
+      },
+      "5": {
+       "n": 4,
+       "raak": 2,
+       "trefkans": 0.5,
+       "verwachte_trefkans": 0.1729,
+       "gem_eerlijke_odd": 5.92,
+       "roi": {
+        "0": 1.9385,
+        "0.05": 1.7986,
+        "0.1": 1.6714,
+        "0.15": 1.5553,
+        "0.2": 1.4488,
+        "0.25": 1.3508
+       },
+       "keuzes": {
+        "fav 5-2": 2,
+        "fav 5-3": 2
+       }
+      },
+      "6": {
+       "n": 2,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1633,
+       "gem_eerlijke_odd": 6.15,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 6-3": 2
+       }
+      },
+      "7": {
+       "n": 1,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1377,
+       "gem_eerlijke_odd": 7.26,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 7-4": 1
+       }
+      }
+     },
+     "uitslagtypen": {
+      "fav 3-0": {
+       "verwacht": 16.3,
+       "echt": 14
+      },
+      "fav 3-1": {
+       "verwacht": 16.99,
+       "echt": 16
+      },
+      "fav 3-2": {
+       "verwacht": 12.69,
+       "echt": 6
+      },
+      "fav 4-0": {
+       "verwacht": 3.22,
+       "echt": 4
+      },
+      "fav 4-1": {
+       "verwacht": 4.88,
+       "echt": 3
+      },
+      "fav 4-2": {
+       "verwacht": 4.73,
+       "echt": 4
+      },
+      "fav 4-3": {
+       "verwacht": 3.87,
+       "echt": 5
+      },
+      "fav 5-0": {
+       "verwacht": 0.27,
+       "echt": 0
+      },
+      "fav 5-1": {
+       "verwacht": 0.55,
+       "echt": 0
+      },
+      "fav 5-2": {
+       "verwacht": 0.67,
+       "echt": 2
+      },
+      "fav 5-3": {
+       "verwacht": 0.65,
+       "echt": 2
+      },
+      "fav 5-4": {
+       "verwacht": 0.56,
+       "echt": 0
+      },
+      "fav 6-0": {
+       "verwacht": 0.09,
+       "echt": 0
+      },
+      "fav 6-1": {
+       "verwacht": 0.21,
+       "echt": 2
+      },
+      "fav 6-2": {
+       "verwacht": 0.3,
+       "echt": 0
+      },
+      "fav 6-3": {
+       "verwacht": 0.33,
+       "echt": 0
+      },
+      "fav 6-4": {
+       "verwacht": 0.3,
+       "echt": 0
+      },
+      "fav 6-5": {
+       "verwacht": 0.25,
+       "echt": 0
+      },
+      "fav 7-0": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "fav 7-1": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "fav 7-2": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "fav 7-3": {
+       "verwacht": 0.13,
+       "echt": 1
+      },
+      "fav 7-4": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "fav 7-5": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "fav 7-6": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "und 3-0": {
+       "verwacht": 3.51,
+       "echt": 8
+      },
+      "und 3-1": {
+       "verwacht": 6.3,
+       "echt": 15
+      },
+      "und 3-2": {
+       "verwacht": 7.21,
+       "echt": 4
+      },
+      "und 4-0": {
+       "verwacht": 0.72,
+       "echt": 1
+      },
+      "und 4-1": {
+       "verwacht": 1.65,
+       "echt": 2
+      },
+      "und 4-2": {
+       "verwacht": 2.34,
+       "echt": 2
+      },
+      "und 4-3": {
+       "verwacht": 2.59,
+       "echt": 3
+      },
+      "und 5-0": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 5-1": {
+       "verwacht": 0.17,
+       "echt": 0
+      },
+      "und 5-2": {
+       "verwacht": 0.29,
+       "echt": 0
+      },
+      "und 5-3": {
+       "verwacht": 0.37,
+       "echt": 0
+      },
+      "und 5-4": {
+       "verwacht": 0.41,
+       "echt": 0
+      },
+      "und 6-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 6-1": {
+       "verwacht": 0.03,
+       "echt": 0
+      },
+      "und 6-2": {
+       "verwacht": 0.07,
+       "echt": 0
+      },
+      "und 6-3": {
+       "verwacht": 0.11,
+       "echt": 0
+      },
+      "und 6-4": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "und 6-5": {
+       "verwacht": 0.16,
+       "echt": 0
+      },
+      "und 7-0": {
+       "verwacht": 0.0,
+       "echt": 0
+      },
+      "und 7-1": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 7-2": {
+       "verwacht": 0.03,
+       "echt": 0
+      },
+      "und 7-3": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "und 7-4": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 7-5": {
+       "verwacht": 0.08,
+       "echt": 0
+      },
+      "und 7-6": {
+       "verwacht": 0.09,
+       "echt": 0
+      }
+     }
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "n": 126,
+     "totaal": {
+      "n": 126,
+      "raak": 35,
+      "trefkans": 0.2778,
+      "verwachte_trefkans": 0.278,
+      "gem_eerlijke_odd": 3.94,
+      "roi": {
+       "0": -0.0209,
+       "0.05": -0.0675,
+       "0.1": -0.1099,
+       "0.15": -0.1486,
+       "0.2": -0.1841,
+       "0.25": -0.2167
+      },
+      "keuzes": {
+       "fav 3-0": 31,
+       "fav 3-1": 62,
+       "fav 3-2": 2,
+       "fav 4-1": 10,
+       "fav 4-2": 14,
+       "fav 5-1": 1,
+       "fav 5-2": 1,
+       "fav 5-3": 2,
+       "fav 6-2": 1,
+       "fav 6-4": 1,
+       "fav 7-4": 1
+      }
+     },
+     "roi_90_eerlijk": [
+      -0.265,
+      0.134
+     ],
+     "clusters": 7,
+     "per_format": {
+      "3": {
+       "n": 95,
+       "raak": 29,
+       "trefkans": 0.3053,
+       "verwachte_trefkans": 0.3003,
+       "gem_eerlijke_odd": 3.58,
+       "roi": {
+        "0": 0.0255,
+        "0.05": -0.0234,
+        "0.1": -0.0678,
+        "0.15": -0.1083,
+        "0.2": -0.1454,
+        "0.25": -0.1796
+       },
+       "keuzes": {
+        "fav 3-0": 31,
+        "fav 3-1": 62,
+        "fav 3-2": 2
+       }
+      },
+      "4": {
+       "n": 24,
+       "raak": 5,
+       "trefkans": 0.2083,
+       "verwachte_trefkans": 0.22,
+       "gem_eerlijke_odd": 4.77,
+       "roi": {
+        "0": -0.1606,
+        "0.05": -0.2006,
+        "0.1": -0.2369,
+        "0.15": -0.2701,
+        "0.2": -0.3005,
+        "0.25": -0.3285
+       },
+       "keuzes": {
+        "fav 4-1": 10,
+        "fav 4-2": 14
+       }
+      },
+      "5": {
+       "n": 4,
+       "raak": 1,
+       "trefkans": 0.25,
+       "verwachte_trefkans": 0.1818,
+       "gem_eerlijke_odd": 5.73,
+       "roi": {
+        "0": 0.4494,
+        "0.05": 0.3804,
+        "0.1": 0.3177,
+        "0.15": 0.2604,
+        "0.2": 0.2079,
+        "0.25": 0.1595
+       },
+       "keuzes": {
+        "fav 5-1": 1,
+        "fav 5-2": 1,
+        "fav 5-3": 2
+       }
+      },
+      "6": {
+       "n": 2,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1748,
+       "gem_eerlijke_odd": 5.91,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 6-2": 1,
+        "fav 6-4": 1
+       }
+      },
+      "7": {
+       "n": 1,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1434,
+       "gem_eerlijke_odd": 6.97,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 7-4": 1
+       }
+      }
+     },
+     "uitslagtypen": {
+      "fav 3-0": {
+       "verwacht": 25.72,
+       "echt": 32
+      },
+      "fav 3-1": {
+       "verwacht": 25.6,
+       "echt": 25
+      },
+      "fav 3-2": {
+       "verwacht": 18.62,
+       "echt": 11
+      },
+      "fav 4-0": {
+       "verwacht": 3.46,
+       "echt": 4
+      },
+      "fav 4-1": {
+       "verwacht": 5.01,
+       "echt": 6
+      },
+      "fav 4-2": {
+       "verwacht": 4.7,
+       "echt": 4
+      },
+      "fav 4-3": {
+       "verwacht": 3.76,
+       "echt": 3
+      },
+      "fav 5-0": {
+       "verwacht": 0.31,
+       "echt": 1
+      },
+      "fav 5-1": {
+       "verwacht": 0.58,
+       "echt": 0
+      },
+      "fav 5-2": {
+       "verwacht": 0.68,
+       "echt": 2
+      },
+      "fav 5-3": {
+       "verwacht": 0.63,
+       "echt": 0
+      },
+      "fav 5-4": {
+       "verwacht": 0.54,
+       "echt": 0
+      },
+      "fav 6-0": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "fav 6-1": {
+       "verwacht": 0.25,
+       "echt": 1
+      },
+      "fav 6-2": {
+       "verwacht": 0.32,
+       "echt": 0
+      },
+      "fav 6-3": {
+       "verwacht": 0.32,
+       "echt": 1
+      },
+      "fav 6-4": {
+       "verwacht": 0.28,
+       "echt": 0
+      },
+      "fav 6-5": {
+       "verwacht": 0.23,
+       "echt": 0
+      },
+      "fav 7-0": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "fav 7-1": {
+       "verwacht": 0.06,
+       "echt": 1
+      },
+      "fav 7-2": {
+       "verwacht": 0.11,
+       "echt": 0
+      },
+      "fav 7-3": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "fav 7-4": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "fav 7-5": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "fav 7-6": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "und 3-0": {
+       "verwacht": 5.23,
+       "echt": 9
+      },
+      "und 3-1": {
+       "verwacht": 9.28,
+       "echt": 8
+      },
+      "und 3-2": {
+       "verwacht": 10.55,
+       "echt": 10
+      },
+      "und 4-0": {
+       "verwacht": 0.71,
+       "echt": 1
+      },
+      "und 4-1": {
+       "verwacht": 1.61,
+       "echt": 2
+      },
+      "und 4-2": {
+       "verwacht": 2.26,
+       "echt": 2
+      },
+      "und 4-3": {
+       "verwacht": 2.49,
+       "echt": 2
+      },
+      "und 5-0": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 5-1": {
+       "verwacht": 0.17,
+       "echt": 1
+      },
+      "und 5-2": {
+       "verwacht": 0.28,
+       "echt": 0
+      },
+      "und 5-3": {
+       "verwacht": 0.36,
+       "echt": 0
+      },
+      "und 5-4": {
+       "verwacht": 0.39,
+       "echt": 0
+      },
+      "und 6-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 6-1": {
+       "verwacht": 0.03,
+       "echt": 0
+      },
+      "und 6-2": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 6-3": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "und 6-4": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "und 6-5": {
+       "verwacht": 0.14,
+       "echt": 0
+      },
+      "und 7-0": {
+       "verwacht": 0.0,
+       "echt": 0
+      },
+      "und 7-1": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 7-2": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "und 7-3": {
+       "verwacht": 0.04,
+       "echt": 0
+      },
+      "und 7-4": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 7-5": {
+       "verwacht": 0.07,
+       "echt": 0
+      },
+      "und 7-6": {
+       "verwacht": 0.08,
+       "echt": 0
+      }
+     }
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "totaal": {
+      "n": 94,
+      "raak": 38,
+      "trefkans": 0.4043,
+      "verwachte_trefkans": 0.2609,
+      "gem_eerlijke_odd": 4.11,
+      "roi": {
+       "0": 0.499,
+       "0.05": 0.4277,
+       "0.1": 0.3628,
+       "0.15": 0.3035,
+       "0.2": 0.2492,
+       "0.25": 0.1992
+      },
+      "keuzes": {
+       "fav 3-0": 16,
+       "fav 3-1": 47,
+       "fav 3-2": 1,
+       "fav 4-1": 11,
+       "fav 4-2": 11,
+       "fav 4-3": 1,
+       "fav 5-1": 1,
+       "fav 5-2": 1,
+       "fav 5-3": 2,
+       "fav 6-2": 1,
+       "fav 6-4": 1,
+       "fav 7-5": 1
+      }
+     },
+     "roi_90_eerlijk": [
+      0.07,
+      0.655
+     ],
+     "clusters": 7,
+     "per_format": {
+      "3": {
+       "n": 64,
+       "raak": 31,
+       "trefkans": 0.4844,
+       "verwachte_trefkans": 0.2867,
+       "gem_eerlijke_odd": 3.64,
+       "roi": {
+        "0": 0.655,
+        "0.05": 0.5762,
+        "0.1": 0.5046,
+        "0.15": 0.4392,
+        "0.2": 0.3792,
+        "0.25": 0.324
+       },
+       "keuzes": {
+        "fav 3-0": 16,
+        "fav 3-1": 47,
+        "fav 3-2": 1
+       }
+      },
+      "4": {
+       "n": 23,
+       "raak": 7,
+       "trefkans": 0.3043,
+       "verwachte_trefkans": 0.2165,
+       "gem_eerlijke_odd": 4.78,
+       "roi": {
+        "0": 0.5212,
+        "0.05": 0.4487,
+        "0.1": 0.3829,
+        "0.15": 0.3228,
+        "0.2": 0.2676,
+        "0.25": 0.2169
+       },
+       "keuzes": {
+        "fav 4-1": 11,
+        "fav 4-2": 11,
+        "fav 4-3": 1
+       }
+      },
+      "5": {
+       "n": 4,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1897,
+       "gem_eerlijke_odd": 5.49,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 5-1": 1,
+        "fav 5-2": 1,
+        "fav 5-3": 2
+       }
+      },
+      "6": {
+       "n": 2,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1574,
+       "gem_eerlijke_odd": 6.53,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 6-2": 1,
+        "fav 6-4": 1
+       }
+      },
+      "7": {
+       "n": 1,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1246,
+       "gem_eerlijke_odd": 8.03,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 7-5": 1
+       }
+      }
+     },
+     "uitslagtypen": {
+      "fav 3-0": {
+       "verwacht": 16.29,
+       "echt": 19
+      },
+      "fav 3-1": {
+       "verwacht": 17.22,
+       "echt": 21
+      },
+      "fav 3-2": {
+       "verwacht": 12.99,
+       "echt": 8
+      },
+      "fav 4-0": {
+       "verwacht": 3.1,
+       "echt": 4
+      },
+      "fav 4-1": {
+       "verwacht": 4.74,
+       "echt": 5
+      },
+      "fav 4-2": {
+       "verwacht": 4.59,
+       "echt": 5
+      },
+      "fav 4-3": {
+       "verwacht": 3.73,
+       "echt": 3
+      },
+      "fav 5-0": {
+       "verwacht": 0.35,
+       "echt": 0
+      },
+      "fav 5-1": {
+       "verwacht": 0.64,
+       "echt": 2
+      },
+      "fav 5-2": {
+       "verwacht": 0.72,
+       "echt": 0
+      },
+      "fav 5-3": {
+       "verwacht": 0.65,
+       "echt": 0
+      },
+      "fav 5-4": {
+       "verwacht": 0.53,
+       "echt": 0
+      },
+      "fav 6-0": {
+       "verwacht": 0.08,
+       "echt": 1
+      },
+      "fav 6-1": {
+       "verwacht": 0.2,
+       "echt": 0
+      },
+      "fav 6-2": {
+       "verwacht": 0.28,
+       "echt": 1
+      },
+      "fav 6-3": {
+       "verwacht": 0.3,
+       "echt": 0
+      },
+      "fav 6-4": {
+       "verwacht": 0.28,
+       "echt": 0
+      },
+      "fav 6-5": {
+       "verwacht": 0.24,
+       "echt": 0
+      },
+      "fav 7-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "fav 7-1": {
+       "verwacht": 0.04,
+       "echt": 0
+      },
+      "fav 7-2": {
+       "verwacht": 0.07,
+       "echt": 0
+      },
+      "fav 7-3": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "fav 7-4": {
+       "verwacht": 0.12,
+       "echt": 1
+      },
+      "fav 7-5": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "fav 7-6": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "und 3-0": {
+       "verwacht": 3.6,
+       "echt": 4
+      },
+      "und 3-1": {
+       "verwacht": 6.48,
+       "echt": 7
+      },
+      "und 3-2": {
+       "verwacht": 7.43,
+       "echt": 5
+      },
+      "und 4-0": {
+       "verwacht": 0.67,
+       "echt": 0
+      },
+      "und 4-1": {
+       "verwacht": 1.54,
+       "echt": 2
+      },
+      "und 4-2": {
+       "verwacht": 2.19,
+       "echt": 2
+      },
+      "und 4-3": {
+       "verwacht": 2.44,
+       "echt": 2
+      },
+      "und 5-0": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "und 5-1": {
+       "verwacht": 0.15,
+       "echt": 0
+      },
+      "und 5-2": {
+       "verwacht": 0.24,
+       "echt": 0
+      },
+      "und 5-3": {
+       "verwacht": 0.32,
+       "echt": 1
+      },
+      "und 5-4": {
+       "verwacht": 0.35,
+       "echt": 1
+      },
+      "und 6-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 6-1": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "und 6-2": {
+       "verwacht": 0.09,
+       "echt": 0
+      },
+      "und 6-3": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "und 6-4": {
+       "verwacht": 0.16,
+       "echt": 0
+      },
+      "und 6-5": {
+       "verwacht": 0.18,
+       "echt": 0
+      },
+      "und 7-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 7-1": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "und 7-2": {
+       "verwacht": 0.04,
+       "echt": 0
+      },
+      "und 7-3": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 7-4": {
+       "verwacht": 0.08,
+       "echt": 0
+      },
+      "und 7-5": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "und 7-6": {
+       "verwacht": 0.1,
+       "echt": 0
+      }
+     }
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "totaal": {
+      "n": 94,
+      "raak": 38,
+      "trefkans": 0.4043,
+      "verwachte_trefkans": 0.2609,
+      "gem_eerlijke_odd": 4.11,
+      "roi": {
+       "0": 0.499,
+       "0.05": 0.4277,
+       "0.1": 0.3628,
+       "0.15": 0.3035,
+       "0.2": 0.2492,
+       "0.25": 0.1992
+      },
+      "keuzes": {
+       "fav 3-0": 16,
+       "fav 3-1": 47,
+       "fav 3-2": 1,
+       "fav 4-1": 11,
+       "fav 4-2": 11,
+       "fav 4-3": 1,
+       "fav 5-1": 1,
+       "fav 5-2": 1,
+       "fav 5-3": 2,
+       "fav 6-2": 1,
+       "fav 6-4": 1,
+       "fav 7-5": 1
+      }
+     },
+     "roi_90_eerlijk": [
+      0.07,
+      0.655
+     ],
+     "clusters": 7,
+     "per_format": {
+      "3": {
+       "n": 64,
+       "raak": 31,
+       "trefkans": 0.4844,
+       "verwachte_trefkans": 0.2867,
+       "gem_eerlijke_odd": 3.64,
+       "roi": {
+        "0": 0.655,
+        "0.05": 0.5762,
+        "0.1": 0.5046,
+        "0.15": 0.4392,
+        "0.2": 0.3792,
+        "0.25": 0.324
+       },
+       "keuzes": {
+        "fav 3-0": 16,
+        "fav 3-1": 47,
+        "fav 3-2": 1
+       }
+      },
+      "4": {
+       "n": 23,
+       "raak": 7,
+       "trefkans": 0.3043,
+       "verwachte_trefkans": 0.2165,
+       "gem_eerlijke_odd": 4.78,
+       "roi": {
+        "0": 0.5212,
+        "0.05": 0.4487,
+        "0.1": 0.3829,
+        "0.15": 0.3228,
+        "0.2": 0.2676,
+        "0.25": 0.2169
+       },
+       "keuzes": {
+        "fav 4-1": 11,
+        "fav 4-2": 11,
+        "fav 4-3": 1
+       }
+      },
+      "5": {
+       "n": 4,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1897,
+       "gem_eerlijke_odd": 5.49,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 5-1": 1,
+        "fav 5-2": 1,
+        "fav 5-3": 2
+       }
+      },
+      "6": {
+       "n": 2,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1574,
+       "gem_eerlijke_odd": 6.53,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 6-2": 1,
+        "fav 6-4": 1
+       }
+      },
+      "7": {
+       "n": 1,
+       "raak": 0,
+       "trefkans": 0.0,
+       "verwachte_trefkans": 0.1246,
+       "gem_eerlijke_odd": 8.03,
+       "roi": {
+        "0": -1.0,
+        "0.05": -1.0,
+        "0.1": -1.0,
+        "0.15": -1.0,
+        "0.2": -1.0,
+        "0.25": -1.0
+       },
+       "keuzes": {
+        "fav 7-5": 1
+       }
+      }
+     },
+     "uitslagtypen": {
+      "fav 3-0": {
+       "verwacht": 16.29,
+       "echt": 19
+      },
+      "fav 3-1": {
+       "verwacht": 17.22,
+       "echt": 21
+      },
+      "fav 3-2": {
+       "verwacht": 12.99,
+       "echt": 8
+      },
+      "fav 4-0": {
+       "verwacht": 3.1,
+       "echt": 4
+      },
+      "fav 4-1": {
+       "verwacht": 4.74,
+       "echt": 5
+      },
+      "fav 4-2": {
+       "verwacht": 4.59,
+       "echt": 5
+      },
+      "fav 4-3": {
+       "verwacht": 3.73,
+       "echt": 3
+      },
+      "fav 5-0": {
+       "verwacht": 0.35,
+       "echt": 0
+      },
+      "fav 5-1": {
+       "verwacht": 0.64,
+       "echt": 2
+      },
+      "fav 5-2": {
+       "verwacht": 0.72,
+       "echt": 0
+      },
+      "fav 5-3": {
+       "verwacht": 0.65,
+       "echt": 0
+      },
+      "fav 5-4": {
+       "verwacht": 0.53,
+       "echt": 0
+      },
+      "fav 6-0": {
+       "verwacht": 0.08,
+       "echt": 1
+      },
+      "fav 6-1": {
+       "verwacht": 0.2,
+       "echt": 0
+      },
+      "fav 6-2": {
+       "verwacht": 0.28,
+       "echt": 1
+      },
+      "fav 6-3": {
+       "verwacht": 0.3,
+       "echt": 0
+      },
+      "fav 6-4": {
+       "verwacht": 0.28,
+       "echt": 0
+      },
+      "fav 6-5": {
+       "verwacht": 0.24,
+       "echt": 0
+      },
+      "fav 7-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "fav 7-1": {
+       "verwacht": 0.04,
+       "echt": 0
+      },
+      "fav 7-2": {
+       "verwacht": 0.07,
+       "echt": 0
+      },
+      "fav 7-3": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "fav 7-4": {
+       "verwacht": 0.12,
+       "echt": 1
+      },
+      "fav 7-5": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "fav 7-6": {
+       "verwacht": 0.12,
+       "echt": 0
+      },
+      "und 3-0": {
+       "verwacht": 3.6,
+       "echt": 4
+      },
+      "und 3-1": {
+       "verwacht": 6.48,
+       "echt": 7
+      },
+      "und 3-2": {
+       "verwacht": 7.43,
+       "echt": 5
+      },
+      "und 4-0": {
+       "verwacht": 0.67,
+       "echt": 0
+      },
+      "und 4-1": {
+       "verwacht": 1.54,
+       "echt": 2
+      },
+      "und 4-2": {
+       "verwacht": 2.19,
+       "echt": 2
+      },
+      "und 4-3": {
+       "verwacht": 2.44,
+       "echt": 2
+      },
+      "und 5-0": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "und 5-1": {
+       "verwacht": 0.15,
+       "echt": 0
+      },
+      "und 5-2": {
+       "verwacht": 0.24,
+       "echt": 0
+      },
+      "und 5-3": {
+       "verwacht": 0.32,
+       "echt": 1
+      },
+      "und 5-4": {
+       "verwacht": 0.35,
+       "echt": 1
+      },
+      "und 6-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 6-1": {
+       "verwacht": 0.05,
+       "echt": 0
+      },
+      "und 6-2": {
+       "verwacht": 0.09,
+       "echt": 0
+      },
+      "und 6-3": {
+       "verwacht": 0.13,
+       "echt": 0
+      },
+      "und 6-4": {
+       "verwacht": 0.16,
+       "echt": 0
+      },
+      "und 6-5": {
+       "verwacht": 0.18,
+       "echt": 0
+      },
+      "und 7-0": {
+       "verwacht": 0.01,
+       "echt": 0
+      },
+      "und 7-1": {
+       "verwacht": 0.02,
+       "echt": 0
+      },
+      "und 7-2": {
+       "verwacht": 0.04,
+       "echt": 0
+      },
+      "und 7-3": {
+       "verwacht": 0.06,
+       "echt": 0
+      },
+      "und 7-4": {
+       "verwacht": 0.08,
+       "echt": 0
+      },
+      "und 7-5": {
+       "verwacht": 0.1,
+       "echt": 0
+      },
+      "und 7-6": {
+       "verwacht": 0.1,
+       "echt": 0
+      }
+     }
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": null,
+    "toelichting": "geen toetsbaar criterium (controle of beschrijvend)"
+   },
+   "duur_s": 0.9
   }
  ]
 }
