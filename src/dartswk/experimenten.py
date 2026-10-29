@@ -720,8 +720,240 @@ def draai_cs_strategie(exp: dict, train: list[int], test: list[int], soort: str,
                 uitslagtypen=dict(sorted(typen.items())))
 
 
+# ================================================================ E032-E038: correct score finetunen
+_CS_STANDAARD = dict(hold=config.HOLD, sigma=0.0, sigma3=None, sigma4=None, sigma0=None, beta_niveau=0.0,
+                     beta_vol=0.0, gamma=0.0, kappa=0.0, tiebreak="wissel")
+
+
+def _cs_profiel(train_rows: list[dict]):
+    """Functie r -> (z_niveau, z_vol), gestandaardiseerd met gemiddelde en sd van de train-rijen (ontbreekt: 0)."""
+    def niveau(r):
+        a, b = r.get("avg1_12m"), r.get("avg2_12m")
+        return None if a is None or b is None else (a + b) / 2
+
+    def vol(r):
+        w = [r.get(f"avg{k}_3m") for k in (1, 2)] + [r.get(f"avg{k}_12m") for k in (1, 2)]
+        return None if None in w else (abs(w[0] - w[2]) + abs(w[1] - w[3])) / 2
+    schaal = []
+    for f in (niveau, vol):
+        w = [x for x in map(f, train_rows) if x is not None]
+        mu, sd = (float(np.mean(w)), float(np.std(w, ddof=1))) if len(w) > 1 else (0.0, 1.0)
+        schaal.append((f, mu, sd or 1.0))
+    return lambda r: tuple(0.0 if f(r) is None else (f(r) - mu) / sd for f, mu, sd in schaal)
+
+
+def _cs_rij_param(r: dict, c: dict, z: tuple) -> tuple:
+    """(hold, sigma, kappa, tiebreak) voor wedstrijd r bij parametercombinatie c."""
+    zn, zv = z
+    if c["sigma3"] is not None or c["sigma4"] is not None:
+        s = c["sigma3" if r["setsnodig"] == 3 else "sigma4"]
+        s = c["sigma"] if s is None else s
+    elif c["sigma0"] is not None:
+        s = c["sigma0"] * math.exp(c["beta_niveau"] * zn + c["beta_vol"] * zv)
+    else:
+        s = c["sigma"]
+    return logistic(logit(c["hold"]) + c["gamma"] * zn), round(s, 4), c["kappa"], c["tiebreak"]
+
+
+def _cs_ll_c(rows: list[dict], c: dict, prof) -> np.ndarray:
+    from .correctscore import verdeling
+    return np.array([-math.log(max(verdeling(_markt(r), r["setsnodig"], *_cs_rij_param(r, c, prof(r)))
+                                   [(int(r["sets1"]), int(r["sets2"]))], 1e-12)) for r in rows])
+
+
+def draai_cs_tune(exp: dict, train: list[int], test: list[int], soort: str, data: dict) -> dict:
+    """E032-E036: combinatie van hold, σ (per format of per wedstrijd), γ, κ en tie-break kiezen op train
+    (log-loss van de setstand), toetsen tegen de basis uit grid['basis'].
+
+    `correctscore.verdeling` cachet per (p, n, hold, σ, κ, tie-break), dus combinaties die per wedstrijd dezelfde
+    parameters geven, worden één keer gerekend."""
+    g = exp["grid"]
+    sleutels = [k for k in _CS_STANDAARD if k in g]
+    lijsten = [g[k] if isinstance(g[k], list) else [g[k]] for k in sleutels]
+    combis = [dict(_CS_STANDAARD, **dict(zip(sleutels, w))) for w in itertools.product(*lijsten)]
+    label = [",".join(f"{k}={c[k]}" for k in sleutels) for c in combis]
+    tr, te = _cs_rijen(data, train), _cs_rijen(data, test)
+    prof = _cs_profiel(tr)
+    train_ll = [float(_cs_ll_c(tr, c, prof).mean()) for c in combis]
+    top = sorted(range(len(combis)), key=lambda i: train_ll[i])[:10]
+    c, basis = combis[top[0]], dict(_CS_STANDAARD, **g["basis"])
+    ll, ll_b = _cs_ll_c(te, c, prof), _cs_ll_c(te, basis, prof)
+    d = ll - ll_b
+    ns = np.array([r["setsnodig"] for r in te])
+    return dict(train=train, test=test, soort=soort, n=len(te), gekozen={k: c[k] for k in sleutels},
+                n_combinaties=len(combis), train_logloss={label[i]: round(train_ll[i], 4) for i in top},
+                test_logloss={label[i]: round(float(_cs_ll_c(te, combis[i], prof).mean()), 4) for i in top},
+                logloss_dp=round(float(ll.mean()), 4), logloss_naief=round(float(ll_b.mean()), 4),
+                basis=f"hold {basis['hold']:.2f}, σ {basis['sigma']:g}".replace(".", ","),
+                verschil_naief=round(float(d.mean()), 4),
+                verschil_se=round(float(d.std(ddof=1) / math.sqrt(len(d))), 4) if len(d) > 1 else None,
+                per_format={str(n): dict(n_wedstrijden=int((ns == n).sum()), logloss_dp=round(float(ll[ns == n].mean()), 4),
+                                         logloss_basis=round(float(ll_b[ns == n].mean()), 4))
+                            for n in sorted(set(ns.tolist()))})
+
+
+def _macht_odds(q: np.ndarray, marge: float) -> np.ndarray:
+    """Odds 1/q**k met k < 1 zo dat sum(q**k) = 1 + marge: longshots krijgen relatief meer marge."""
+    q = np.maximum(q, 1e-12)
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        k = (lo + hi) / 2
+        if (q ** k).sum() > 1 + marge:   # sum(q**k) daalt in k
+            lo = k
+        else:
+            hi = k
+    return 1 / q ** ((lo + hi) / 2)
+
+
+def _roi_90(cl: list) -> list:
+    """90%-interval van de ROI (inzet 1) met bootstrap per cluster; cl = [[opbrengst, bets], ...] per cluster."""
+    a = np.array([v for v in cl if v[1]], dtype=float)
+    if not len(a):
+        return [None, None]
+    idx = np.random.default_rng(1).choice(len(a), size=(config.BOOTSTRAP_N, len(a)))
+    r = a[idx, 0].sum(axis=1) / a[idx, 1].sum(axis=1) - 1
+    return [round(float(np.percentile(r, 5)), 3), round(float(np.percentile(r, 95)), 3)]
+
+
+def draai_cs_selectie(exp: dict, train: list[int], test: list[int], soort: str, data: dict) -> dict:
+    """E037: selectieregel per wedstrijd ('kans', 'ev', 'ev110') tegen een aangenomen boekmakermodel.
+
+    Boekodds: set-DP met σ_boek plus marge, proportioneel (1/(q·(1+m))) of 'macht' (zie `_macht_odds`).
+    Niets afgestemd, dus train wordt niet gebruikt."""
+    from .correctscore import standen, uitslagtype, verdeling
+    g = exp["grid"]
+    te = _cs_rijen(data, test)
+    picks = {}
+    for r in te:
+        p, n = _markt(r), r["setsnodig"]
+        st = standen(n)
+        echt = st.index((int(r["sets1"]), int(r["sets2"])))
+        v = np.array([verdeling(p, n, g["hold"], g["sigma"])[s] for s in st])
+        for sb in g["sigma_boek"]:
+            qb = np.array([verdeling(p, n, g["hold"], sb)[s] for s in st])
+            for methode, marge in itertools.product(g["marge_methode"], g["marges"]):
+                odd = 1 / (qb * (1 + marge)) if methode == "proportioneel" else _macht_odds(qb, marge)
+                ev = v * odd
+                for regel in g["regels"]:
+                    # bij gelijke EV (afgerond) wint de hoogste eigen kans
+                    i = int(np.argmax(v)) if regel == "kans" else max(range(len(st)), key=lambda j: (round(ev[j], 9), v[j]))
+                    if regel == "ev110" and ev[i] < 1.10:
+                        i = None
+                    picks.setdefault((sb, methode, marge, regel), []).append(
+                        None if i is None else dict(raak=i == echt, odd=float(odd[i]), type=uitslagtype(st[i], p, n),
+                                                    cluster=f"{r['jaar']}-{r['ronde']}"))
+    uit = []
+    for (sb, methode, marge, regel), ps in picks.items():
+        ps = [q for q in ps if q]
+        cl = {}
+        for q in ps:
+            c = cl.setdefault(q["cluster"], [0.0, 0])
+            c[0] += q["odd"] if q["raak"] else 0.0
+            c[1] += 1
+        opbr = sum(c[0] for c in cl.values())
+        uit.append(dict(sigma_boek=sb, methode=methode, marge=marge, regel=regel, bets=len(ps),
+                        raak=sum(q["raak"] for q in ps), trefkans=round(sum(q["raak"] for q in ps) / len(ps), 4) if ps else None,
+                        roi=round(opbr / len(ps) - 1, 4) if ps else None,
+                        gem_odd=round(sum(q["odd"] for q in ps) / len(ps), 2) if ps else None,
+                        keuzes={k: sum(q["type"] == k for q in ps) for k in sorted({q["type"] for q in ps})},
+                        roi_90=_roi_90(list(cl.values())), clusters=[[round(a, 3), b] for a, b in cl.values()]))
+    return dict(train=train, test=test, soort=soort, n=len(te), combinaties=uit)
+
+
+_FAV_BUCKETS = [(0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 1.0)]
+
+
+def _beslissend_blok(items: list[tuple[float, bool]]) -> dict:
+    """items = (kans op de beslissende set, gehaald); verwacht vs echt met z = (echt − verwacht)/se."""
+    verw = sum(q for q, _ in items)
+    var = sum(q * (1 - q) for q, _ in items)
+    echt = sum(b for _, b in items)
+    return dict(n=len(items), verwacht=round(verw, 2), echt=int(echt),
+                z=round((echt - verw) / math.sqrt(var), 2) if var > 0 else None)
+
+
+def _per_format_blok(items: list[tuple[int, float, bool]]) -> dict:
+    return {str(n): _beslissend_blok([(q, b) for m, q, b in items if m == n]) for n in sorted({m for m, _, _ in items})}
+
+
+def _achteraf_rijen(data: dict) -> list[tuple[int, int, int, int, float]] | None:
+    """(jaar, n, sets winnaar/speler 1, sets speler 2, avg1 − avg2) met de averages ín de wedstrijd zelf:
+    WK's uit de csv's plus WK 2022/2023 uit de gecachte Dartsorakel-pagina's. None als die cache ontbreekt."""
+    from .events import event_map, laad_wedstrijden
+    if not (event_map(config.cache_map()) / "pages").exists():
+        return None
+    uit = [(j, r["setsnodig"], int(r["sets1"]), int(r["sets2"]), r["avg1_achteraf"] - r["avg2_achteraf"])
+           for j in sorted(data) for r in data[j]
+           if not r.get("walkover") and r.get("sets1") is not None and r.get("avg1_achteraf") is not None
+           and r.get("avg2_achteraf") is not None and max(r["sets1"], r["sets2"]) == r["setsnodig"]]
+    wed, _, _ = laad_wedstrijden(config.cache_map(), date(2027, 1, 1))
+    wk = [w for w in wed if w.toernooi == "World Championship" and w.sets and w.datum.year in (2022, 2023)
+          and w.datum.year not in data and w.avg_w is not None and w.avg_v is not None]
+    nodig = {}
+    for w in wk:
+        nodig[(w.event_key, w.ronde)] = max(nodig.get((w.event_key, w.ronde), 0), w.score_w)
+    uit += [(w.datum.year, nodig[(w.event_key, w.ronde)], w.score_w, w.score_v, w.avg_w - w.avg_v)
+            for w in wk if w.score_w == nodig[(w.event_key, w.ronde)]]
+    return uit
+
+
+def _achteraf_diagnose(data: dict, hold: float) -> dict | None:
+    """Beschrijvend (nooit als feature): legverschil d = c·(avg1 − avg2) met de averages van de wedstrijd zelf,
+    c met maximale likelihood op de setstand (σ 0), over alle achteraf-rijen samen."""
+    from .correctscore import _interp, standen
+    rijen = _achteraf_rijen(data)
+    if not rijen:
+        return None
+    groepen = {}
+    for j, n, a, b, x in rijen:
+        groepen.setdefault(n, []).append((j, standen(n).index((a, b)), x))
+
+    def kansen(c):
+        return {n: _interp(n, hold, c * np.array([x for _, _, x in g])) for n, g in groepen.items()}
+
+    def ll(c):
+        k = kansen(c)
+        return -sum(np.log(np.maximum(k[n][np.arange(len(g)), [i for _, i, _ in g]], 1e-12)).sum()
+                    for n, g in groepen.items()) / len(rijen)
+    cs = np.arange(0.0, 1.0001, 0.0025)
+    c = float(cs[int(np.argmin([ll(c) for c in cs]))])
+    k = kansen(c)
+    items = [(j, n, float(k[n][t, n - 1] + k[n][t, n]), standen(n)[i][0] + standen(n)[i][1] == 2 * n - 1)
+             for n, g in groepen.items() for t, (j, i, _) in enumerate(g)]
+    return dict(c=c, n=len(rijen), logloss=round(float(ll(c)), 4), jaren=sorted({j for j, *_ in rijen}),
+                per_format=_per_format_blok([(n, q, b) for _, n, q, b in items]),
+                per_jaar={str(j): _beslissend_blok([(q, b) for jj, _, q, b in items if jj == j])
+                          for j in sorted({j for j, *_ in items})})
+
+
+def draai_cs_diagnose(exp: dict, train: list[int], test: list[int], soort: str, data: dict) -> dict:
+    """E038: verwacht vs echt aantal beslissende sets (stand n−1 : n−1 bereikt) per model, format en favorietkans.
+
+    De achteraf-diagnose (averages in de wedstrijd zelf) hangt niet van de split af en wordt alleen bij de
+    walk-forward-split met test [2025] berekend; anders None."""
+    from .correctscore import verdeling
+    g = exp["grid"]
+    te = _cs_rijen(data, test)
+    uit = []
+    for c in g["configs"]:
+        items = []
+        for r in te:
+            p, n = _markt(r), r["setsnodig"]
+            v = verdeling(p, n, c.get("hold", g["hold"]), c.get("sigma", 0.0), c.get("kappa", 0.0),
+                          c.get("tiebreak", "wissel"))
+            items.append((n, max(p, 1 - p), v[(n, n - 1)] + v[(n - 1, n)], r["sets1"] + r["sets2"] == 2 * n - 1))
+        uit.append(dict(config=c, totaal=_beslissend_blok([(q, b) for _, _, q, b in items]),
+                        per_format=_per_format_blok([(n, q, b) for n, _, q, b in items]),
+                        per_favoriet={f"{lo:g}-{hi:g}": _beslissend_blok([(q, b) for _, f, q, b in items
+                                                                          if lo <= f < hi or (hi == 1.0 and f == 1.0)])
+                                      for lo, hi in _FAV_BUCKETS}))
+    achteraf = (_achteraf_diagnose(data, g["hold"]) if soort == "walk-forward" and test == [2025] else None)
+    return dict(train=train, test=test, soort=soort, n=len(te), configs=uit, achteraf=achteraf)
+
+
 SPECIAAL = {"inzet": draai_inzet, "setstand": draai_setstand, "cs-hold": draai_cs_param,
-            "cs-dagvorm": draai_cs_param, "cs-strategie": draai_cs_strategie}
+            "cs-dagvorm": draai_cs_param, "cs-strategie": draai_cs_strategie, "cs-tune": draai_cs_tune,
+            "cs-selectie": draai_cs_selectie, "cs-diagnose": draai_cs_diagnose}
 
 
 # ================================================================ register, log, criterium
@@ -955,6 +1187,67 @@ def markdown(v: dict) -> str:
                 L.append(f"| {u['test'][0]} | " + " | ".join(
                     f"{ty[k]['verwacht']:.1f} / {ty[k]['echt']}" if k in ty else "–"
                     for k in sl) + " |")
+        if r["model"] == "cs-tune" and r["status"] == "ok":
+            L += ["", f"## {r['id']}: correct score, {reg[r['id']].get('naam', '')}", "",
+                  f"Combinatie gekozen op train (log-loss van de setstand, {r['uitkomsten'][0]['n_combinaties']} "
+                  f"combinaties); getoetst tegen de basis (set-DP, {r['uitkomsten'][0]['basis']}).", "",
+                  "| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |", "|---|---|---|---|---|---|---|"]
+            for u in r["uitkomsten"]:
+                se = "–" if u["verschil_se"] is None else f"{u['verschil_se']:.4f}"
+                L.append(f"| {'+'.join(map(str, u['train']))} → {u['test'][0]} | {u['soort']} | {u['n']} | "
+                         + ", ".join(f"{k} {v}" for k, v in u["gekozen"].items())
+                         + f" | {u['logloss_dp']:.4f} | {u['logloss_naief']:.4f} | {u['verschil_naief']:+.4f} ({se}) |")
+        if r["model"] == "cs-selectie" and r["status"] == "ok":
+            uniek = {}
+            for u in r["uitkomsten"]:
+                uniek.setdefault(u["test"][0], u)
+            wf = sorted({u["test"][0] for u in r["uitkomsten"] if u["soort"] == "walk-forward"})
+
+            def cel(c):
+                if not c["bets"]:
+                    return "0"
+                return f"{c['bets']} / {c['trefkans']:.1%} / {_pct(c['roi'])} {_ci(c['roi_90'])}"
+            L += ["", f"## {r['id']}: correct score, selectieregel tegen een boekmakermodel", "",
+                  "Eigen model tegen aangenomen boekodds (set-DP met σ_boek plus marge; geen echte CS-odds). Per cel: "
+                  "bets / trefkans / ROI bij inzet 1 [90%-interval, bootstrap per (jaar, ronde)]. Totaal over de "
+                  f"unieke testjaren ({', '.join(map(str, sorted(uniek)))}). Niets afgestemd.", "",
+                  "| σ_boek | Marge | Regel | " + " | ".join(f"WK{j}" for j in wf) + " | Totaal |",
+                  "|---|---|---|" + "---|" * (len(wf) + 1)]
+            for i, c in enumerate(uniek[wf[0]]["combinaties"] if wf else []):
+                alle = [u["combinaties"][i] for u in uniek.values()]
+                bets, raak = sum(a["bets"] for a in alle), sum(a["raak"] for a in alle)
+                cl = [k for a in alle for k in a["clusters"]]
+                tot = dict(bets=bets, trefkans=raak / bets if bets else None, roi_90=_roi_90(cl),
+                           roi=sum(k[0] for k in cl) / bets - 1 if bets else None)
+                L.append(f"| {c['sigma_boek']:g} | {c['marge']:.0%} {c['methode']} | {c['regel']} | "
+                         + " | ".join(cel(uniek[j]["combinaties"][i]) for j in wf) + f" | {cel(tot)} |")
+        if r["model"] == "cs-diagnose" and r["status"] == "ok":
+            uniek = {}
+            for u in r["uitkomsten"]:
+                uniek.setdefault(u["test"][0], u)
+            fm = sorted({n for u in uniek.values() for c in u["configs"] for n in c["per_format"]}, key=int)
+
+            def blk(b):
+                if not b:
+                    return "–"
+                z = "–" if b["z"] is None else f"{b['z']:+.1f}"
+                return f"{b['verwacht']:.1f} / {b['echt']} ({z})"
+            L += ["", f"## {r['id']}: correct score, beslissende sets (n−1 : n−1) verwacht vs echt", "",
+                  "Per cel: verwacht / echt (z = (echt − verwacht)/se). Wedstrijdkans = marktkans.", "",
+                  "| Test | Model | Totaal | " + " | ".join(f"first to {n}" for n in fm) + " |",
+                  "|---|---|---|" + "---|" * len(fm)]
+            for j, u in sorted(uniek.items()):
+                for c in u["configs"]:
+                    L.append(f"| {j} | " + ", ".join(f"{k} {v}" for k, v in c["config"].items()) + f" | {blk(c['totaal'])} | "
+                             + " | ".join(blk(c["per_format"].get(n)) for n in fm) + " |")
+            a = next((u["achteraf"] for u in r["uitkomsten"] if u.get("achteraf")), None)
+            if a:
+                L += ["", f"Achteraf (beschrijvend, nooit als feature): legverschil d = c·(avg1 − avg2) met de averages "
+                      f"van de wedstrijd zelf, σ 0; c = {a['c']:g} (max. likelihood op WK {', '.join(map(str, a['jaren']))}, "
+                      f"n = {a['n']}).", "",
+                      "| Groep | n | Verwacht / echt (z) |", "|---|---|---|"]
+                L += [f"| first to {n} | {b['n']} | {blk(b)} |" for n, b in a["per_format"].items()]
+                L += [f"| WK{j} | {b['n']} | {blk(b)} |" for j, b in a["per_jaar"].items()]
         if r["model"] == "inzet" and r["status"] == "ok":
             g = reg[r["id"]]["grid"]
             L += ["", f"## {r['id']}: inzetbeleid in euro's (bets van de marktblend)", "",

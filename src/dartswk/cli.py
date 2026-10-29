@@ -81,7 +81,7 @@ def _cs_odds(a):
     from .correctscore import standen, verdeling
     from .evaluatie import markt_proportioneel
     p = markt_proportioneel(a.odd1, a.odd2)
-    v = verdeling(p, a.sets, a.hold, a.sigma)
+    v = verdeling(p, a.sets, a.hold, a.sigma, a.kappa, a.tiebreak)
     print(f"Marktkans speler 1 (zonder marge): {p:.3f}; first to {a.sets} sets")
     print(f"{'stand':>6} {'kans':>7} {'eerlijk':>8} {'min. odd (+' + format(a.buffer, '.0%') + ')':>16}")
     for st in standen(a.sets):
@@ -134,6 +134,9 @@ def main(argv=None):
     c.add_argument("--sets", type=int, required=True, help="sets nodig om te winnen (R1/R2 3, R3/R4 4, KF 5, HF 6, F 7)")
     c.add_argument("--hold", type=float, default=0.6)
     c.add_argument("--sigma", type=float, default=0.0, help="dagvorm-spreiding (E030)")
+    c.add_argument("--kappa", type=float, default=0.0, help="momentum tussen sets (E035)")
+    c.add_argument("--tiebreak", choices=["wissel", "bull"], default="wissel",
+                   help="sudden-death-leg bij 5-5: wissel volgen of opnieuw om de bull (E036)")
     c.add_argument("--buffer", type=float, default=0.10, help="vereiste voorsprong boven eerlijk (standaard 10%%)")
     c.set_defaults(func=_cs_odds)
 
