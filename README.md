@@ -162,7 +162,7 @@ in [experimenten/runlog.jsonl](experimenten/runlog.jsonl). Uitkomsten: [resultat
 
 Kort: **geen enkel experiment haalt het criterium** (walk-forward log-loss in beide testjaren > 1 se onder de markt).
 De beste modellen (logistische regressie met onbestrafte marktlogit, marktblend met krimp, Glicko-achtig in 2025)
-liggen binnen de ruis van de markt; alle modellen zonder marktinput zijn in 2026 meer dan 2 se slechter dan de markt.
+liggen binnen de ruis van de markt. De rating-, Elo- en Glicko-modellen zonder marktinput (E007, E008, E010–E016) zijn in 2026 meer dan 2 se slechter dan de markt.
 GBM is niet gedraaid (geen sklearn).
 
 ## Dashboard
