@@ -641,7 +641,87 @@ def draai_setstand(exp: dict, train: list[int], test: list[int], soort: str, dat
                 verschil_se=round(float(d.std(ddof=1) / math.sqrt(len(d))), 4))
 
 
-SPECIAAL = {"inzet": draai_inzet, "setstand": draai_setstand}
+# ================================================================ E029-E031: correct score (zie correctscore.py)
+def _cs_rijen(data: dict, jaren: list[int]) -> list[dict]:
+    return [r for j in jaren for r in data[j] if r["odd1"] is not None and not r.get("walkover")
+            and r.get("sets1") is not None and max(r["sets1"], r["sets2"]) == r["setsnodig"]]
+
+
+def _cs_ll(rows: list[dict], hold: float, sigma: float) -> np.ndarray:
+    from .correctscore import verdeling
+    return np.array([-math.log(max(verdeling(_markt(r), r["setsnodig"], hold, sigma)
+                                   .get((int(r["sets1"]), int(r["sets2"])), 0.0), 1e-12)) for r in rows])
+
+
+def draai_cs_param(exp: dict, train: list[int], test: list[int], soort: str, data: dict) -> dict:
+    """E029/E030: hold of sigma afstemmen op train (log-loss van de setstand), toetsen tegen hold 0,60 en sigma 0."""
+    g = exp["grid"]
+    holds = g["hold"] if isinstance(g["hold"], list) else [g["hold"]]
+    sigmas = g["sigma"] if isinstance(g["sigma"], list) else [g["sigma"]]
+    tr, te = _cs_rijen(data, train), _cs_rijen(data, test)
+    train_ll = {(h, s): float(_cs_ll(tr, h, s).mean()) for h in holds for s in sigmas}
+    h, s = min(train_ll, key=train_ll.get)
+    ll, basis = _cs_ll(te, h, s), _cs_ll(te, config.HOLD, 0.0)
+    d = ll - basis
+    return dict(train=train, test=test, soort=soort, n=len(te), gekozen=dict(hold=h, sigma=s),
+                train_logloss={f"hold={a},sigma={b}": round(v, 4) for (a, b), v in train_ll.items()},
+                logloss_dp=round(float(ll.mean()), 4), logloss_naief=round(float(basis.mean()), 4),
+                basis="set-DP, hold 0,60, σ 0", verschil_naief=round(float(d.mean()), 4),
+                verschil_se=round(float(d.std(ddof=1) / math.sqrt(len(d))), 4))
+
+
+def draai_cs_strategie(exp: dict, train: list[int], test: list[int], soort: str, data: dict) -> dict:
+    """E031: kies per wedstrijd de meest waarschijnlijke setstand; trefkans, ROI en kalibratie per uitslagtype.
+
+    Niets afgestemd (hold en sigma vast), dus train wordt niet gebruikt. ROI bij inzet 1 tegen odds
+    1/(kans·(1+marge)): marge 0 = eerlijke odds."""
+    from .correctscore import standen, uitslagtype, verdeling
+    g = exp["grid"]
+    te = _cs_rijen(data, test)
+    picks, typen = [], {}
+    for r in te:
+        p, n = _markt(r), r["setsnodig"]
+        v = verdeling(p, n, g["hold"], g["sigma"])
+        echt = (int(r["sets1"]), int(r["sets2"]))
+        best = max(v, key=v.get)
+        picks.append(dict(n=n, q=v[best], raak=best == echt, type=uitslagtype(best, p, n), cluster=(r["jaar"], r["ronde"])))
+        for st in standen(n):
+            t = typen.setdefault(uitslagtype(st, p, n), dict(verwacht=0.0, echt=0))
+            t["verwacht"] += v[st]
+            t["echt"] += st == echt
+    for t in typen.values():
+        t["verwacht"] = round(t["verwacht"], 2)
+
+    def roi(ps, marge):
+        return None if not ps else round(sum((1 / (q["q"] * (1 + marge)) if q["raak"] else 0) for q in ps) / len(ps) - 1, 4)
+
+    def blok(ps):
+        if not ps:
+            return None
+        return dict(n=len(ps), raak=sum(q["raak"] for q in ps), trefkans=round(sum(q["raak"] for q in ps) / len(ps), 4),
+                    verwachte_trefkans=round(sum(q["q"] for q in ps) / len(ps), 4),
+                    gem_eerlijke_odd=round(sum(1 / q["q"] for q in ps) / len(ps), 2),
+                    roi={f"{m:g}": roi(ps, m) for m in g["marges"]},
+                    keuzes={k: sum(q["type"] == k for q in ps) for k in sorted({q["type"] for q in ps})})
+    # 90%-interval van de ROI bij eerlijke odds: bootstrap per (jaar, ronde)
+    rng = np.random.default_rng(1)
+    cl = {}
+    for q in picks:
+        cl.setdefault(q["cluster"], []).append(q)
+    sleutels = list(cl)
+    boots = []
+    for _ in range(config.BOOTSTRAP_N):
+        ps = [q for k in rng.choice(len(sleutels), len(sleutels)) for q in cl[sleutels[k]]]
+        boots.append(roi(ps, 0.0))
+    return dict(train=train, test=test, soort=soort, n=len(te), totaal=blok(picks),
+                roi_90_eerlijk=[round(float(np.percentile(boots, 5)), 3), round(float(np.percentile(boots, 95)), 3)],
+                clusters=len(sleutels),
+                per_format={str(n): blok([q for q in picks if q["n"] == n]) for n in sorted({q["n"] for q in picks})},
+                uitslagtypen=dict(sorted(typen.items())))
+
+
+SPECIAAL = {"inzet": draai_inzet, "setstand": draai_setstand, "cs-hold": draai_cs_param,
+            "cs-dagvorm": draai_cs_param, "cs-strategie": draai_cs_strategie}
 
 
 # ================================================================ register, log, criterium
@@ -838,6 +918,43 @@ def markdown(v: dict) -> str:
                 L.append(f"| {'+'.join(map(str, u['train']))} → {u['test'][0]} | {u['soort']} | {u['n']} | "
                          f"{u['logloss_dp']:.4f} | {u['logloss_naief']:.4f} | {u['verschil_naief']:+.4f} "
                          f"({u['verschil_se']:.4f}) | {u['logloss_winnaar']:.4f} |")
+        if r["model"] in ("cs-hold", "cs-dagvorm") and r["status"] == "ok":
+            L += ["", f"## {r['id']}: correct score, {reg[r['id']].get('naam', '')}", "",
+                  "Parameter gekozen op train (log-loss van de setstand); getoetst tegen de basis (set-DP, hold 0,60, σ 0).", "",
+                  "| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |", "|---|---|---|---|---|---|---|"]
+            for u in r["uitkomsten"]:
+                k = u["gekozen"]
+                L.append(f"| {'+'.join(map(str, u['train']))} → {u['test'][0]} | {u['soort']} | {u['n']} | "
+                         f"hold {k['hold']}, σ {k['sigma']} | {u['logloss_dp']:.4f} | {u['logloss_naief']:.4f} | "
+                         f"{u['verschil_naief']:+.4f} ({u['verschil_se']:.4f}) |")
+        if r["model"] == "cs-strategie" and r["status"] == "ok":
+            marges = reg[r["id"]]["grid"]["marges"]
+            L += ["", f"## {r['id']}: correct score, meest waarschijnlijke setstand", "",
+                  "ROI bij inzet 1 tegen odds 1/(kans·(1+marge)). Niets afgestemd, dus train speelt geen rol.", "",
+                  "| Test | n | Raak | Trefkans (verwacht) | Gem. eerlijke odd | "
+                  + " | ".join(f"ROI marge {m:.0%}" for m in marges) + " | 90%-int. ROI eerlijk |",
+                  "|---|---|---|---|---|" + "---|" * (len(marges) + 1)]
+            gezien = set()
+            for u in r["uitkomsten"]:
+                if u["test"][0] in gezien:
+                    continue
+                gezien.add(u["test"][0])
+                t = u["totaal"]
+                L.append(f"| {u['test'][0]} | {t['n']} | {t['raak']} | {t['trefkans']:.1%} ({t['verwachte_trefkans']:.1%}) | "
+                         f"{t['gem_eerlijke_odd']:.2f} | " + " | ".join(_pct(t['roi'][f'{m:g}']) for m in marges)
+                         + f" | {_ci(u['roi_90_eerlijk'])} |")
+            sl = sorted(set().union(*(u["uitslagtypen"] for u in r["uitkomsten"])))
+            L += ["", "Uitslagtypen (verwacht volgens het model / werkelijk), per testjaar:", "",
+                  "| Test | " + " | ".join(sl) + " |", "|---|" + "---|" * len(sl)]
+            gezien = set()
+            for u in r["uitkomsten"]:
+                if u["test"][0] in gezien:
+                    continue
+                gezien.add(u["test"][0])
+                ty = u["uitslagtypen"]
+                L.append(f"| {u['test'][0]} | " + " | ".join(
+                    f"{ty[k]['verwacht']:.1f} / {ty[k]['echt']}" if k in ty else "–"
+                    for k in sl) + " |")
         if r["model"] == "inzet" and r["status"] == "ok":
             g = reg[r["id"]]["grid"]
             L += ["", f"## {r['id']}: inzetbeleid in euro's (bets van de marktblend)", "",
