@@ -18,6 +18,7 @@ import hashlib
 import itertools
 import json
 import math
+import subprocess
 import time
 import traceback
 from dataclasses import dataclass
@@ -452,6 +453,7 @@ def metrics(rows, ps, bl) -> dict:
         h = None  # bijv. munt: alle logits 0
     r = roi(bl)
     lo, hi = bootstrap_geclusterd(bl, n=config.BOOTSTRAP_N)
+    clusters = len({(b["jaar"], b["ronde"]) for b in bl})
     verloop, som = [], 0.0
     for b in bl:
         som += b["resultaat"]
@@ -471,6 +473,7 @@ def metrics(rows, ps, bl) -> dict:
         winst=round(sum(b["resultaat"] for b in bl), 2),
         roi=None if r is None else round(r, 4),
         roi_90=[None if lo is None else round(lo, 3), None if hi is None else round(hi, 3)],
+        clusters=clusters,
         verloop=verloop,
     )
 
@@ -518,6 +521,25 @@ def vingerafdruk(exp: dict) -> str:
     return hashlib.sha256(json.dumps(kern, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:12]
 
 
+def context_vingerafdruk() -> str:
+    """Hash van wat buiten het register de uitkomst bepaalt: splits, config-grids, drempels en bootstrap."""
+    kern = dict(splits=SPLITS, grid=config.GRID, rating_grid=config.RATING_GRID, drempels=config.DREMPELS,
+                min_bets=config.MIN_BETS_DREMPEL, hold=config.HOLD, bootstrap=config.BOOTSTRAP_N)
+    return hashlib.sha256(json.dumps(kern, sort_keys=True).encode()).hexdigest()[:12]
+
+
+def git_staat() -> dict:
+    """Commit en of het register niet-gecommitte wijzigingen heeft (dan is 'vooraf vastgelegd' niet aantoonbaar)."""
+    def git(*a):
+        try:
+            return subprocess.run(["git", *a], cwd=config.basis(), capture_output=True, text=True,
+                                  timeout=10).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            return ""
+    return dict(commit=git("rev-parse", "--short", "HEAD") or None,
+                register_gewijzigd=bool(git("status", "--porcelain", "--", "experimenten/register.json")))
+
+
 def lees_log(pad: Path | None = None) -> list[dict]:
     pad = pad or runlog_pad()
     if not pad.exists():
@@ -536,11 +558,20 @@ def protocolcheck(exp: dict, eerdere: list[dict]) -> str | None:
     """Waarschuwing als hypothese/criterium/grid gewijzigd zijn na een eerdere run zonder dat te melden."""
     if not exp["hypothese"].strip() or not exp["criterium"].get("tekst", "").strip():
         raise ValueError(f"{exp['id']}: eerst hypothese en criterium vastleggen, dan pas testjaren evalueren")
-    vorige = [x["vingerafdruk"] for x in eerdere if x["id"] == exp["id"] and x.get("vingerafdruk")]
-    if vorige and vorige[0] != vingerafdruk(exp) and not exp["na_test_aangepast"]["waarde"]:
-        return ("hypothese, criterium of grid is gewijzigd na een eerdere run, maar na_test_aangepast staat op "
-                "false")
-    return None
+    nta = exp["na_test_aangepast"]
+    if nta["waarde"] and not nta.get("toelichting", "").strip():
+        raise ValueError(f"{exp['id']}: na_test_aangepast is true maar zonder toelichting")
+    eigen = [x for x in eerdere if x["id"] == exp["id"]]
+    # Vergelijk met de eerste run: anders zou een tweede run een stille wijziging 'witwassen'.
+    vorige = [x["vingerafdruk"] for x in eigen if x.get("vingerafdruk")]
+    w = []
+    if vorige and vorige[0] != vingerafdruk(exp) and not nta["waarde"]:
+        w.append("hypothese, criterium of grid is gewijzigd na een eerdere run, maar na_test_aangepast staat op false")
+    ctx = [x["context"] for x in eigen if x.get("context")]
+    if ctx and ctx[0] != context_vingerafdruk() and not nta["waarde"]:
+        w.append("splits, config-grid, drempels of bootstrap zijn gewijzigd sinds de eerste run, maar "
+                 "na_test_aangepast staat op false")
+    return "; ".join(w) or None
 
 
 def beoordeel(exp: dict, uitkomsten: list[dict]) -> dict:
@@ -567,6 +598,7 @@ def draai(ids: list[str] | None = None, splits=None) -> dict:
     splits = splits or SPLITS
     data, _ = laad(sorted({j for tr, te, _ in splits for j in tr + te}))
     eerdere = lees_log()
+    staat = git_staat()
     uit = []
     for exp in reg:
         t0 = time.time()
@@ -584,7 +616,8 @@ def draai(ids: list[str] | None = None, splits=None) -> dict:
                        traceback=traceback.format_exc(limit=3))
         res["duur_s"] = round(time.time() - t0, 1)
         log(dict(tijd=datetime.now(timezone.utc).isoformat(timespec="seconds"), id=exp["id"], status=res["status"],
-                 vingerafdruk=res["vingerafdruk"], fout=res.get("fout"), duur_s=res["duur_s"],
+                 vingerafdruk=res["vingerafdruk"], context=context_vingerafdruk(), **staat,
+                 fout=res.get("fout"), duur_s=res["duur_s"],
                  samenvatting={f"{'+'.join(map(str, u['train']))}->{u['test'][0]}": u["verschil_markt"]
                                for u in res["uitkomsten"]}))
         print(f"{exp['id']} {exp['model']}: {res['status']} ({res['duur_s']} s)")
@@ -621,13 +654,14 @@ def markdown(v: dict) -> str:
          "Gegenereerd door `dartswk experimenten` (protocol: [docs/protocol.md](../docs/protocol.md)). "
          "Verschil = log-loss model − markt (proportioneel) per wedstrijd met standaardfout; < 0 = model beter. "
          f"'Binnen de ruis' = |verschil| ≤ {RUIS_SE:g}·se. ROI bij inzet 1, 90%-interval met bootstrap per (jaar, "
-         "ronde). Helling = c in logit P(winst) = c·logit(p) (1 = goed, < 1 = te stellig).", "",
+         "ronde); 'Clusters' = aantal (jaar, ronde)-clusters met bets. Een WK heeft hoogstens 7 rondes, dus hoogstens 7 clusters per testjaar; dan is het "
+         "interval grof en kan het tot ±100% reiken. Helling = c in logit P(winst) = c·logit(p) (1 = goed, < 1 = te stellig).", "",
          "## Walk-forward (hoofdresultaat)", "",
-         "| Id | Model | Test | n | Log-loss | Markt | Verschil (se) | Oordeel | Brier | Helling | Bets | ROI [90%] |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+         "| Id | Model | Test | n | Log-loss | Markt | Verschil (se) | Oordeel | Brier | Helling | Bets | ROI [90%] | Clusters |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in v["resultaten"]:
         if r["status"] != "ok":
-            L.append(f"| {r['id']} | {r['model']} | – | – | – | – | – | **{r['status']}**: {r.get('fout', '')} | – | – | – | – |")
+            L.append(f"| {r['id']} | {r['model']} | – | – | – | – | – | **{r['status']}**: {r.get('fout', '')} | – | – | – | – | – |")
             continue
         for u in r["uitkomsten"]:
             if u["soort"] != "walk-forward":
@@ -635,7 +669,7 @@ def markdown(v: dict) -> str:
             h = "–" if u["helling"] is None else f"{u['helling']:.2f}"
             L.append(f"| {r['id']} | {r['model']} | {u['test'][0]} | {u['n']} | {u['logloss']:.4f} | "
                      f"{u['logloss_markt']:.4f} | {u['verschil_markt']:+.4f} ({u['verschil_se']:.4f}) | {u['ruis']} | "
-                     f"{u['brier']:.4f} | {h} | {u['bets']} | {_pct(u['roi'])} {_ci(u['roi_90'])} |")
+                     f"{u['brier']:.4f} | {h} | {u['bets']} | {_pct(u['roi'])} {_ci(u['roi_90'])} | {u.get('clusters', '–')} |")
     L += ["", "## Vaste richtingen (ter vergelijking; afstemmen op een later jaar is niet walk-forward)", "",
           "| Id | Model | Train → test | Log-loss | Verschil (se) | Bets | ROI [90%] |", "|---|---|---|---|---|---|---|"]
     for r in v["resultaten"]:

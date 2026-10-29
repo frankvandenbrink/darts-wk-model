@@ -102,3 +102,18 @@ def test_log_schrijft_jsonl(tmp_path):
     x.log({"id": "E901", "status": "ok"}, pad)
     assert [r["id"] for r in x.lees_log(pad)] == ["E900", "E901"]
     assert json.loads(pad.read_text().splitlines()[0])["status"] == "mislukt"
+
+
+def test_protocol_toelichting_verplicht():
+    with pytest.raises(ValueError):
+        x.protocolcheck(_exp(na_test_aangepast={"waarde": True, "toelichting": " "}), [])
+
+
+def test_protocol_eerste_run_telt_en_context():
+    e = _exp(hypothese="nieuw")
+    eerdere = [dict(id="E900", vingerafdruk=x.vingerafdruk(_exp())), dict(id="E900", vingerafdruk=x.vingerafdruk(e))]
+    assert x.protocolcheck(e, eerdere) is not None        # tweede run wast de wijziging niet wit
+    oud = [dict(id="E900", vingerafdruk=x.vingerafdruk(_exp()), context="andere")]
+    assert "config" in x.protocolcheck(_exp(), oud)
+    goed = [dict(id="E900", vingerafdruk=x.vingerafdruk(_exp()), context=x.context_vingerafdruk())]
+    assert x.protocolcheck(_exp(), goed) is None
