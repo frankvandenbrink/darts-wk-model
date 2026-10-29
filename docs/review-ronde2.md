@@ -60,3 +60,16 @@ een uitleg. De ROI-intervallen moeten met dat aantal in gedachten gelezen worden
 Niets. De fixes voegen alleen velden toe (`clusters`, `context`, `commit`, `register_gewijzigd`). Alle
 experimenten zijn opnieuw gedraaid zodat het clustersveld overal staat. De log-loss- en ROI-cijfers van
 E001–E023 bleven gelijk, dus `na_test_aangepast` is nergens aangepast.
+
+Gecontroleerd: voor alle 23 bestaande experimenten en alle 6 splits zijn log-loss, Brier, helling, verschil met de
+markt, bets, ROI en ROI-interval identiek aan de versie op `main`.
+
+## 5. Bijvangst bij het draaien van ronde 2
+
+- **De commit-hash dekt geen niet-gecommitte code.** Een proefrun van E020/E024/E027/E028 draaide op commit
+  `ec9d80d` terwijl de nieuwe modelcode nog niet gecommit was. In de log lijkt die run dus op `ec9d80d` te horen.
+  Aanbeveling voor later: ook `git status --porcelain -- src` loggen.
+- **Optimum weer op de rand (E025, E026).** Het bredere grid leverde opnieuw randoptima op: Elo met train
+  2024+2025 kiest K = 0,02 en onbekend = −0,9 (beide rand), Glicko kiest v0 = 3,0 (rand). Volgens het protocol
+  wordt het grid niet stil verbreed: dat wordt een nieuw experiment. Op test zijn beide nog duidelijk slechter
+  dan de markt in 2026, dus de verwachte winst van verder verbreden is klein.

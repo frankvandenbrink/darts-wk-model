@@ -728,6 +728,211 @@
     "toelichting": ""
    },
    "test_vooraf_bekend": false
+  },
+  {
+   "id": "E024",
+   "naam": "Marktblend met Shin als marktinput",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "blend-krimp",
+   "features": [
+    "logit markt (Shin)",
+    "logit rating"
+   ],
+   "grid": {
+    "lambda": [
+     0,
+     1,
+     3,
+     10,
+     30,
+     100,
+     1000
+    ],
+    "marge": "shin"
+   },
+   "hypothese": "Shin als marktinput in de blend verandert de log-loss nauwelijks t.o.v. E020 (proportioneel), omdat a op train de schaal toch al bijstelt; het verschil met E020 is < 0,002 per wedstrijd.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E025",
+   "naam": "Elo met breder K-grid",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "elo",
+   "features": [
+    "Elo op legs"
+   ],
+   "grid": {
+    "K": [
+     0.001,
+     0.002,
+     0.003,
+     0.005,
+     0.0075,
+     0.01,
+     0.02
+    ],
+    "marge": [
+     true,
+     false
+    ],
+    "onbekend": [
+     -0.9,
+     -0.6,
+     -0.3,
+     0.0
+    ],
+    "k": [
+     0.3,
+     0.4,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "hypothese": "In E014 lag het optimum op de rand (K=0,005, k=0,5). Met een breder grid verbetert Elo iets op train, maar blijft het op test slechter dan de markt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E026",
+   "naam": "Glicko met breder v0-grid",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "glicko",
+   "features": [
+    "Glicko op legs"
+   ],
+   "grid": {
+    "K": [
+     0.0
+    ],
+    "marge": [
+     true
+    ],
+    "v0": [
+     0.15,
+     0.4,
+     0.8,
+     1.5,
+     3.0
+    ],
+    "q": [
+     0.0,
+     0.1,
+     0.3
+    ],
+    "onbekend": [
+     -0.9,
+     -0.6,
+     -0.3,
+     0.0
+    ],
+    "k": [
+     0.3,
+     0.4,
+     0.5,
+     0.75,
+     1.0,
+     1.25
+    ]
+   },
+   "hypothese": "In E015 lag het optimum op de rand (v0=0,4). Een grotere v0 helpt op train, maar Glicko blijft op test slechter dan de markt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E027",
+   "naam": "Inzetbeleid op de bets van E020 (euro)",
+   "datum": "2026-10-29",
+   "soort": "inzet",
+   "model": "inzet",
+   "features": [
+    "bets en kansen van E020"
+   ],
+   "grid": {
+    "basis": "blend-krimp",
+    "lambda": [
+     0,
+     1,
+     3,
+     10,
+     30,
+     100,
+     1000
+    ],
+    "kelly_fractie": 0.25,
+    "startkapitaal": 100,
+    "vaste_inzet": [
+     2,
+     3,
+     5
+    ],
+    "weekbudget": 50
+   },
+   "hypothese": "Met dezelfde bets als E020 geeft ¼-Kelly (start €100) een kleinere maximale drawdown dan vaste inzet, maar de ROI-cijfers zijn met 2 testjaren ruis. Bij €2–5 vaste inzet raakt het weekbudget van €50 in de eerste WK-week op.",
+   "criterium": {
+    "tekst": "beschrijvend: eindstand, maximale drawdown en aantal weken met een uitgeput budget in euro's (geen toets)",
+    "regel": "geen"
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E028",
+   "naam": "Setstanden: exacte set-DP tegen een naïeve verdeling",
+   "datum": "2026-10-29",
+   "soort": "setstand",
+   "model": "setstand",
+   "features": [
+    "marktkans (proportioneel) omgezet naar legkans"
+   ],
+   "grid": {
+    "hold": 0.6,
+    "naief": "binomiaal: sets onafhankelijk met vaste setkans, zelfde wedstrijdkans"
+   },
+   "hypothese": "De exacte set-DP (wisselende beginner, beslissende set) geeft een lagere log-loss op de exacte setstand dan een binomiale setverdeling met dezelfde wedstrijdkans, maar het verschil is klein.",
+   "criterium": {
+    "tekst": "log-loss van de setstand (DP) lager dan naïef in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_naief",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
   }
  ],
  "resultaten": [
@@ -802,6 +1007,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -870,6 +1076,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -937,6 +1144,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -1004,6 +1212,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -1071,6 +1280,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -1139,6 +1349,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     }
    ],
@@ -1223,6 +1434,7 @@
       -0.35,
       0.739
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -1323,6 +1535,7 @@
       -1.0,
       1.0
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -1422,6 +1635,7 @@
       -0.143,
       0.95
      ],
+     "clusters": 3,
      "verloop": [
       -1.0,
       -2.0,
@@ -1502,6 +1716,7 @@
       -0.415,
       0.134
      ],
+     "clusters": 7,
      "verloop": [
       2.4,
       1.4,
@@ -1672,6 +1887,7 @@
       -0.071,
       0.385
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -1817,6 +2033,7 @@
       -0.3,
       2.2
      ],
+     "clusters": 4,
      "verloop": [
       -1.0,
       -2.0,
@@ -1916,6 +2133,7 @@
       -0.214,
       0.473
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -2079,6 +2297,7 @@
       -0.284,
       0.094
      ],
+     "clusters": 7,
      "verloop": [
       2.4,
       1.4,
@@ -2271,6 +2490,7 @@
       -0.214,
       0.473
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -2433,6 +2653,7 @@
       -0.284,
       0.094
      ],
+     "clusters": 7,
      "verloop": [
       2.4,
       1.4,
@@ -2625,6 +2846,7 @@
       -0.181,
       0.219
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -2786,6 +3008,7 @@
       -0.181,
       0.219
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -2960,6 +3183,7 @@
       -0.269,
       0.051
      ],
+     "clusters": 7,
      "verloop": [
       0.22,
       0.42,
@@ -3123,6 +3347,7 @@
       -0.055,
       0.0
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -0.94,
@@ -3315,6 +3540,7 @@
       -0.269,
       0.051
      ],
+     "clusters": 7,
      "verloop": [
       0.22,
       0.42,
@@ -3477,6 +3703,7 @@
       -0.055,
       0.0
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -0.94,
@@ -3669,6 +3896,7 @@
       -0.029,
       0.078
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       1.33,
@@ -3830,6 +4058,7 @@
       -0.029,
       0.078
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       1.33,
@@ -4004,6 +4233,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -4072,6 +4302,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -4139,6 +4370,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -4206,6 +4438,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -4273,6 +4506,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -4341,6 +4575,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     }
    ],
@@ -4427,6 +4662,7 @@
       -0.249,
       0.436
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -4535,6 +4771,7 @@
       -1.0,
       0.117
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -4645,6 +4882,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -4717,6 +4955,7 @@
       -0.562,
       0.072
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -4858,6 +5097,7 @@
       -0.197,
       0.508
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -4995,6 +5235,7 @@
       -0.273,
       0.422
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -5069,7 +5310,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0118 (se 0.0186); WK2026: +0.0235 (se 0.0149)"
    },
-   "duur_s": 6.8
+   "duur_s": 5.8
   },
   {
    "id": "E007",
@@ -5148,6 +5389,7 @@
       -0.248,
       0.63
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -5270,6 +5512,7 @@
       -0.616,
       0.138
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -5447,6 +5690,7 @@
       -0.2,
       0.752
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -5560,6 +5804,7 @@
       -0.55,
       0.072
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -5739,6 +5984,7 @@
       -0.183,
       0.478
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -5887,6 +6133,7 @@
       -0.292,
       1.185
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -5941,7 +6188,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0545 (se 0.0535); WK2026: +0.0746 (se 0.0334)"
    },
-   "duur_s": 38.2
+   "duur_s": 36.5
   },
   {
    "id": "E008",
@@ -6024,6 +6271,7 @@
       -0.242,
       0.782
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -6150,6 +6398,7 @@
       -0.616,
       0.138
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -6331,6 +6580,7 @@
       -0.497,
       0.752
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -6446,6 +6696,7 @@
       -0.55,
       0.072
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -6629,6 +6880,7 @@
       -0.183,
       0.478
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -6781,6 +7033,7 @@
       -0.292,
       1.185
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -6921,6 +7174,7 @@
       -0.221,
       0.544
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -7067,6 +7321,7 @@
       -0.391,
       0.553
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -7197,6 +7452,7 @@
       -1.0,
       -1.0
      ],
+     "clusters": 4,
      "verloop": [
       -1.0,
       -2.0,
@@ -7285,6 +7541,7 @@
       -0.553,
       0.318
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -7437,6 +7694,7 @@
       -0.225,
       0.714
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -7567,6 +7825,7 @@
       -0.3,
       2.2
      ],
+     "clusters": 4,
      "verloop": [
       -1.0,
       -2.0,
@@ -7674,6 +7933,7 @@
       -0.248,
       0.63
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -7796,6 +8056,7 @@
       -0.465,
       0.401
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -7931,6 +8192,7 @@
       -0.275,
       0.555
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -8036,6 +8298,7 @@
       -0.475,
       0.097
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -8214,6 +8477,7 @@
       -0.193,
       0.524
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -8360,6 +8624,7 @@
       -0.22,
       1.227
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -8413,7 +8678,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0545 (se 0.0535); WK2026: +0.0693 (se 0.0328)"
    },
-   "duur_s": 101.6
+   "duur_s": 217.5
   },
   {
    "id": "E011",
@@ -8492,6 +8757,7 @@
       -0.672,
       0.95
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -8597,6 +8863,7 @@
       -0.435,
       0.056
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -8776,6 +9043,7 @@
       -0.285,
       0.736
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -8886,6 +9154,7 @@
       -0.495,
       0.101
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -9054,6 +9323,7 @@
       -0.198,
       0.386
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -9195,6 +9465,7 @@
       -0.355,
       0.856
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -9334,6 +9605,7 @@
       -0.264,
       0.436
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -9492,6 +9764,7 @@
       -0.439,
       0.287
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -9639,6 +9912,7 @@
       -0.2,
       0.752
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -9752,6 +10026,7 @@
       -0.439,
       0.214
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -9905,6 +10180,7 @@
       -0.29,
       0.721
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -10030,6 +10306,7 @@
       -0.259,
       1.185
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -10083,7 +10360,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0548 (se 0.0434); WK2026: +0.0630 (se 0.0309)"
    },
-   "duur_s": 4.2
+   "duur_s": 4.1
   },
   {
    "id": "E013",
@@ -10162,6 +10439,7 @@
       -0.281,
       0.685
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -10285,6 +10563,7 @@
       -0.606,
       0.214
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -10436,6 +10715,7 @@
       -0.216,
       0.522
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -10552,6 +10832,7 @@
       -0.5,
       0.085
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -10743,6 +11024,7 @@
       -0.137,
       0.461
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -10898,6 +11180,7 @@
       -0.26,
       1.227
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -10953,7 +11236,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0519 (se 0.0478); WK2026: +0.0676 (se 0.0314)"
    },
-   "duur_s": 4.1
+   "duur_s": 4.0
   },
   {
    "id": "E014",
@@ -11031,6 +11314,7 @@
       -0.314,
       0.721
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -11150,6 +11434,7 @@
       -0.625,
       0.244
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -11285,6 +11570,7 @@
       -0.153,
       0.509
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -11428,6 +11714,7 @@
       -0.679,
       0.225
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -11566,6 +11853,7 @@
       -0.283,
       0.605
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -11690,6 +11978,7 @@
       -0.429,
       0.413
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -11735,7 +12024,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0192 (se 0.0411); WK2026: +0.0919 (se 0.0323)"
    },
-   "duur_s": 2.6
+   "duur_s": 2.7
   },
   {
    "id": "E015",
@@ -11815,6 +12104,7 @@
       -0.485,
       0.551
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -11935,6 +12225,7 @@
       -0.467,
       0.085
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -12114,6 +12405,7 @@
       -0.28,
       0.59
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -12225,6 +12517,7 @@
       -0.467,
       0.085
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -12404,6 +12697,7 @@
       -0.147,
       0.512
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -12552,6 +12846,7 @@
       -0.302,
       0.86
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -12610,7 +12905,7 @@
     "succes": false,
     "toelichting": "WK2025: -0.0031 (se 0.0279); WK2026: +0.0847 (se 0.0339)"
    },
-   "duur_s": 2.0
+   "duur_s": 2.1
   },
   {
    "id": "E016",
@@ -12693,6 +12988,7 @@
       -0.227,
       0.63
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -12821,6 +13117,7 @@
       -0.632,
       0.174
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -0.47,
@@ -12992,6 +13289,7 @@
       -0.2,
       0.752
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -13109,6 +13407,7 @@
       -0.55,
       0.072
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -13292,6 +13591,7 @@
       -0.183,
       0.478
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -13444,6 +13744,7 @@
       -0.292,
       1.185
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -13498,7 +13799,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0521 (se 0.0523); WK2026: +0.0737 (se 0.0331)"
    },
-   "duur_s": 1.4
+   "duur_s": 1.5
   },
   {
    "id": "E017",
@@ -13601,6 +13902,7 @@
       -0.253,
       0.778
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -13727,6 +14029,7 @@
       -1.0,
       0.508
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -13870,6 +14173,7 @@
       -1.0,
       -1.0
      ],
+     "clusters": 2,
      "verloop": [
       -1.0,
       -2.0,
@@ -13972,6 +14276,7 @@
       -0.574,
       0.18
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -14142,6 +14447,7 @@
       -0.195,
       0.612
      ],
+     "clusters": 3,
      "verloop": [
       0.8,
       -0.2,
@@ -14286,6 +14592,7 @@
       -0.583,
       0.6
      ],
+     "clusters": 2,
      "verloop": [
       -1.0,
       -2.0,
@@ -14411,6 +14718,7 @@
       -0.308,
       0.904
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       2.5,
@@ -14524,6 +14832,7 @@
       -0.625,
       0.465
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -14662,6 +14971,7 @@
       -0.36,
       0.385
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -14791,6 +15101,7 @@
       -0.436,
       0.458
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -14942,6 +15253,7 @@
       -0.114,
       0.724
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -15081,6 +15393,7 @@
       -0.165,
       0.667
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -15238,6 +15551,7 @@
       -0.222,
       0.738
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -15357,6 +15671,7 @@
       -0.391,
       0.553
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -15485,6 +15800,7 @@
       -0.143,
       0.95
      ],
+     "clusters": 3,
      "verloop": [
       -1.0,
       -2.0,
@@ -15573,6 +15889,7 @@
       -0.679,
       0.292
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -15719,6 +16036,7 @@
       -0.292,
       0.675
      ],
+     "clusters": 6,
      "verloop": [
       0.8,
       -0.2,
@@ -15848,6 +16166,7 @@
       -0.3,
       2.2
      ],
+     "clusters": 4,
      "verloop": [
       -1.0,
       -2.0,
@@ -15958,6 +16277,7 @@
       -0.263,
       0.324
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -16078,6 +16398,7 @@
       -1.0,
       0.168
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -16190,6 +16511,7 @@
       null,
       null
      ],
+     "clusters": 0,
      "verloop": []
     },
     {
@@ -16266,6 +16588,7 @@
       -0.405,
       0.114
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -16422,6 +16745,7 @@
       -0.213,
       0.463
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -16563,6 +16887,7 @@
       -0.205,
       0.453
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -16643,7 +16968,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0126 (se 0.0187); WK2026: +0.0230 (se 0.0148)"
    },
-   "duur_s": 5.6
+   "duur_s": 5.8
   },
   {
    "id": "E022",
@@ -16915,6 +17240,7 @@
       -0.455,
       0.679
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -0.47,
@@ -17386,6 +17712,7 @@
       -1.0,
       0.443
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -17755,6 +18082,7 @@
       -0.278,
       1.167
      ],
+     "clusters": 5,
      "verloop": [
       -1.0,
       -2.0,
@@ -18034,6 +18362,7 @@
       -0.746,
       0.253
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -18346,6 +18675,7 @@
       -0.293,
       0.381
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -18917,6 +19247,7 @@
       -0.354,
       0.237
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -18985,7 +19316,7 @@
     "succes": false,
     "toelichting": "WK2025: +0.0409 (se 0.0347); WK2026: +0.0406 (se 0.0204)"
    },
-   "duur_s": 6.5
+   "duur_s": 6.7
   },
   {
    "id": "E023",
@@ -19258,6 +19589,7 @@
       -0.139,
       0.574
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -19762,6 +20094,7 @@
       -0.394,
       0.589
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -20149,6 +20482,7 @@
       -0.445,
       0.606
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -20458,6 +20792,7 @@
       -0.472,
       0.285
      ],
+     "clusters": 7,
      "verloop": [
       -1.0,
       -2.0,
@@ -20802,6 +21137,7 @@
       -0.36,
       0.693
      ],
+     "clusters": 7,
      "verloop": [
       0.8,
       -0.2,
@@ -21375,6 +21711,7 @@
       -0.61,
       0.776
      ],
+     "clusters": 6,
      "verloop": [
       -1.0,
       -2.0,
@@ -21432,6 +21769,3552 @@
     "toelichting": "WK2025: +0.0605 (se 0.0543); WK2026: +0.0940 (se 0.0485)"
    },
    "duur_s": 0.1
+  },
+  {
+   "id": "E024",
+   "model": "blend-krimp",
+   "vingerafdruk": "ac9cfa8d98cd",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "parameters": {
+      "basis": {
+       "halfwaarde": 100000,
+       "lam": 0.1,
+       "onbekend": 0.0,
+       "k": 0.8,
+       "g": 0.0
+      },
+      "lam": 10,
+      "a": 0.7146,
+      "b": 0.2094
+     },
+     "drempel": 1.0,
+     "drempel_reden": "drempel 1.00 heeft de hoogste ROI op train (+28.3%)",
+     "n": 94,
+     "logloss": 0.6324,
+     "brier": 0.2212,
+     "logloss_markt": 0.6343,
+     "brier_markt": 0.2234,
+     "verschil_markt": -0.0019,
+     "verschil_se": 0.0111,
+     "ruis": "binnen de ruis",
+     "helling": 0.688,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 17,
+       "kans": 0.554,
+       "freq": 0.4118
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 27,
+       "kans": 0.6425,
+       "freq": 0.4074
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 25,
+       "kans": 0.7474,
+       "freq": 0.8
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 18,
+       "kans": 0.8446,
+       "freq": 0.7778
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 7,
+       "kans": 0.9201,
+       "freq": 0.8571
+      }
+     ],
+     "bets": 53,
+     "underdog_bets": 41,
+     "winst": 12.78,
+     "roi": 0.2411,
+     "roi_90": [
+      -0.226,
+      0.659
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -5.0,
+      -4.9,
+      -1.4,
+      -0.87,
+      -1.87,
+      -2.87,
+      -0.67,
+      -1.67,
+      -2.67,
+      -2.42,
+      -3.42,
+      -4.42,
+      -5.42,
+      -6.42,
+      0.08,
+      0.75,
+      1.85,
+      5.18,
+      4.18,
+      3.18,
+      5.18,
+      4.18,
+      4.8,
+      3.8,
+      6.55,
+      8.3,
+      7.3,
+      12.3,
+      13.68,
+      15.93,
+      16.66,
+      15.66,
+      17.76,
+      16.76,
+      15.76,
+      14.76,
+      13.76,
+      14.09,
+      19.59,
+      18.59,
+      19.34,
+      18.34,
+      17.34,
+      16.34,
+      16.78,
+      15.78,
+      14.78,
+      13.78,
+      12.78
+     ]
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "parameters": {
+      "basis": {
+       "halfwaarde": 100000,
+       "lam": 2.0,
+       "onbekend": -0.3,
+       "k": 0.6,
+       "g": 0.0
+      },
+      "lam": 0,
+      "a": 0.5436,
+      "b": 0.354
+     },
+     "drempel": 1.2,
+     "drempel_reden": "drempel 1.20 heeft de hoogste ROI op train (+46.2%)",
+     "n": 126,
+     "logloss": 0.56,
+     "brier": 0.1899,
+     "logloss_markt": 0.549,
+     "brier_markt": 0.1843,
+     "verschil_markt": 0.0109,
+     "verschil_se": 0.013,
+     "ruis": "binnen de ruis",
+     "helling": 1.044,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 25,
+       "kans": 0.5427,
+       "freq": 0.72
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 38,
+       "kans": 0.6601,
+       "freq": 0.6579
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 33,
+       "kans": 0.7482,
+       "freq": 0.697
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 21,
+       "kans": 0.847,
+       "freq": 0.9048
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 9,
+       "kans": 0.9156,
+       "freq": 0.8889
+      }
+     ],
+     "bets": 49,
+     "underdog_bets": 48,
+     "winst": 17.53,
+     "roi": 0.3578,
+     "roi_90": [
+      -0.391,
+      0.553
+     ],
+     "clusters": 6,
+     "verloop": [
+      -1.0,
+      -2.0,
+      1.5,
+      0.5,
+      -0.5,
+      -1.5,
+      6.5,
+      7.88,
+      6.88,
+      5.88,
+      4.88,
+      3.88,
+      2.88,
+      1.88,
+      0.88,
+      -0.12,
+      -1.12,
+      5.88,
+      4.88,
+      3.88,
+      19.88,
+      18.88,
+      17.88,
+      20.63,
+      19.63,
+      18.63,
+      17.63,
+      19.83,
+      18.83,
+      23.33,
+      22.33,
+      23.33,
+      26.83,
+      25.83,
+      24.83,
+      23.83,
+      22.83,
+      21.83,
+      23.03,
+      26.53,
+      25.53,
+      24.53,
+      23.53,
+      22.53,
+      21.53,
+      20.53,
+      19.53,
+      18.53,
+      17.53
+     ]
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "parameters": {
+      "basis": {
+       "halfwaarde": 365,
+       "lam": 0.5,
+       "onbekend": 0.0,
+       "k": 0.6,
+       "g": 0.0
+      },
+      "lam": 1000,
+      "a": 0.8817,
+      "b": 0.0014
+     },
+     "drempel": 1.05,
+     "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+118.5%)",
+     "n": 94,
+     "logloss": 0.628,
+     "brier": 0.2211,
+     "logloss_markt": 0.6343,
+     "brier_markt": 0.2234,
+     "verschil_markt": -0.0062,
+     "verschil_se": 0.0035,
+     "ruis": "binnen de ruis",
+     "helling": 0.726,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 22,
+       "kans": 0.5638,
+       "freq": 0.5
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 23,
+       "kans": 0.6521,
+       "freq": 0.4348
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 27,
+       "kans": 0.7476,
+       "freq": 0.7407
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 16,
+       "kans": 0.8381,
+       "freq": 0.75
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 6,
+       "kans": 0.9231,
+       "freq": 1.0
+      }
+     ],
+     "bets": 7,
+     "underdog_bets": 7,
+     "winst": 14.75,
+     "roi": 2.1071,
+     "roi_90": [
+      1.4,
+      3.875
+     ],
+     "clusters": 2,
+     "verloop": [
+      -1.0,
+      5.5,
+      4.5,
+      3.5,
+      7.0,
+      9.75,
+      14.75
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "parameters": {
+      "basis": {
+       "halfwaarde": 100000,
+       "lam": 5.0,
+       "onbekend": -0.6,
+       "k": 0.5,
+       "g": 0.0
+      },
+      "lam": 3,
+      "a": 0.4943,
+      "b": 0.2851
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+33.4%)",
+     "n": 126,
+     "logloss": 0.5658,
+     "brier": 0.1918,
+     "logloss_markt": 0.549,
+     "brier_markt": 0.1843,
+     "verschil_markt": 0.0168,
+     "verschil_se": 0.0148,
+     "ruis": "binnen de ruis",
+     "helling": 1.203,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 33,
+       "kans": 0.5475,
+       "freq": 0.697
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 39,
+       "kans": 0.66,
+       "freq": 0.6667
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 32,
+       "kans": 0.7384,
+       "freq": 0.7812
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 20,
+       "kans": 0.8501,
+       "freq": 0.85
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 2,
+       "kans": 0.9092,
+       "freq": 1.0
+      }
+     ],
+     "bets": 46,
+     "underdog_bets": 46,
+     "winst": 15.25,
+     "roi": 0.3315,
+     "roi_90": [
+      -0.55,
+      0.608
+     ],
+     "clusters": 6,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      0.5,
+      -0.5,
+      3.0,
+      2.0,
+      1.0,
+      9.0,
+      8.0,
+      7.0,
+      6.0,
+      5.0,
+      4.0,
+      3.0,
+      2.0,
+      1.0,
+      8.0,
+      7.0,
+      6.0,
+      22.0,
+      21.0,
+      20.0,
+      22.75,
+      21.75,
+      20.75,
+      19.75,
+      18.75,
+      23.25,
+      22.25,
+      25.75,
+      24.75,
+      23.75,
+      22.75,
+      21.75,
+      20.75,
+      24.25,
+      23.25,
+      22.25,
+      21.25,
+      20.25,
+      19.25,
+      18.25,
+      17.25,
+      16.25,
+      15.25
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "parameters": {
+      "basis": {
+       "halfwaarde": 100000,
+       "lam": 5.0,
+       "onbekend": -0.6,
+       "k": 0.5,
+       "g": 0.0
+      },
+      "lam": 3,
+      "a": 0.4943,
+      "b": 0.2851
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+33.4%)",
+     "n": 94,
+     "logloss": 0.5772,
+     "brier": 0.1942,
+     "logloss_markt": 0.5698,
+     "brier_markt": 0.1901,
+     "verschil_markt": 0.0074,
+     "verschil_se": 0.016,
+     "ruis": "binnen de ruis",
+     "helling": 1.332,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 25,
+       "kans": 0.5515,
+       "freq": 0.68
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 34,
+       "kans": 0.6374,
+       "freq": 0.7941
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 26,
+       "kans": 0.7511,
+       "freq": 0.7692
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 9,
+       "kans": 0.8359,
+       "freq": 0.7778
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 0,
+       "kans": null,
+       "freq": null
+      }
+     ],
+     "bets": 28,
+     "underdog_bets": 28,
+     "winst": 15.75,
+     "roi": 0.5625,
+     "roi_90": [
+      0.088,
+      1.545
+     ],
+     "clusters": 6,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -5.0,
+      5.0,
+      4.0,
+      6.75,
+      8.25,
+      7.25,
+      6.25,
+      5.25,
+      4.25,
+      3.25,
+      2.25,
+      1.25,
+      0.25,
+      4.25,
+      3.25,
+      2.25,
+      1.25,
+      7.25,
+      6.25,
+      5.25,
+      9.75,
+      8.75,
+      16.75,
+      15.75
+     ]
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "parameters": {
+      "basis": {
+       "halfwaarde": 1460,
+       "lam": 2.0,
+       "onbekend": 0.0,
+       "k": 0.6,
+       "g": 0.0
+      },
+      "lam": 1,
+      "a": 0.7281,
+      "b": 0.0981
+     },
+     "drempel": 1.2,
+     "drempel_reden": "drempel 1.20 heeft de hoogste ROI op train (+39.1%)",
+     "n": 94,
+     "logloss": 0.5711,
+     "brier": 0.1914,
+     "logloss_markt": 0.5698,
+     "brier_markt": 0.1901,
+     "verschil_markt": 0.0013,
+     "verschil_se": 0.0082,
+     "ruis": "binnen de ruis",
+     "helling": 1.148,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 18,
+       "kans": 0.5495,
+       "freq": 0.7778
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 38,
+       "kans": 0.6513,
+       "freq": 0.6842
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 21,
+       "kans": 0.7522,
+       "freq": 0.8095
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 15,
+       "kans": 0.8388,
+       "freq": 0.8
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 2,
+       "kans": 0.904,
+       "freq": 1.0
+      }
+     ],
+     "bets": 13,
+     "underdog_bets": 13,
+     "winst": 7.0,
+     "roi": 0.5385,
+     "roi_90": [
+      -0.389,
+      2.625
+     ],
+     "clusters": 3,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -5.0,
+      5.0,
+      4.0,
+      3.0,
+      2.0,
+      1.0,
+      0.0,
+      -1.0,
+      7.0
+     ]
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": false,
+    "toelichting": "WK2025: -0.0019 (se 0.0111); WK2026: +0.0109 (se 0.0130)"
+   },
+   "duur_s": 0.2
+  },
+  {
+   "id": "E025",
+   "model": "elo",
+   "vingerafdruk": "591afb4bd337",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "parameters": {
+      "K": 0.005,
+      "marge": false,
+      "onbekend": -0.3,
+      "k": 1.0
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+18.9%)",
+     "n": 94,
+     "logloss": 0.6535,
+     "brier": 0.2308,
+     "logloss_markt": 0.6343,
+     "brier_markt": 0.2234,
+     "verschil_markt": 0.0192,
+     "verschil_se": 0.0411,
+     "ruis": "binnen de ruis",
+     "helling": 0.793,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 40,
+       "kans": 0.5441,
+       "freq": 0.5
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 27,
+       "kans": 0.6504,
+       "freq": 0.5556
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 21,
+       "kans": 0.7589,
+       "freq": 0.7619
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 6,
+       "kans": 0.8316,
+       "freq": 0.8333
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 0,
+       "kans": null,
+       "freq": null
+      }
+     ],
+     "bets": 45,
+     "underdog_bets": 45,
+     "winst": 18.31,
+     "roi": 0.4069,
+     "roi_90": [
+      -0.314,
+      0.721
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -0.5,
+      -1.5,
+      -2.5,
+      -0.3,
+      -1.3,
+      -2.3,
+      -3.3,
+      0.03,
+      -0.97,
+      -1.97,
+      4.53,
+      3.53,
+      2.53,
+      4.08,
+      3.08,
+      2.08,
+      4.08,
+      6.58,
+      5.58,
+      4.58,
+      3.58,
+      6.33,
+      8.08,
+      14.08,
+      19.08,
+      20.46,
+      19.46,
+      21.71,
+      20.71,
+      22.81,
+      21.81,
+      20.81,
+      19.81,
+      25.31,
+      24.31,
+      23.31,
+      22.31,
+      21.31,
+      20.31,
+      19.31,
+      18.31
+     ]
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "parameters": {
+      "K": 0.02,
+      "marge": false,
+      "onbekend": -0.9,
+      "k": 0.4
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+27.2%)",
+     "n": 126,
+     "logloss": 0.6426,
+     "brier": 0.2238,
+     "logloss_markt": 0.549,
+     "brier_markt": 0.1843,
+     "verschil_markt": 0.0936,
+     "verschil_se": 0.0329,
+     "ruis": "slechter dan de markt",
+     "helling": 0.734,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 46,
+       "kans": 0.5492,
+       "freq": 0.5652
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 39,
+       "kans": 0.6502,
+       "freq": 0.6667
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 14,
+       "kans": 0.7391,
+       "freq": 0.8571
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 24,
+       "kans": 0.8443,
+       "freq": 0.625
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 3,
+       "kans": 0.9352,
+       "freq": 1.0
+      }
+     ],
+     "bets": 64,
+     "underdog_bets": 60,
+     "winst": 9.83,
+     "roi": 0.1536,
+     "roi_90": [
+      -0.421,
+      0.284
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -0.5,
+      -1.5,
+      -2.5,
+      1.0,
+      0.0,
+      -1.0,
+      -2.0,
+      6.0,
+      7.38,
+      6.38,
+      5.38,
+      4.38,
+      3.38,
+      2.38,
+      1.38,
+      0.38,
+      -0.62,
+      -1.62,
+      -2.62,
+      -3.62,
+      -4.62,
+      2.38,
+      1.38,
+      0.38,
+      -0.62,
+      15.38,
+      14.38,
+      13.38,
+      16.13,
+      15.13,
+      14.13,
+      13.13,
+      15.73,
+      17.93,
+      16.93,
+      15.93,
+      20.43,
+      19.43,
+      22.93,
+      21.93,
+      20.93,
+      19.93,
+      18.93,
+      17.93,
+      16.93,
+      15.93,
+      19.43,
+      18.43,
+      17.43,
+      16.43,
+      15.43,
+      14.43,
+      16.83,
+      15.83,
+      14.83,
+      13.83,
+      12.83,
+      11.83,
+      10.83,
+      9.83
+     ]
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.02,
+      "marge": true,
+      "onbekend": 0.0,
+      "k": 0.75
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+12.6%)",
+     "n": 94,
+     "logloss": 0.6865,
+     "brier": 0.2461,
+     "logloss_markt": 0.6343,
+     "brier_markt": 0.2234,
+     "verschil_markt": 0.0522,
+     "verschil_se": 0.0374,
+     "ruis": "binnen de ruis",
+     "helling": 0.512,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 31,
+       "kans": 0.555,
+       "freq": 0.5806
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 29,
+       "kans": 0.6514,
+       "freq": 0.4828
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 17,
+       "kans": 0.7464,
+       "freq": 0.4706
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 15,
+       "kans": 0.8372,
+       "freq": 0.8667
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 2,
+       "kans": 0.9161,
+       "freq": 1.0
+      }
+     ],
+     "bets": 38,
+     "underdog_bets": 37,
+     "winst": 14.78,
+     "roi": 0.3889,
+     "roi_90": [
+      -0.395,
+      1.075
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -5.0,
+      -6.0,
+      -3.8,
+      -4.8,
+      -5.8,
+      -6.8,
+      -3.47,
+      -4.47,
+      -5.47,
+      1.03,
+      0.03,
+      -0.97,
+      -1.97,
+      -2.97,
+      0.53,
+      -0.47,
+      -1.47,
+      -2.47,
+      -1.85,
+      0.9,
+      2.65,
+      8.65,
+      13.65,
+      12.65,
+      14.03,
+      16.28,
+      15.28,
+      14.28,
+      13.28,
+      18.78,
+      17.78,
+      16.78,
+      15.78,
+      14.78
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.01,
+      "marge": true,
+      "onbekend": -0.9,
+      "k": 0.4
+     },
+     "drempel": 1.1,
+     "drempel_reden": "drempel 1.10 heeft de hoogste ROI op train (+41.5%)",
+     "n": 126,
+     "logloss": 0.6506,
+     "brier": 0.2272,
+     "logloss_markt": 0.549,
+     "brier_markt": 0.1843,
+     "verschil_markt": 0.1016,
+     "verschil_se": 0.0338,
+     "ruis": "slechter dan de markt",
+     "helling": 0.731,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 56,
+       "kans": 0.5492,
+       "freq": 0.5
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 39,
+       "kans": 0.6391,
+       "freq": 0.7436
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 4,
+       "kans": 0.7777,
+       "freq": 0.75
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 25,
+       "kans": 0.8396,
+       "freq": 0.64
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 2,
+       "kans": 0.9283,
+       "freq": 1.0
+      }
+     ],
+     "bets": 101,
+     "underdog_bets": 86,
+     "winst": -4.65,
+     "roi": -0.046,
+     "roi_90": [
+      -0.469,
+      0.038
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -2.47,
+      -3.47,
+      -4.47,
+      -5.47,
+      -1.97,
+      -1.52,
+      -2.52,
+      -3.52,
+      -2.65,
+      -3.65,
+      -4.65,
+      -1.15,
+      -2.15,
+      -3.15,
+      -4.15,
+      3.85,
+      5.23,
+      4.23,
+      3.23,
+      2.23,
+      1.23,
+      0.23,
+      -0.77,
+      -1.77,
+      -2.77,
+      -3.77,
+      -4.77,
+      -5.77,
+      -6.77,
+      -7.77,
+      -8.77,
+      -9.77,
+      -10.77,
+      -11.77,
+      -4.77,
+      -5.77,
+      -3.77,
+      -4.77,
+      -5.77,
+      -6.77,
+      -7.77,
+      -8.77,
+      7.23,
+      6.23,
+      5.23,
+      4.23,
+      3.23,
+      5.98,
+      4.98,
+      3.98,
+      5.08,
+      4.08,
+      3.08,
+      3.65,
+      6.25,
+      5.25,
+      7.45,
+      6.45,
+      5.45,
+      4.45,
+      8.95,
+      7.95,
+      6.95,
+      7.95,
+      11.45,
+      10.45,
+      9.45,
+      8.45,
+      7.45,
+      6.45,
+      6.95,
+      5.95,
+      4.95,
+      7.7,
+      6.7,
+      5.7,
+      4.7,
+      3.7,
+      7.2,
+      6.2,
+      5.2,
+      4.2,
+      3.2,
+      2.2,
+      1.2,
+      3.6,
+      2.6,
+      1.6,
+      0.6,
+      -0.4,
+      2.35,
+      1.35,
+      0.35,
+      -0.65,
+      -1.65,
+      -2.65,
+      -3.65,
+      -4.65
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.01,
+      "marge": true,
+      "onbekend": -0.9,
+      "k": 0.4
+     },
+     "drempel": 1.1,
+     "drempel_reden": "drempel 1.10 heeft de hoogste ROI op train (+41.5%)",
+     "n": 94,
+     "logloss": 0.6344,
+     "brier": 0.2215,
+     "logloss_markt": 0.5698,
+     "brier_markt": 0.1901,
+     "verschil_markt": 0.0646,
+     "verschil_se": 0.0333,
+     "ruis": "binnen de ruis",
+     "helling": 0.958,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 48,
+       "kans": 0.5452,
+       "freq": 0.6667
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 22,
+       "kans": 0.6388,
+       "freq": 0.5909
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 9,
+       "kans": 0.7416,
+       "freq": 0.7778
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 14,
+       "kans": 0.8271,
+       "freq": 0.7857
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 1,
+       "kans": 0.9041,
+       "freq": 1.0
+      }
+     ],
+     "bets": 70,
+     "underdog_bets": 66,
+     "winst": -1.04,
+     "roi": -0.0149,
+     "roi_90": [
+      -0.213,
+      0.341
+     ],
+     "clusters": 7,
+     "verloop": [
+      0.8,
+      -0.2,
+      -1.2,
+      -2.2,
+      -0.45,
+      -1.45,
+      -2.45,
+      -3.45,
+      -4.45,
+      -5.45,
+      -6.45,
+      -7.45,
+      -8.45,
+      -9.45,
+      -10.45,
+      -8.7,
+      1.3,
+      0.3,
+      -0.7,
+      -1.7,
+      1.05,
+      2.55,
+      1.55,
+      0.55,
+      -0.45,
+      -1.45,
+      -2.45,
+      -3.45,
+      -3.12,
+      -4.12,
+      -5.12,
+      -3.49,
+      -1.29,
+      0.34,
+      -0.66,
+      -1.66,
+      0.34,
+      -0.66,
+      -1.66,
+      -2.66,
+      -3.66,
+      -4.66,
+      -5.66,
+      -6.66,
+      -7.66,
+      -8.66,
+      -9.66,
+      -5.66,
+      -6.66,
+      -4.16,
+      -5.16,
+      -6.16,
+      -7.16,
+      -8.16,
+      -2.16,
+      -3.16,
+      -4.16,
+      -5.16,
+      -6.16,
+      -7.16,
+      -8.16,
+      -3.66,
+      -4.66,
+      -5.66,
+      -6.66,
+      1.34,
+      0.34,
+      -0.66,
+      -1.66,
+      -1.04
+     ]
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.02,
+      "marge": true,
+      "onbekend": -0.3,
+      "k": 0.5
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+25.5%)",
+     "n": 94,
+     "logloss": 0.6361,
+     "brier": 0.222,
+     "logloss_markt": 0.5698,
+     "brier_markt": 0.1901,
+     "verschil_markt": 0.0663,
+     "verschil_se": 0.0312,
+     "ruis": "slechter dan de markt",
+     "helling": 1.011,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 35,
+       "kans": 0.5425,
+       "freq": 0.6857
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 34,
+       "kans": 0.6524,
+       "freq": 0.6471
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 21,
+       "kans": 0.7395,
+       "freq": 0.7143
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 4,
+       "kans": 0.8188,
+       "freq": 0.75
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 0,
+       "kans": null,
+       "freq": null
+      }
+     ],
+     "bets": 50,
+     "underdog_bets": 49,
+     "winst": 3.12,
+     "roi": 0.0624,
+     "roi_90": [
+      -0.311,
+      0.776
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -1.25,
+      -2.25,
+      -3.25,
+      -4.25,
+      -5.25,
+      -6.25,
+      -7.25,
+      -8.25,
+      -9.25,
+      -10.25,
+      -0.25,
+      -1.25,
+      -2.25,
+      1.75,
+      4.5,
+      6.0,
+      5.0,
+      4.0,
+      3.0,
+      2.0,
+      1.0,
+      0.0,
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -5.0,
+      -6.0,
+      -7.0,
+      -8.0,
+      -4.0,
+      -5.0,
+      -6.0,
+      -7.0,
+      -8.0,
+      -9.0,
+      -3.0,
+      -4.0,
+      -5.0,
+      -6.0,
+      -7.0,
+      -2.5,
+      -3.5,
+      -4.5,
+      3.5,
+      2.5,
+      3.12
+     ]
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": false,
+    "toelichting": "WK2025: +0.0192 (se 0.0411); WK2026: +0.0936 (se 0.0329)"
+   },
+   "duur_s": 7.5
+  },
+  {
+   "id": "E026",
+   "model": "glicko",
+   "vingerafdruk": "819fb165210a",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "parameters": {
+      "K": 0.0,
+      "marge": true,
+      "onbekend": 0.0,
+      "v0": 3.0,
+      "q": 0.0,
+      "k": 0.75
+     },
+     "drempel": 1.15,
+     "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+19.4%)",
+     "n": 94,
+     "logloss": 0.6537,
+     "brier": 0.2276,
+     "logloss_markt": 0.6343,
+     "brier_markt": 0.2234,
+     "verschil_markt": 0.0195,
+     "verschil_se": 0.032,
+     "ruis": "binnen de ruis",
+     "helling": 0.589,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 17,
+       "kans": 0.5483,
+       "freq": 0.5294
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 25,
+       "kans": 0.6554,
+       "freq": 0.44
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 30,
+       "kans": 0.7494,
+       "freq": 0.7
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 13,
+       "kans": 0.8536,
+       "freq": 0.8462
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 9,
+       "kans": 0.9363,
+       "freq": 0.7778
+      }
+     ],
+     "bets": 41,
+     "underdog_bets": 33,
+     "winst": 9.75,
+     "roi": 0.2378,
+     "roi_90": [
+      -0.286,
+      0.793
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -2.47,
+      -3.47,
+      -4.47,
+      -2.27,
+      -3.27,
+      -4.27,
+      -4.02,
+      -5.02,
+      -6.02,
+      0.48,
+      1.15,
+      0.15,
+      -0.85,
+      -1.85,
+      -1.23,
+      -2.23,
+      0.52,
+      2.27,
+      7.27,
+      8.65,
+      10.9,
+      11.63,
+      10.63,
+      12.73,
+      11.73,
+      10.73,
+      9.73,
+      10.06,
+      15.56,
+      14.56,
+      15.31,
+      14.31,
+      13.31,
+      13.75,
+      12.75,
+      11.75,
+      10.75,
+      9.75
+     ]
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "parameters": {
+      "K": 0.0,
+      "marge": true,
+      "onbekend": -0.3,
+      "v0": 3.0,
+      "q": 0.0,
+      "k": 0.5
+     },
+     "drempel": 1.05,
+     "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+22.3%)",
+     "n": 126,
+     "logloss": 0.6247,
+     "brier": 0.2174,
+     "logloss_markt": 0.549,
+     "brier_markt": 0.1843,
+     "verschil_markt": 0.0757,
+     "verschil_se": 0.0319,
+     "ruis": "slechter dan de markt",
+     "helling": 0.751,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 26,
+       "kans": 0.5537,
+       "freq": 0.5769
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 36,
+       "kans": 0.6484,
+       "freq": 0.6111
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 38,
+       "kans": 0.7506,
+       "freq": 0.7368
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 19,
+       "kans": 0.8338,
+       "freq": 0.7368
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 7,
+       "kans": 0.9328,
+       "freq": 0.8571
+      }
+     ],
+     "bets": 97,
+     "underdog_bets": 71,
+     "winst": -9.43,
+     "roi": -0.0972,
+     "roi_90": [
+      -0.462,
+      0.0
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -0.47,
+      -1.47,
+      -2.47,
+      -2.11,
+      1.39,
+      1.84,
+      0.84,
+      -0.16,
+      0.71,
+      -0.29,
+      -1.29,
+      -2.29,
+      -3.29,
+      -4.29,
+      -2.91,
+      -2.13,
+      -3.13,
+      -4.13,
+      -5.13,
+      -6.13,
+      -5.63,
+      -6.63,
+      -7.63,
+      -8.63,
+      -9.63,
+      -10.63,
+      -10.33,
+      -11.33,
+      -11.0,
+      -12.0,
+      -13.0,
+      -14.0,
+      -15.0,
+      -8.0,
+      -9.0,
+      -10.0,
+      -11.0,
+      -12.0,
+      -13.0,
+      -14.0,
+      2.0,
+      1.0,
+      1.2,
+      0.2,
+      -0.8,
+      1.95,
+      0.95,
+      -0.05,
+      1.05,
+      0.05,
+      -0.95,
+      -0.38,
+      2.22,
+      1.22,
+      0.22,
+      2.42,
+      1.42,
+      0.42,
+      4.92,
+      3.92,
+      4.92,
+      8.42,
+      7.42,
+      6.42,
+      5.42,
+      4.42,
+      4.92,
+      3.92,
+      2.92,
+      3.45,
+      2.45,
+      1.45,
+      0.45,
+      1.65,
+      5.15,
+      4.15,
+      3.15,
+      3.77,
+      2.77,
+      1.77,
+      0.77,
+      -0.23,
+      2.17,
+      1.17,
+      0.17,
+      -0.83,
+      -1.83,
+      -2.83,
+      -3.83,
+      -4.83,
+      -4.43,
+      -5.43,
+      -6.43,
+      -7.43,
+      -8.43,
+      -9.43
+     ]
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.0,
+      "marge": true,
+      "onbekend": 0.0,
+      "v0": 0.15,
+      "q": 0.1,
+      "k": 0.5
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+13.7%)",
+     "n": 94,
+     "logloss": 0.6739,
+     "brier": 0.24,
+     "logloss_markt": 0.6343,
+     "brier_markt": 0.2234,
+     "verschil_markt": 0.0396,
+     "verschil_se": 0.0335,
+     "ruis": "binnen de ruis",
+     "helling": 0.597,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 28,
+       "kans": 0.5514,
+       "freq": 0.6071
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 31,
+       "kans": 0.6472,
+       "freq": 0.6452
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 25,
+       "kans": 0.7456,
+       "freq": 0.56
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 9,
+       "kans": 0.8345,
+       "freq": 0.7778
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 1,
+       "kans": 0.9094,
+       "freq": 1.0
+      }
+     ],
+     "bets": 36,
+     "underdog_bets": 36,
+     "winst": 8.08,
+     "roi": 0.2244,
+     "roi_90": [
+      -0.28,
+      0.59
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      -5.0,
+      -6.0,
+      -3.8,
+      -4.8,
+      -5.8,
+      -6.8,
+      -7.8,
+      -1.3,
+      -2.3,
+      -0.3,
+      -1.3,
+      -2.3,
+      -3.3,
+      0.2,
+      -0.8,
+      -1.8,
+      -2.8,
+      -0.8,
+      0.95,
+      5.95,
+      4.95,
+      3.95,
+      5.33,
+      7.58,
+      6.58,
+      5.58,
+      6.58,
+      12.08,
+      11.08,
+      10.08,
+      9.08,
+      8.08
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.0,
+      "marge": true,
+      "onbekend": -0.9,
+      "v0": 1.5,
+      "q": 0.0,
+      "k": 0.4
+     },
+     "drempel": 1.0,
+     "drempel_reden": "drempel 1.00 heeft de hoogste ROI op train (+33.8%)",
+     "n": 126,
+     "logloss": 0.6454,
+     "brier": 0.224,
+     "logloss_markt": 0.549,
+     "brier_markt": 0.1843,
+     "verschil_markt": 0.0964,
+     "verschil_se": 0.0347,
+     "ruis": "slechter dan de markt",
+     "helling": 0.655,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 37,
+       "kans": 0.5523,
+       "freq": 0.5405
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 39,
+       "kans": 0.6428,
+       "freq": 0.7436
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 12,
+       "kans": 0.7457,
+       "freq": 0.6667
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 34,
+       "kans": 0.8573,
+       "freq": 0.6765
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 4,
+       "kans": 0.9239,
+       "freq": 1.0
+      }
+     ],
+     "bets": 122,
+     "underdog_bets": 87,
+     "winst": -2.47,
+     "roi": -0.0202,
+     "roi_90": [
+      -0.48,
+      0.094
+     ],
+     "clusters": 7,
+     "verloop": [
+      -1.0,
+      -2.0,
+      -3.0,
+      -2.47,
+      -3.47,
+      -4.47,
+      -4.11,
+      -0.61,
+      -0.16,
+      -1.16,
+      -2.16,
+      -3.16,
+      -2.29,
+      -3.29,
+      -4.29,
+      -0.79,
+      -1.79,
+      -2.79,
+      -2.59,
+      -3.59,
+      -4.59,
+      3.41,
+      4.79,
+      5.57,
+      4.57,
+      3.57,
+      3.87,
+      2.87,
+      1.87,
+      0.87,
+      -0.13,
+      -1.13,
+      -2.13,
+      -3.13,
+      -4.13,
+      -3.83,
+      -4.83,
+      -4.5,
+      -5.5,
+      -6.5,
+      -7.5,
+      -8.5,
+      -1.5,
+      -2.5,
+      -0.5,
+      -1.5,
+      -2.5,
+      -3.5,
+      -4.5,
+      -5.5,
+      10.5,
+      9.5,
+      9.7,
+      8.7,
+      8.99,
+      7.99,
+      8.29,
+      11.04,
+      10.04,
+      9.04,
+      10.14,
+      9.14,
+      9.5,
+      8.5,
+      9.07,
+      11.67,
+      10.67,
+      9.67,
+      11.87,
+      10.87,
+      11.78,
+      10.78,
+      9.78,
+      8.78,
+      13.28,
+      12.28,
+      13.28,
+      16.78,
+      15.78,
+      17.41,
+      16.41,
+      15.41,
+      14.41,
+      13.41,
+      13.91,
+      12.91,
+      11.91,
+      10.91,
+      13.66,
+      12.66,
+      13.19,
+      12.19,
+      11.19,
+      10.19,
+      9.19,
+      10.39,
+      13.89,
+      12.89,
+      11.89,
+      10.89,
+      11.51,
+      10.51,
+      9.51,
+      9.59,
+      8.59,
+      7.59,
+      9.99,
+      8.99,
+      7.99,
+      6.99,
+      5.99,
+      4.99,
+      5.13,
+      4.13,
+      3.13,
+      2.13,
+      2.53,
+      1.53,
+      0.53,
+      -0.47,
+      -1.47,
+      -2.47
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.0,
+      "marge": true,
+      "onbekend": -0.9,
+      "v0": 1.5,
+      "q": 0.0,
+      "k": 0.4
+     },
+     "drempel": 1.0,
+     "drempel_reden": "drempel 1.00 heeft de hoogste ROI op train (+33.8%)",
+     "n": 94,
+     "logloss": 0.6002,
+     "brier": 0.205,
+     "logloss_markt": 0.5698,
+     "brier_markt": 0.1901,
+     "verschil_markt": 0.0304,
+     "verschil_se": 0.0309,
+     "ruis": "binnen de ruis",
+     "helling": 1.063,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 38,
+       "kans": 0.5515,
+       "freq": 0.6053
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 27,
+       "kans": 0.6467,
+       "freq": 0.7037
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 9,
+       "kans": 0.737,
+       "freq": 0.7778
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 19,
+       "kans": 0.845,
+       "freq": 0.7895
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 1,
+       "kans": 0.9212,
+       "freq": 1.0
+      }
+     ],
+     "bets": 81,
+     "underdog_bets": 67,
+     "winst": 6.76,
+     "roi": 0.0835,
+     "roi_90": [
+      -0.15,
+      0.442
+     ],
+     "clusters": 7,
+     "verloop": [
+      0.8,
+      -0.2,
+      -1.2,
+      -2.2,
+      -0.45,
+      -1.45,
+      -2.45,
+      -2.2,
+      -1.9,
+      -2.9,
+      -3.9,
+      -4.9,
+      -5.9,
+      -6.9,
+      -7.9,
+      -8.9,
+      -8.54,
+      -9.54,
+      -7.79,
+      2.21,
+      2.54,
+      1.54,
+      0.54,
+      -0.46,
+      2.29,
+      3.79,
+      4.12,
+      3.12,
+      2.12,
+      1.12,
+      0.12,
+      -0.88,
+      -0.55,
+      -0.11,
+      -1.11,
+      0.52,
+      2.72,
+      4.35,
+      3.35,
+      2.35,
+      4.35,
+      4.6,
+      3.6,
+      2.6,
+      1.6,
+      0.6,
+      -0.4,
+      -1.4,
+      -2.4,
+      -3.4,
+      -4.4,
+      -5.4,
+      -6.4,
+      -2.4,
+      -3.4,
+      -0.9,
+      0.6,
+      0.74,
+      -0.26,
+      -1.26,
+      -2.26,
+      -3.26,
+      -2.16,
+      3.84,
+      2.84,
+      1.84,
+      0.84,
+      1.64,
+      0.64,
+      -0.36,
+      -1.36,
+      3.14,
+      2.14,
+      1.14,
+      2.14,
+      1.14,
+      9.14,
+      8.14,
+      7.14,
+      6.14,
+      6.76
+     ]
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "parameters": {
+      "K": 0.0,
+      "marge": true,
+      "onbekend": -0.3,
+      "v0": 0.4,
+      "q": 0.0,
+      "k": 0.5
+     },
+     "drempel": 1.3,
+     "drempel_reden": "drempel 1.30 heeft de hoogste ROI op train (+21.1%)",
+     "n": 94,
+     "logloss": 0.5967,
+     "brier": 0.2039,
+     "logloss_markt": 0.5698,
+     "brier_markt": 0.1901,
+     "verschil_markt": 0.0269,
+     "verschil_se": 0.0288,
+     "ruis": "binnen de ruis",
+     "helling": 1.33,
+     "kalibratie": [
+      {
+       "van": 0.5,
+       "tot": 0.6,
+       "n": 31,
+       "kans": 0.5504,
+       "freq": 0.5161
+      },
+      {
+       "van": 0.6,
+       "tot": 0.7,
+       "n": 30,
+       "kans": 0.6468,
+       "freq": 0.7333
+      },
+      {
+       "van": 0.7,
+       "tot": 0.8,
+       "n": 30,
+       "kans": 0.7396,
+       "freq": 0.8
+      },
+      {
+       "van": 0.8,
+       "tot": 0.9,
+       "n": 3,
+       "kans": 0.8244,
+       "freq": 1.0
+      },
+      {
+       "van": 0.9,
+       "tot": 1.0,
+       "n": 0,
+       "kans": null,
+       "freq": null
+      }
+     ],
+     "bets": 49,
+     "underdog_bets": 48,
+     "winst": 7.5,
+     "roi": 0.1531,
+     "roi_90": [
+      -0.302,
+      0.86
+     ],
+     "clusters": 6,
+     "verloop": [
+      0.8,
+      -0.2,
+      -1.2,
+      -2.2,
+      -3.2,
+      -1.45,
+      -2.45,
+      -3.45,
+      -4.45,
+      -5.45,
+      -6.45,
+      -7.45,
+      -8.45,
+      1.55,
+      0.55,
+      4.55,
+      7.3,
+      8.8,
+      7.8,
+      6.8,
+      5.8,
+      4.8,
+      3.8,
+      2.8,
+      1.8,
+      4.0,
+      3.0,
+      2.0,
+      1.0,
+      0.0,
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      0.0,
+      -1.0,
+      -2.0,
+      -3.0,
+      -4.0,
+      2.0,
+      1.0,
+      0.0,
+      -1.0,
+      -2.0,
+      2.5,
+      1.5,
+      0.5,
+      8.5,
+      7.5
+     ]
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": false,
+    "toelichting": "WK2025: +0.0195 (se 0.0320); WK2026: +0.0757 (se 0.0319)"
+   },
+   "duur_s": 7.6
+  },
+  {
+   "id": "E027",
+   "model": "inzet",
+   "vingerafdruk": "404293c6ceb6",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "drempel": 1.0,
+     "drempel_reden": "drempel 1.00 heeft de hoogste ROI op train (+31.1%)",
+     "bets": 39,
+     "vast_1": 12.88,
+     "kelly": {
+      "start": 100,
+      "eind": 108.6,
+      "winst": 8.6,
+      "ingezet": 23.13,
+      "max_drawdown": 3.36,
+      "verloop": [
+       99.96,
+       99.69,
+       99.26,
+       100.73,
+       100.66,
+       102.0,
+       101.63,
+       101.45,
+       102.33,
+       100.57,
+       100.07,
+       99.91,
+       99.63,
+       101.12,
+       100.98,
+       100.69,
+       100.89,
+       100.49,
+       100.84,
+       100.62,
+       102.08,
+       102.25,
+       104.15,
+       105.27,
+       105.5,
+       105.22,
+       107.88,
+       107.73,
+       107.35,
+       108.88,
+       111.96,
+       111.76,
+       111.78,
+       111.46,
+       111.09,
+       110.8,
+       110.01,
+       109.56,
+       108.6
+      ]
+     },
+     "weekbudget": [
+      {
+       "inzet": 2,
+       "budget": 50,
+       "bets": 39,
+       "overgeslagen": 0,
+       "ingezet": 78.0,
+       "eind": 25.76,
+       "max_drawdown": 12.5,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2024-12-09",
+         "ingezet": 4.0,
+         "winst": -4.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-16",
+         "ingezet": 42.0,
+         "winst": 25.14,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-23",
+         "ingezet": 16.0,
+         "winst": 17.12,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-30",
+         "ingezet": 16.0,
+         "winst": -12.5,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 3,
+       "budget": 50,
+       "bets": 34,
+       "overgeslagen": 5,
+       "ingezet": 102.0,
+       "eind": 11.28,
+       "max_drawdown": 18.75,
+       "weken_budget_op": 1,
+       "weken": [
+        {
+         "week": "2024-12-09",
+         "ingezet": 6.0,
+         "winst": -6.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-16",
+         "ingezet": 48.0,
+         "winst": 10.35,
+         "budget_op": true
+        },
+        {
+         "week": "2024-12-23",
+         "ingezet": 24.0,
+         "winst": 25.68,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-30",
+         "ingezet": 24.0,
+         "winst": -18.75,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 5,
+       "budget": 50,
+       "bets": 28,
+       "overgeslagen": 11,
+       "ingezet": 140.0,
+       "eind": -3.7,
+       "max_drawdown": 31.25,
+       "weken_budget_op": 1,
+       "weken": [
+        {
+         "week": "2024-12-09",
+         "ingezet": 10.0,
+         "winst": -10.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-16",
+         "ingezet": 50.0,
+         "winst": -5.25,
+         "budget_op": true
+        },
+        {
+         "week": "2024-12-23",
+         "ingezet": 40.0,
+         "winst": 42.8,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-30",
+         "ingezet": 40.0,
+         "winst": -31.25,
+         "budget_op": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "drempel": 1.2,
+     "drempel_reden": "drempel 1.20 heeft de hoogste ROI op train (+46.2%)",
+     "bets": 49,
+     "vast_1": 17.53,
+     "kelly": {
+      "start": 100,
+      "eind": 129.68,
+      "winst": 29.68,
+      "ingezet": 140.43,
+      "max_drawdown": 35.13,
+      "verloop": [
+       98.5,
+       96.32,
+       112.14,
+       111.25,
+       109.69,
+       108.03,
+       116.91,
+       124.5,
+       115.07,
+       111.61,
+       109.41,
+       104.64,
+       102.78,
+       99.19,
+       98.33,
+       96.9,
+       95.5,
+       102.57,
+       101.8,
+       100.94,
+       119.82,
+       116.57,
+       116.15,
+       125.83,
+       124.92,
+       121.58,
+       119.8,
+       127.61,
+       126.55,
+       140.0,
+       139.09,
+       148.07,
+       158.16,
+       156.24,
+       152.45,
+       149.53,
+       148.74,
+       147.67,
+       156.03,
+       164.81,
+       161.8,
+       157.6,
+       154.95,
+       146.87,
+       142.69,
+       137.54,
+       135.94,
+       133.25,
+       129.68
+      ]
+     },
+     "weekbudget": [
+      {
+       "inzet": 2,
+       "budget": 50,
+       "bets": 49,
+       "overgeslagen": 0,
+       "ingezet": 98.0,
+       "eind": 35.06,
+       "max_drawdown": 18.6,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2025-12-08",
+         "ingezet": 20.0,
+         "winst": 11.76,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-15",
+         "ingezet": 42.0,
+         "winst": 32.9,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-22",
+         "ingezet": 24.0,
+         "winst": 2.4,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-29",
+         "ingezet": 12.0,
+         "winst": -12.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 3,
+       "budget": 50,
+       "bets": 44,
+       "overgeslagen": 5,
+       "ingezet": 132.0,
+       "eind": 41.49,
+       "max_drawdown": 27.9,
+       "weken_budget_op": 1,
+       "weken": [
+        {
+         "week": "2025-12-08",
+         "ingezet": 30.0,
+         "winst": 17.64,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-15",
+         "ingezet": 48.0,
+         "winst": 38.25,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-22",
+         "ingezet": 36.0,
+         "winst": 3.6,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-29",
+         "ingezet": 18.0,
+         "winst": -18.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 5,
+       "budget": 50,
+       "bets": 36,
+       "overgeslagen": 13,
+       "ingezet": 180.0,
+       "eind": 5.4,
+       "max_drawdown": 45.0,
+       "weken_budget_op": 2,
+       "weken": [
+        {
+         "week": "2025-12-08",
+         "ingezet": 50.0,
+         "winst": 29.4,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-15",
+         "ingezet": 50.0,
+         "winst": -10.0,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-22",
+         "ingezet": 50.0,
+         "winst": 16.0,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-29",
+         "ingezet": 30.0,
+         "winst": -30.0,
+         "budget_op": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "drempel": 1.05,
+     "drempel_reden": "drempel 1.05 heeft de hoogste ROI op train (+25.9%)",
+     "bets": 9,
+     "vast_1": 4.5,
+     "kelly": {
+      "start": 100,
+      "eind": 101.92,
+      "winst": 1.92,
+      "ingezet": 1.89,
+      "max_drawdown": 0.57,
+      "verloop": [
+       99.81,
+       99.62,
+       101.57,
+       101.37,
+       101.19,
+       101.0,
+       102.3,
+       102.11,
+       101.92
+      ]
+     },
+     "weekbudget": [
+      {
+       "inzet": 2,
+       "budget": 50,
+       "bets": 9,
+       "overgeslagen": 0,
+       "ingezet": 18.0,
+       "eind": 9.0,
+       "max_drawdown": 6.0,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2024-12-09",
+         "ingezet": 2.0,
+         "winst": -2.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-16",
+         "ingezet": 12.0,
+         "winst": 15.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-23",
+         "ingezet": 4.0,
+         "winst": -4.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 3,
+       "budget": 50,
+       "bets": 9,
+       "overgeslagen": 0,
+       "ingezet": 27.0,
+       "eind": 13.5,
+       "max_drawdown": 9.0,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2024-12-09",
+         "ingezet": 3.0,
+         "winst": -3.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-16",
+         "ingezet": 18.0,
+         "winst": 22.5,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-23",
+         "ingezet": 6.0,
+         "winst": -6.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 5,
+       "budget": 50,
+       "bets": 9,
+       "overgeslagen": 0,
+       "ingezet": 45.0,
+       "eind": 22.5,
+       "max_drawdown": 15.0,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2024-12-09",
+         "ingezet": 5.0,
+         "winst": -5.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-16",
+         "ingezet": 30.0,
+         "winst": 37.5,
+         "budget_op": false
+        },
+        {
+         "week": "2024-12-23",
+         "ingezet": 10.0,
+         "winst": -10.0,
+         "budget_op": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "drempel": 1.15,
+     "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+33.9%)",
+     "bets": 67,
+     "vast_1": 7.0,
+     "kelly": {
+      "start": 100,
+      "eind": 90.43,
+      "winst": -9.57,
+      "ingezet": 245.73,
+      "max_drawdown": 70.55,
+      "verloop": [
+       98.34,
+       95.62,
+       92.38,
+       107.82,
+       106.55,
+       116.35,
+       113.88,
+       110.94,
+       107.83,
+       131.67,
+       140.79,
+       131.82,
+       126.17,
+       121.81,
+       113.78,
+       111.07,
+       108.73,
+       103.5,
+       100.71,
+       96.09,
+       94.86,
+       92.34,
+       89.88,
+       98.91,
+       92.82,
+       91.8,
+       90.73,
+       89.31,
+       112.67,
+       108.36,
+       107.57,
+       118.81,
+       117.47,
+       112.82,
+       109.82,
+       107.58,
+       111.96,
+       117.52,
+       127.44,
+       124.45,
+       121.54,
+       119.2,
+       138.37,
+       136.82,
+       144.46,
+       160.98,
+       158.49,
+       152.6,
+       147.99,
+       145.3,
+       141.83,
+       137.9,
+       136.34,
+       149.22,
+       144.49,
+       138.75,
+       134.66,
+       126.75,
+       117.54,
+       114.88,
+       109.89,
+       105.98,
+       103.46,
+       99.96,
+       95.79,
+       92.43,
+       90.43
+      ]
+     },
+     "weekbudget": [
+      {
+       "inzet": 2,
+       "budget": 50,
+       "bets": 61,
+       "overgeslagen": 6,
+       "ingezet": 122.0,
+       "eind": 8.6,
+       "max_drawdown": 33.0,
+       "weken_budget_op": 1,
+       "weken": [
+        {
+         "week": "2025-12-08",
+         "ingezet": 26.0,
+         "winst": 14.76,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-15",
+         "ingezet": 50.0,
+         "winst": 17.84,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-22",
+         "ingezet": 26.0,
+         "winst": -4.0,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-29",
+         "ingezet": 20.0,
+         "winst": -20.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 3,
+       "budget": 50,
+       "bets": 52,
+       "overgeslagen": 15,
+       "ingezet": 156.0,
+       "eind": 13.14,
+       "max_drawdown": 49.5,
+       "weken_budget_op": 1,
+       "weken": [
+        {
+         "week": "2025-12-08",
+         "ingezet": 39.0,
+         "winst": 22.14,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-15",
+         "ingezet": 48.0,
+         "winst": 27.0,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-22",
+         "ingezet": 39.0,
+         "winst": -6.0,
+         "budget_op": false
+        },
+        {
+         "week": "2025-12-29",
+         "ingezet": 30.0,
+         "winst": -30.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 5,
+       "budget": 50,
+       "bets": 40,
+       "overgeslagen": 27,
+       "ingezet": 200.0,
+       "eind": -55.0,
+       "max_drawdown": 95.0,
+       "weken_budget_op": 3,
+       "weken": [
+        {
+         "week": "2025-12-08",
+         "ingezet": 50.0,
+         "winst": 40.0,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-15",
+         "ingezet": 50.0,
+         "winst": -50.0,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-22",
+         "ingezet": 50.0,
+         "winst": 5.0,
+         "budget_op": true
+        },
+        {
+         "week": "2025-12-29",
+         "ingezet": 50.0,
+         "winst": -50.0,
+         "budget_op": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "drempel": 1.15,
+     "drempel_reden": "drempel 1.15 heeft de hoogste ROI op train (+33.9%)",
+     "bets": 49,
+     "vast_1": 2.5,
+     "kelly": {
+      "start": 100,
+      "eind": 97.32,
+      "winst": -2.68,
+      "ingezet": 127.21,
+      "max_drawdown": 36.5,
+      "verloop": [
+       104.87,
+       101.68,
+       99.29,
+       98.22,
+       95.36,
+       101.47,
+       99.04,
+       95.93,
+       94.78,
+       93.19,
+       91.11,
+       88.41,
+       86.83,
+       84.45,
+       94.95,
+       92.62,
+       102.19,
+       114.16,
+       112.45,
+       109.29,
+       106.93,
+       105.03,
+       100.96,
+       95.66,
+       94.86,
+       99.3,
+       96.22,
+       91.41,
+       88.17,
+       85.05,
+       83.18,
+       81.86,
+       79.8,
+       87.12,
+       83.94,
+       81.89,
+       79.48,
+       77.66,
+       89.36,
+       87.47,
+       85.25,
+       82.78,
+       80.48,
+       90.43,
+       88.35,
+       86.47,
+       83.26,
+       99.26,
+       97.32
+      ]
+     },
+     "weekbudget": [
+      {
+       "inzet": 2,
+       "budget": 50,
+       "bets": 49,
+       "overgeslagen": 0,
+       "ingezet": 98.0,
+       "eind": 5.0,
+       "max_drawdown": 23.6,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2023-12-11",
+         "ingezet": 28.0,
+         "winst": -18.9,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-18",
+         "ingezet": 40.0,
+         "winst": 10.9,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-25",
+         "ingezet": 24.0,
+         "winst": 1.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-01-01",
+         "ingezet": 6.0,
+         "winst": 12.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 3,
+       "budget": 50,
+       "bets": 45,
+       "overgeslagen": 4,
+       "ingezet": 135.0,
+       "eind": 4.5,
+       "max_drawdown": 38.4,
+       "weken_budget_op": 1,
+       "weken": [
+        {
+         "week": "2023-12-11",
+         "ingezet": 42.0,
+         "winst": -28.35,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-18",
+         "ingezet": 48.0,
+         "winst": 13.35,
+         "budget_op": true
+        },
+        {
+         "week": "2023-12-25",
+         "ingezet": 36.0,
+         "winst": 1.5,
+         "budget_op": false
+        },
+        {
+         "week": "2024-01-01",
+         "ingezet": 9.0,
+         "winst": 18.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 5,
+       "budget": 50,
+       "bets": 33,
+       "overgeslagen": 16,
+       "ingezet": 165.0,
+       "eind": 51.5,
+       "max_drawdown": 50.0,
+       "weken_budget_op": 3,
+       "weken": [
+        {
+         "week": "2023-12-11",
+         "ingezet": 50.0,
+         "winst": -27.25,
+         "budget_op": true
+        },
+        {
+         "week": "2023-12-18",
+         "ingezet": 50.0,
+         "winst": 36.25,
+         "budget_op": true
+        },
+        {
+         "week": "2023-12-25",
+         "ingezet": 50.0,
+         "winst": 12.5,
+         "budget_op": true
+        },
+        {
+         "week": "2024-01-01",
+         "ingezet": 15.0,
+         "winst": 30.0,
+         "budget_op": false
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "drempel": 1.2,
+     "drempel_reden": "drempel 1.20 heeft de hoogste ROI op train (+33.3%)",
+     "bets": 19,
+     "vast_1": 8.0,
+     "kelly": {
+      "start": 100,
+      "eind": 105.57,
+      "winst": 5.57,
+      "ingezet": 19.28,
+      "max_drawdown": 9.26,
+      "verloop": [
+       99.04,
+       97.85,
+       96.8,
+       95.64,
+       94.68,
+       93.76,
+       103.26,
+       102.28,
+       101.07,
+       100.06,
+       99.04,
+       97.92,
+       96.87,
+       95.9,
+       95.0,
+       94.0,
+       99.4,
+       98.37,
+       105.57
+      ]
+     },
+     "weekbudget": [
+      {
+       "inzet": 2,
+       "budget": 50,
+       "bets": 19,
+       "overgeslagen": 0,
+       "ingezet": 38.0,
+       "eind": 16.0,
+       "max_drawdown": 18.0,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2023-12-11",
+         "ingezet": 12.0,
+         "winst": -12.0,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-18",
+         "ingezet": 16.0,
+         "winst": 6.0,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-25",
+         "ingezet": 8.0,
+         "winst": 6.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-01-01",
+         "ingezet": 2.0,
+         "winst": 16.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 3,
+       "budget": 50,
+       "bets": 19,
+       "overgeslagen": 0,
+       "ingezet": 57.0,
+       "eind": 24.0,
+       "max_drawdown": 27.0,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2023-12-11",
+         "ingezet": 18.0,
+         "winst": -18.0,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-18",
+         "ingezet": 24.0,
+         "winst": 9.0,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-25",
+         "ingezet": 12.0,
+         "winst": 9.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-01-01",
+         "ingezet": 3.0,
+         "winst": 24.0,
+         "budget_op": false
+        }
+       ]
+      },
+      {
+       "inzet": 5,
+       "budget": 50,
+       "bets": 19,
+       "overgeslagen": 0,
+       "ingezet": 95.0,
+       "eind": 40.0,
+       "max_drawdown": 45.0,
+       "weken_budget_op": 0,
+       "weken": [
+        {
+         "week": "2023-12-11",
+         "ingezet": 30.0,
+         "winst": -30.0,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-18",
+         "ingezet": 40.0,
+         "winst": 15.0,
+         "budget_op": false
+        },
+        {
+         "week": "2023-12-25",
+         "ingezet": 20.0,
+         "winst": 15.0,
+         "budget_op": false
+        },
+        {
+         "week": "2024-01-01",
+         "ingezet": 5.0,
+         "winst": 40.0,
+         "budget_op": false
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": null,
+    "toelichting": "geen toetsbaar criterium (controle of beschrijvend)"
+   },
+   "duur_s": 129.2
+  },
+  {
+   "id": "E028",
+   "model": "setstand",
+   "vingerafdruk": "a8c88c12a78f",
+   "protocolwaarschuwing": null,
+   "uitkomsten": [
+    {
+     "train": [
+      2024
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "walk-forward",
+     "n": 94,
+     "logloss_dp": 1.8514,
+     "logloss_naief": 1.8549,
+     "logloss_winnaar": 0.6343,
+     "verschil_naief": -0.0035,
+     "verschil_se": 0.0028
+    },
+    {
+     "train": [
+      2024,
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "walk-forward",
+     "n": 126,
+     "logloss_dp": 1.7001,
+     "logloss_naief": 1.6942,
+     "logloss_winnaar": 0.549,
+     "verschil_naief": 0.0058,
+     "verschil_se": 0.0024
+    },
+    {
+     "train": [
+      2026
+     ],
+     "test": [
+      2025
+     ],
+     "soort": "richting",
+     "n": 94,
+     "logloss_dp": 1.8514,
+     "logloss_naief": 1.8549,
+     "logloss_winnaar": 0.6343,
+     "verschil_naief": -0.0035,
+     "verschil_se": 0.0028
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2026
+     ],
+     "soort": "richting",
+     "n": 126,
+     "logloss_dp": 1.7001,
+     "logloss_naief": 1.6942,
+     "logloss_winnaar": 0.549,
+     "verschil_naief": 0.0058,
+     "verschil_se": 0.0024
+    },
+    {
+     "train": [
+      2025
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "logloss_dp": 1.7169,
+     "logloss_naief": 1.7124,
+     "logloss_winnaar": 0.5698,
+     "verschil_naief": 0.0045,
+     "verschil_se": 0.0027
+    },
+    {
+     "train": [
+      2025,
+      2026
+     ],
+     "test": [
+      2024
+     ],
+     "soort": "richting",
+     "n": 94,
+     "logloss_dp": 1.7169,
+     "logloss_naief": 1.7124,
+     "logloss_winnaar": 0.5698,
+     "verschil_naief": 0.0045,
+     "verschil_se": 0.0027
+    }
+   ],
+   "status": "ok",
+   "beoordeling": {
+    "succes": false,
+    "toelichting": "WK2025: -0.0035 (se 0.0028); WK2026: +0.0058 (se 0.0024)"
+   },
+   "duur_s": 0.6
   }
  ]
 }
