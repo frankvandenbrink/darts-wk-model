@@ -88,6 +88,7 @@ dartswk terugtest --model vorm --walk-forward --jaren 2024 2025 2026
 dartswk fetch-events                                     # Dartsorakel-events 2022-2025 (beleefd, gecachet)
 dartswk terugtest --model rating --walk-forward --jaren 2024 2025 2026
 dartswk vergelijk                                        # alle modellen, alle splits -> resultaten/vergelijking.*
+dartswk experimenten [--ids E014 E015]                   # register draaien -> resultaten/experimenten.*
 pytest                                                   # draait zonder netwerk en zonder data/cache
 ```
 
@@ -151,6 +152,18 @@ Niet het hoofdresultaat; opgenomen omdat 1.05 vooraf als regel genoemd was.
 | 2026 → 2025 | 56 | +51.7% | [−7.0%, +77.5%] |
 | 2025 → 2026 | 81 | −20.3% | [−45.1%, +9.3%] |
 | Walk-forward totaal (2025+2026) | 132 | −4.1% | [−22.7%, +14.9%] |
+
+### Experimenten (register E001–E023)
+
+Sinds 29-10-2026 draait elk model via een vast protocol ([docs/protocol.md](docs/protocol.md)): hypothese en
+criterium vooraf in [experimenten/register.json](experimenten/register.json), afstemmen alleen op train,
+walk-forward als hoofdresultaat, controles (markt, markt-vlak, blind underdog/favoriet, munt) altijd mee, en elke run
+in [experimenten/runlog.jsonl](experimenten/runlog.jsonl). Uitkomsten: [resultaten/experimenten.md](resultaten/experimenten.md).
+
+Kort: **geen enkel experiment haalt het criterium** (walk-forward log-loss in beide testjaren > 1 se onder de markt).
+De beste modellen (logistische regressie met onbestrafte marktlogit, marktblend met krimp, Glicko-achtig in 2025)
+liggen binnen de ruis van de markt; alle modellen zonder marktinput zijn in 2026 meer dan 2 se slechter dan de markt.
+GBM is niet gedraaid (geen sklearn).
 
 ## Dashboard
 
