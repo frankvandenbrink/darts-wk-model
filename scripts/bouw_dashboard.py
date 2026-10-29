@@ -45,6 +45,7 @@ import html
 import json
 import math
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -97,7 +98,8 @@ def verzamel(resultaten: Path) -> dict:
     beste: dict[tuple, tuple] = {}
     totalen: dict[str, dict] = {}
     extra: dict[str, dict] = {}
-    bestanden = sorted(p for p in Path(resultaten).glob("*.json") if p.name != LIVE_BESTAND)
+    overslaan = (LIVE_BESTAND, EXPERIMENTEN_BESTAND)
+    bestanden = sorted(p for p in Path(resultaten).glob("*.json") if p.name not in overslaan)
     for pad in bestanden:
         inhoud = _lees_json(pad)
         if not isinstance(inhoud, dict):
@@ -502,6 +504,447 @@ def sectie_live(live) -> str:
             + "</tbody></table></div>")
 
 
+# --------------------------------------------------------------------------- experimenten en inhoud
+
+EXPERIMENTEN_BESTAND = "experimenten.json"
+KERNMODELLEN = ["E001", "E006", "E007", "E009", "E014", "E015", "E017", "E020"]   # kalibratieplots
+ROI_MODELLEN = ["E003", "E004", "E002", "E006", "E009", "E014", "E015", "E020"]   # winstverloop
+VRIENDEN_LEEG = "Komt later: een eenvoudige pagina voor vrienden met de voorspellingen per speeldag."
+
+
+def lees_experimenten(resultaten: Path):
+    pad = Path(resultaten) / EXPERIMENTEN_BESTAND
+    inhoud = _lees_json(pad) if pad.exists() else None
+    if not isinstance(inhoud, dict) or not isinstance(inhoud.get("resultaten"), list):
+        return None
+    return inhoud
+
+
+def lees_inhoud(map_: Path) -> dict:
+    uit = {}
+    for naam in ("aanbeveling", "sentiment", "onderzoek", "ideeen", "roadmap"):
+        pad = Path(map_) / f"{naam}.json"
+        uit[naam] = _lees_json(pad) if pad.exists() else None
+    return uit
+
+
+def _wf(res: dict) -> list[dict]:
+    return [u for u in res.get("uitkomsten", []) if u.get("soort") == "walk-forward"]
+
+
+def _reg(exp: dict) -> dict:
+    return {x["id"]: x for x in exp.get("register", [])}
+
+
+def _naam(reg: dict, id_: str) -> str:
+    x = reg.get(id_, {})
+    return f"{id_} {x.get('naam', x.get('model', ''))}".strip()
+
+
+def _oordeel_ruis(u: dict) -> str:
+    r = u.get("ruis", "")
+    klasse = {"beter dan de markt": "goed", "slechter dan de markt": "slecht"}.get(r, "")
+    return f'<span class="badge {klasse}">{e(r)}</span>' if r else STREEP
+
+
+def sectie_aanbeveling(inh) -> str:
+    if not isinstance(inh, dict):
+        return '<p class="melding">Nog geen aanbeveling (inhoud/aanbeveling.json ontbreekt).</p>'
+    punten = "".join(f"<li>{e(p)}</li>" for p in inh.get("punten", []))
+    meta = f"<p><small>bijgewerkt: {e(inh['bijgewerkt'])}</small></p>" if inh.get("bijgewerkt") else ""
+    return f"<h3>{e(inh.get('titel', 'Huidige aanbeveling'))}</h3><ul>{punten}</ul>{meta}"
+
+
+def sectie_samenvatting(exp) -> str:
+    if not exp:
+        return '<p class="melding">Nog geen experimenten gedraaid (<code>dartswk experimenten</code>).</p>'
+    reg = _reg(exp)
+    per_jaar: dict = {}
+    for res in exp["resultaten"]:
+        if res.get("status") != "ok" or reg.get(res["id"], {}).get("soort") == "controle":
+            continue
+        for u in _wf(res):
+            j = u["test"][0]
+            if j not in per_jaar or u["logloss"] < per_jaar[j][1]["logloss"]:
+                per_jaar[j] = (res["id"], u)
+    rijen = []
+    for j in sorted(per_jaar):
+        id_, u = per_jaar[j]
+        rijen.append(f"<tr><td><strong>{j}</strong></td><td>{e(_naam(reg, id_))}</td><td>{fmt(u['logloss'])}</td>"
+                     f"<td>{fmt(u['logloss_markt'])}</td><td>{fmt_teken(u['verschil_markt'])} ± "
+                     f"{fmt(u['verschil_se'])}</td><td>{_oordeel_ruis(u)}</td></tr>")
+    tabel = ('<div class="tabel-wrap"><table><thead><tr><th>Test-WK</th><th>Beste model (laagste log-loss)</th>'
+             '<th>Log-loss</th><th>Markt</th><th>Δ vs markt ± se</th><th>Oordeel</th></tr></thead><tbody>'
+             + "".join(rijen) + "</tbody></table></div>")
+    uitleg = ("<p><strong>In gewone woorden:</strong> per WK staat hier het model dat achteraf het best voorspelde "
+              "(walk-forward: alleen afgestemd op eerdere WK's). Log-loss meet hoe goed de kansen waren; lager is "
+              "beter. Δ is het verschil met de bookmakers. Is het verschil kleiner dan twee keer de standaardfout, dan "
+              "is het <em>binnen de ruis</em>: met ongeveer 100 wedstrijden per WK is het dan niet te onderscheiden "
+              "van toeval. Let op: 'het beste van ruim twintig modellen' kiezen is zelf al een vorm van geluk "
+              "(meervoudig testen).</p>")
+    return tabel + uitleg
+
+
+def _ci_tekst(c) -> str:
+    return interval(c) if c else STREEP
+
+
+def _exp_rij(reg, res, u) -> str:
+    x = reg.get(res["id"], {})
+    status = res.get("status")
+    klasse = "" if status == "ok" else ' class="mislukt"'
+    ruw = str(x.get("hypothese", ""))
+    hyp, kort = e(ruw), e(ruw if len(ruw) < 90 else ruw[:87] + "…")
+    b = res.get("beoordeling") or {}
+    crit = {True: '<span class="badge goed">gehaald</span>', False: '<span class="badge slecht">niet gehaald</span>'}
+    crit_txt = crit.get(b.get("succes"), "n.v.t.")
+    vlag = ""
+    if x.get("na_test_aangepast", {}).get("waarde"):
+        vlag += ' <span class="badge" title="na het zien van testcijfers aangepast">aangepast</span>'
+    if x.get("test_vooraf_bekend"):
+        vlag += ' <span class="badge" title="testcijfers waren al bekend vóór registratie">vooraf bekend</span>'
+    if status != "ok":
+        cel = f'<td colspan="9"><span class="badge slecht">{e(status)}</span> {e(res.get("fout", ""))}</td>'
+        return (f"<tr{klasse}><td>{e(res['id'])}</td><td>{e(x.get('naam', res.get('model')))}{vlag}</td>"
+                f'<td title="{hyp}">{kort}</td>{cel}<td>{crit_txt}</td></tr>')
+    h = u.get("helling")
+    split = f"{jaren_label(u['train'])} → {u['test'][0]}"
+    cellen = [
+        f'<td data-s="{e(split)}">{e(split)}</td>',
+        f'<td data-s="{u["logloss"]}">{fmt(u["logloss"])}</td>',
+        f'<td data-s="{u["verschil_markt"]}">{fmt_teken(u["verschil_markt"])} ± {fmt(u["verschil_se"])}</td>',
+        f'<td>{_oordeel_ruis(u)}</td>',
+        f'<td data-s="{u["brier"]}">{fmt(u["brier"])}</td>',
+        f'<td data-s="{h if _getal(h) else ""}">{fmt(h, 2)}</td>',
+        f'<td data-s="{u["bets"]}">{u["bets"]}</td>',
+        f'<td data-s="{u["roi"] if _getal(u.get("roi")) else ""}">{pct(u.get("roi"))}</td>',
+        f'<td>{_ci_tekst(u.get("roi_90"))}</td>',
+    ]
+    return (f"<tr{klasse}><td>{e(res['id'])}</td><td>{e(x.get('naam', res.get('model')))}{vlag}</td>"
+            f'<td title="{hyp}">{kort}</td>' + "".join(cellen) + f"<td>{crit_txt}</td></tr>")
+
+
+EXP_KOPPEN = ["Id", "Model", "Hypothese (vooraf)", "Train → test", "Log-loss", "Δ vs markt ± se", "Oordeel",
+              "Brier", "Helling", "Bets", "ROI", "90%-int. ROI", "Criterium"]
+
+
+def _exp_tabel(exp, soort: str) -> str:
+    reg = _reg(exp)
+    rijen = []
+    for res in exp["resultaten"]:
+        us = [u for u in res.get("uitkomsten", []) if u.get("soort") == soort]
+        if res.get("status") != "ok":
+            if soort == "walk-forward":
+                rijen.append(_exp_rij(reg, res, None))
+            continue
+        rijen += [_exp_rij(reg, res, u) for u in us]
+    kop = "".join(f'<th scope="col"><button type="button" class="sorteer">{e(k)}</button></th>' for k in EXP_KOPPEN)
+    return (f'<div class="tabel-wrap"><table class="sorteerbaar"><thead><tr>{kop}</tr></thead><tbody>'
+            + "\n".join(rijen) + "</tbody></table></div>")
+
+
+def sectie_experimenten(exp) -> str:
+    if not exp:
+        return '<p class="melding">Geen <code>resultaten/experimenten.json</code>.</p>'
+    return ("<p>Alle experimenten uit <code>experimenten/register.json</code>. Klik op een kolomkop om te sorteren. "
+            "Rood gemarkeerde rijen zijn mislukt of niet gedraaid. 'Oordeel': binnen de ruis als |Δ| ≤ 2 se. "
+            "Criterium: zoals vooraf vastgelegd, getoetst op de walk-forward. Labels <em>aangepast</em> en "
+            "<em>vooraf bekend</em> markeren experimenten die niet volledig vooraf zijn vastgelegd.</p>"
+            "<h3>Walk-forward (hoofdresultaat)</h3>" + _exp_tabel(exp, "walk-forward")
+            + "<details><summary>Vaste richtingen (ter vergelijking)</summary>" + _exp_tabel(exp, "richting")
+            + "</details>")
+
+
+def svg_delta(exp) -> str:
+    """Dot-plot: Δ log-loss vs markt per experiment en walk-forward-testjaar, foutbalk ±2 se."""
+    if not exp:
+        return ""
+    reg = _reg(exp)
+    rijen = []
+    for res in exp["resultaten"]:
+        if res.get("status") != "ok" or res["id"] == "E001":
+            continue
+        us = {u["test"][0]: u for u in _wf(res)}
+        if us:
+            rijen.append((_naam(reg, res["id"]), us))
+    if not rijen:
+        return ""
+    jaren = sorted({j for _, us in rijen for j in us})
+    waarden = [0.0] + [u["verschil_markt"] + s * 2 * u["verschil_se"] for _, us in rijen for u in us.values()
+                       for s in (-1, 1)]
+    lo, hi = min(waarden), max(waarden)
+    marge = (hi - lo) * 0.05
+    lo, hi = lo - marge, hi + marge
+    links, rechts, rij_h, boven, breedte = 300, 20, 30, 20, 760
+    hoogte = boven + rij_h * len(rijen) + 30
+    x = _schaal(lo, hi, links, breedte - rechts)
+    d = [f'<svg viewBox="0 0 {breedte} {hoogte}" role="img" aria-labelledby="dl-titel" class="grafiek">',
+         '<title id="dl-titel">Verschil in log-loss met de markt per experiment, walk-forward, ±2 se.</title>']
+    for t in _ticks(lo, hi):
+        d.append(f'<line class="grid" x1="{x(t):.1f}" x2="{x(t):.1f}" y1="{boven - 8}" y2="{hoogte - 26}"/>')
+        d.append(f'<text class="as" x="{x(t):.1f}" y="{hoogte - 10}" text-anchor="middle">{fmt_teken(t, 2)}</text>')
+    d.append(f'<line class="nul" x1="{x(0):.1f}" x2="{x(0):.1f}" y1="{boven - 8}" y2="{hoogte - 26}"/>')
+    for i, (label, us) in enumerate(rijen):
+        y0 = boven + rij_h * i + rij_h / 2
+        d.append(f'<text class="label" x="{links - 10}" y="{y0 + 4:.1f}" text-anchor="end">{e(label)}</text>')
+        for k, j in enumerate(jaren):
+            if j not in us:
+                continue
+            u = us[j]
+            y = y0 + (k - (len(jaren) - 1) / 2) * 9
+            a, b = u["verschil_markt"] - 2 * u["verschil_se"], u["verschil_markt"] + 2 * u["verschil_se"]
+            tip = (f"{label}, WK{j}: Δ {fmt_teken(u['verschil_markt'])} ± {fmt(u['verschil_se'])} (se), "
+                   f"{u['ruis']}")
+            d.append(f'<g class="punt"><line class="interval s{k + 1}" x1="{x(a):.1f}" x2="{x(b):.1f}" '
+                     f'y1="{y:.1f}" y2="{y:.1f}"/><circle class="c{k + 1}" cx="{x(u["verschil_markt"]):.1f}" '
+                     f'cy="{y:.1f}" r="5"><title>{e(tip)}</title></circle></g>')
+    d.append("</svg>")
+    legenda = ('<p class="legenda">' + "".join(f'<span class="sw s{k + 1}"></span>WK {j} ' for k, j in enumerate(jaren))
+               + '· balk = ±2 se · <strong>links van de nullijn = beter dan de markt</strong>. Snijdt de balk de '
+               'nullijn, dan valt het verschil binnen de ruis.</p>')
+    return legenda + '<div class="grafiek-wrap">' + "\n".join(d) + "</div>"
+
+
+def _bins_samen(us: list[dict]) -> list[dict]:
+    """Kalibratiebins van meerdere testjaren samenvoegen (gewogen naar aantal)."""
+    uit = []
+    for bins in zip(*[u.get("kalibratie", []) for u in us]):
+        n = sum(b["n"] for b in bins)
+        if n:
+            uit.append(dict(van=bins[0]["van"], tot=bins[0]["tot"], n=n,
+                            kans=sum(b["kans"] * b["n"] for b in bins if b["n"]) / n,
+                            freq=sum(b["freq"] * b["n"] for b in bins if b["n"]) / n))
+    return uit
+
+
+def svg_kalibratie(exp) -> str:
+    if not exp:
+        return ""
+    reg = _reg(exp)
+    res_per_id = {r["id"]: r for r in exp["resultaten"] if r.get("status") == "ok"}
+    delen = []
+    for id_ in KERNMODELLEN:
+        if id_ not in res_per_id:
+            continue
+        bins = _bins_samen(_wf(res_per_id[id_]))
+        if not bins:
+            continue
+        z, m = 220, 34
+        x = _schaal(0.5, 1.0, m, z - 10)
+        y = _schaal(0.0, 1.0, z - m, 10)
+        d = [f'<svg viewBox="0 0 {z} {z}" role="img" class="klein" aria-label="Kalibratie {e(_naam(reg, id_))}">']
+        for t in (0.5, 0.75, 1.0):
+            d.append(f'<line class="grid" x1="{x(t):.1f}" x2="{x(t):.1f}" y1="10" y2="{z - m}"/>'
+                     f'<text class="as" x="{x(t):.1f}" y="{z - m + 14}" text-anchor="middle">{t:g}</text>')
+        for t in (0.0, 0.5, 1.0):
+            d.append(f'<line class="grid" x1="{m}" x2="{z - 10}" y1="{y(t):.1f}" y2="{y(t):.1f}"/>'
+                     f'<text class="as" x="{m - 4}" y="{y(t) + 4:.1f}" text-anchor="end">{t:g}</text>')
+        d.append(f'<line class="nul" x1="{x(0.5):.1f}" y1="{y(0.5):.1f}" x2="{x(1):.1f}" y2="{y(1):.1f}"/>')
+        pts = " ".join(f"{x(b['kans']):.1f},{y(b['freq']):.1f}" for b in bins)
+        d.append(f'<polyline class="lijn s1" points="{pts}"/>')
+        for b in bins:
+            r = 3 + min(6, math.sqrt(b["n"]))
+            d.append(f'<g class="punt"><circle class="model" cx="{x(b["kans"]):.1f}" cy="{y(b["freq"]):.1f}" '
+                     f'r="{r:.1f}"><title>{b["van"]:g}–{b["tot"]:g}: voorspeld {b["kans"]:.3f}, werkelijk '
+                     f'{b["freq"]:.3f}, n={b["n"]}</title></circle></g>')
+        d.append("</svg>")
+        delen.append(f'<figure><figcaption>{e(_naam(reg, id_))}</figcaption>{"".join(d)}</figure>')
+    if not delen:
+        return ""
+    return ('<p class="legenda">Kans van de favoriet volgens het model (x) tegen hoe vaak die favoriet won (y), '
+            'walk-forward 2025+2026 samen, 5 bins; grootte van de stip = aantal wedstrijden. Op de diagonaal = '
+            'goed gekalibreerd; onder de diagonaal = te stellig.</p><div class="klein-raster">' + "".join(delen)
+            + "</div>")
+
+
+def svg_roi_curves(exp) -> str:
+    if not exp:
+        return ""
+    reg = _reg(exp)
+    res_per_id = {r["id"]: r for r in exp["resultaten"] if r.get("status") == "ok"}
+    lijnen = []
+    for id_ in ROI_MODELLEN:
+        if id_ not in res_per_id:
+            continue
+        us = sorted(_wf(res_per_id[id_]), key=lambda u: u["test"][0])
+        verloop, basis = [], 0.0
+        for u in us:
+            verloop += [basis + v for v in u.get("verloop", [])]
+            basis = verloop[-1] if verloop else 0.0
+        ci = "; ".join(f"WK{u['test'][0]}: {u['bets']} bets, ROI {pct(u.get('roi'))} {_ci_tekst(u.get('roi_90'))}"
+                       for u in us)
+        lijnen.append((_naam(reg, id_), verloop, ci))
+    lijnen = [l for l in lijnen if l[1]]
+    if not lijnen:
+        return '<p class="melding">Geen bets in de walk-forward.</p>'
+    alle = [0.0] + [v for _, l, _ in lijnen for v in l]
+    lo, hi = min(alle), max(alle)
+    marge = (hi - lo) * 0.08 or 1
+    lo, hi = lo - marge, hi + marge
+    n_max = max(len(l) for _, l, _ in lijnen)
+    links, rechts, boven, onder, breedte, hoogte = 56, 20, 16, 36, 720, 320
+    x = _schaal(0, n_max, links, breedte - rechts)
+    y = _schaal(lo, hi, hoogte - onder, boven)
+    d = [f'<svg viewBox="0 0 {breedte} {hoogte}" role="img" aria-labelledby="rc-titel" class="grafiek">',
+         '<title id="rc-titel">Cumulatieve winst in units per bet, walk-forward 2025 en daarna 2026.</title>']
+    for t in _ticks(lo, hi):
+        d.append(f'<line class="grid" x1="{links}" x2="{breedte - rechts}" y1="{y(t):.1f}" y2="{y(t):.1f}"/>')
+        d.append(f'<text class="as" x="{links - 6}" y="{y(t) + 4:.1f}" text-anchor="end">{fmt(t, 0)}</text>')
+    for t in _ticks(0, n_max):
+        if t == int(t):
+            d.append(f'<text class="as" x="{x(t):.1f}" y="{hoogte - onder + 16}" text-anchor="middle">{int(t)}</text>')
+    d.append(f'<text class="as" x="{breedte - rechts}" y="{hoogte - 4}" text-anchor="end">bet nr.</text>')
+    d.append(f'<line class="nul" x1="{links}" x2="{breedte - rechts}" y1="{y(0):.1f}" y2="{y(0):.1f}"/>')
+    legenda = []
+    for i, (label, l, ci) in enumerate(lijnen):
+        punten = " ".join(f"{x(j):.1f},{y(v):.1f}" for j, v in enumerate([0.0] + l))
+        d.append(f'<polyline class="lijn s{i + 1}" points="{punten}"><title>{e(label)}: {e(ci)}</title></polyline>')
+        legenda.append(f'<li><span class="sw s{i + 1}"></span><strong>{e(label)}</strong> — {e(ci)}</li>')
+    d.append("</svg>")
+    return ('<ul class="legenda lijst">' + "".join(legenda) + '</ul>\n<div class="grafiek-wrap">' + "\n".join(d)
+            + "</div><p class=\"legenda\">Inzet 1 per bet; eerst de bets op WK 2025, daarna WK 2026. Het "
+            "90%-interval (bootstrap per ronde) staat per WK in de legenda.</p>")
+
+
+def _inline_md(t: str) -> str:
+    t = e(t)
+    t = re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", lambda m: f'<a href="{_md_link(m.group(2))}">{m.group(1)}</a>', t)
+    t = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", t)
+    t = re.sub(r"`([^`]+)`", r"<code>\1</code>", t)
+    t = re.sub(r"(?<![\w*])\*([^*]+)\*(?![\w*])", r"<em>\1</em>", t)
+    return t
+
+
+def _md_link(href: str) -> str:
+    """Relatieve links naar de repo laten wijzen (de site bevat alleen index.html)."""
+    if re.match(r"^https?://", href) or href.startswith("#"):
+        return href
+    pad = href.lstrip("./").replace("../", "")
+    if not pad.startswith(("docs/", "experimenten/", "resultaten/", "data/", "inhoud/")):
+        pad = "docs/" + pad
+    return f"{REPO_URL}/blob/main/{pad}"
+
+
+def markdown_html(tekst: str) -> str:
+    """Mini-markdown: koppen, lijsten (genummerd en niet), alinea's, links, vet, cursief, code."""
+    uit, alinea, lijst = [], [], None
+
+    def sluit():
+        nonlocal alinea, lijst
+        if alinea:
+            uit.append("<p>" + _inline_md(" ".join(alinea)) + "</p>")
+            alinea = []
+        if lijst:
+            uit.append(f"<{lijst[0]}>" + "".join(f"<li>{_inline_md(x)}</li>" for x in lijst[1]) + f"</{lijst[0]}>")
+            lijst = None
+
+    for regel in tekst.splitlines():
+        s = regel.strip()
+        m_kop = re.match(r"^(#{1,4})\s+(.*)$", s)
+        m_ul = re.match(r"^[-*]\s+(.*)$", s)
+        m_ol = re.match(r"^\d+\.\s+(.*)$", s)
+        if not s:
+            sluit()
+        elif m_kop:
+            sluit()
+            n = min(len(m_kop.group(1)) + 2, 6)
+            uit.append(f"<h{n}>{_inline_md(m_kop.group(2))}</h{n}>")
+        elif m_ul or m_ol:
+            soort = "ul" if m_ul else "ol"
+            if alinea:
+                uit.append("<p>" + _inline_md(" ".join(alinea)) + "</p>")
+                alinea = []
+            if lijst and lijst[0] != soort:
+                sluit()
+            lijst = lijst or (soort, [])
+            lijst[1].append((m_ul or m_ol).group(1))
+        elif lijst and regel.startswith(" "):
+            lijst[1][-1] += " " + s
+        else:
+            if lijst:
+                sluit()
+            alinea.append(s)
+    sluit()
+    return "\n".join(uit)
+
+
+def sectie_lijst(inh, leeg: str) -> str:
+    items = inh.get("items") if isinstance(inh, dict) else None
+    if not items:
+        return f'<p class="melding">{e(leeg)}</p>'
+    return "<ul>" + "".join(f"<li>{e(x)}</li>" for x in items) + "</ul>"
+
+
+def sectie_roadmap(inh) -> str:
+    items = inh.get("items") if isinstance(inh, dict) else None
+    if not items:
+        return '<p class="melding">Nog geen roadmap (inhoud/roadmap.json).</p>'
+    return ('<ol class="tijdlijn">' + "".join(f"<li><strong>{e(x.get('datum', ''))}</strong>: {e(x.get('wat', ''))}</li>"
+                                               for x in items) + "</ol>")
+
+
+def sectie_sentiment(inh) -> str:
+    if not isinstance(inh, dict):
+        return '<p class="melding">Nog geen ontwerp (inhoud/sentiment.json).</p>'
+    delen = []
+    if inh.get("status"):
+        delen.append(f'<p class="disclaimer">{e(inh["status"])}</p>')
+    if inh.get("idee"):
+        delen.append(f"<p><strong>Idee:</strong> {e(inh['idee'])}</p>")
+    for veld, kop in (("aanpak", "Aanpak"), ("risicos", "Risico's")):
+        if inh.get(veld):
+            delen.append(f"<h3>{kop}</h3><ul>" + "".join(f"<li>{e(x)}</li>" for x in inh[veld]) + "</ul>")
+    return "".join(delen)
+
+
+ONDERZOEK_KOLOMMEN = [("naam", "Naam"), ("kosten", "Kosten"), ("darts_dekking", "Darts-dekking"),
+                      ("nl_bruikbaar", "Bruikbaar in NL"), ("voorwaarden", "Voorwaarden"), ("oordeel", "Oordeel")]
+
+
+def sectie_onderzoek(inh) -> str:
+    items = inh.get("items") if isinstance(inh, dict) else None
+    if not items:
+        return '<p class="melding">Nog geen onderzoek (inhoud/onderzoek.json).</p>'
+    rijen = []
+    for x in items:
+        cellen = []
+        for k, _ in ONDERZOEK_KOLOMMEN:
+            v = e(x.get(k, STREEP))
+            if k == "naam" and str(x.get("url", "")).startswith(("http://", "https://")):
+                v = f'<a href="{e(x["url"])}">{v}</a>'
+            cellen.append(f"<td>{v}</td>")
+        rijen.append("<tr>" + "".join(cellen) + "</tr>")
+    kop = "".join(f"<th>{e(t)}</th>" for _, t in ONDERZOEK_KOLOMMEN)
+    toel = f"<p><small>{e(inh['toelichting'])}</small></p>" if inh.get("toelichting") else ""
+    return (f"<h3>Onderzoek naar bronnen</h3>{toel}<div class=\"tabel-wrap\"><table><thead><tr>{kop}</tr></thead>"
+            f"<tbody>{''.join(rijen)}</tbody></table></div>")
+
+
+SORTEER_JS = """
+document.querySelectorAll('table.sorteerbaar').forEach(function(t){
+  t.querySelectorAll('button.sorteer').forEach(function(b,i){
+    b.addEventListener('click',function(){
+      var tb=t.tBodies[0],rs=Array.prototype.slice.call(tb.rows),op=b.dataset.op!=='1';
+      t.querySelectorAll('button.sorteer').forEach(function(x){x.dataset.op='';x.removeAttribute('aria-sort');});
+      b.dataset.op=op?'1':'0';
+      function w(r){var c=r.cells[i];if(!c)return '';var s=c.getAttribute('data-s');return s!==null?s:c.textContent.trim();}
+      rs.sort(function(a,c){var x=w(a),y=w(c),nx=parseFloat(x),ny=parseFloat(y);
+        if(x===''&&y!=='')return 1;if(y===''&&x!=='')return -1;
+        var v=(!isNaN(nx)&&!isNaN(ny))?nx-ny:x.localeCompare(y,'nl');return op?v:-v;});
+      rs.forEach(function(r){tb.appendChild(r);});
+    });
+  });
+});
+"""
+
+VRIENDEN_HTML = """<!DOCTYPE html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Darts-WK: voor vrienden</title></head>
+<body style="font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem">
+<h1>Darts-WK 2026/27 voor vrienden</h1><p>{leeg}</p><p><strong>{disclaimer}</strong></p>
+<p><a href="index.html">Terug naar het dashboard</a></p></body></html>
+"""
+
 # --------------------------------------------------------------------------- pagina
 
 CSS = """
@@ -550,6 +993,20 @@ td.reden{min-width:14em}
 .sw.model{background:var(--s1)}.sw.markt{background:var(--s2)}
 """ + "".join(f".lijn.s{i}{{stroke:var(--s{i})}}.sw.s{i}{{background:var(--s{i})}}" for i in range(1, 9)) + """
 footer{color:var(--mute);font-size:.85rem;margin:2rem 0 1rem}
+nav.inhoud{display:flex;flex-wrap:wrap;gap:.3rem .8rem;font-size:.9rem;margin:.6rem 0}
+tr.mislukt td{background:color-mix(in srgb,var(--slecht) 10%,transparent)}
+button.sorteer{all:unset;cursor:pointer;color:var(--tekst2);font-weight:600}
+button.sorteer:focus-visible{outline:2px solid var(--link)}
+button.sorteer[data-op="1"]::after{content:" ▲"}button.sorteer[data-op="0"]::after{content:" ▼"}
+.grafiek .interval.s1{stroke:var(--s1)}.grafiek .interval.s2{stroke:var(--s2)}
+.grafiek circle.c1{fill:var(--s1)}.grafiek circle.c2{fill:var(--s2)}
+.klein-raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem}
+.klein-raster figure{margin:0}.klein-raster figcaption{font-size:.85rem;color:var(--tekst2)}
+svg.klein{width:100%;height:auto}svg.klein text{font-size:11px;fill:var(--tekst2)}
+svg.klein .grid{stroke:var(--grid)}svg.klein .nul{stroke:var(--as);stroke-dasharray:4 3}
+svg.klein .lijn{fill:none;stroke-width:2}svg.klein circle{fill:var(--s1);stroke:var(--vlak);stroke-width:2}
+ul.lijst{list-style:none;padding-left:0}ul.lijst li{margin:.2rem 0}
+ol.tijdlijn li{margin:.3rem 0}
 @media (max-width:600px){main{padding:.5rem}section{padding:0 .6rem .6rem}h1{font-size:1.35rem}}
 """
 
@@ -595,8 +1052,10 @@ def sectie_bronnen() -> str:
             "</ul>")
 
 
-def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | None = None) -> str:
+def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | None = None,
+              experimenten=None, inhoud: dict | None = None, protocol: str | None = None) -> str:
     runs, totalen, extra = verzameld["runs"], verzameld["totalen"], verzameld["extra"]
+    inhoud = inhoud or {}
     nu = nu or dt.datetime.now(dt.timezone.utc)
     if sha:
         commit = f'commit <a href="{REPO_URL}/commit/{e(sha)}"><code>{e(sha[:7])}</code></a>'
@@ -606,8 +1065,14 @@ def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | N
     titels = {"data": "Gegevens per WK", "blind_underdog": "Vergelijking: blind op de underdog",
               "meldingen": "Meldingen"}
     if extra:
-        extra_html = ("<section><h2>Aanvullende vergelijking</h2>"
-                      + "\n".join(tabel_generiek(titels[k], v) for k, v in extra.items()) + "</section>")
+        extra_html = ("<h3>Aanvullende vergelijking</h3>"
+                      + "\n".join(tabel_generiek(titels[k], v) for k, v in extra.items()))
+    protocol_html = (markdown_html(protocol) if protocol else
+                     '<p class="melding">docs/protocol.md niet gevonden.</p>')
+    nav = "".join(f'<a href="#{i}">{t}</a>' for i, t in (
+        ("samenvatting", "Samenvatting"), ("experimenten", "Experimenten"), ("vergelijking", "Vergelijking"),
+        ("kalibratie", "Kalibratie"), ("roi", "ROI"), ("protocol", "Protocol"), ("ideeen", "Ideeën"),
+        ("roadmap", "Roadmap"), ("live", "Live"), ("sentiment", "Sentiment"), ("bronnen", "Bronnen")))
     return f"""<!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -622,40 +1087,91 @@ def bouw_html(verzameld: dict, live, nu: dt.datetime | None = None, sha: str | N
 <header>
 <h1>Darts-WK-model: tussenstanden</h1>
 <p class="disclaimer"><strong>{e(DISCLAIMER)}</strong> Code en methode: <a href="{REPO_URL}">{e(REPO_URL)}</a>.</p>
+<nav class="inhoud">{nav}</nav>
 </header>
 
-<section>
-<h2>Kerncijfers per test-WK</h2>
+<section id="aanbeveling">
+<h2>Huidige aanbeveling</h2>
+{sectie_aanbeveling(inhoud.get("aanbeveling"))}
+</section>
+
+<section id="samenvatting">
+<h2>Samenvatting: beste model tegenover de markt</h2>
+{sectie_samenvatting(experimenten)}
+</section>
+
+<section id="experimenten">
+<h2>Experimenten</h2>
+{sectie_experimenten(experimenten)}
+</section>
+
+<section id="vergelijking">
+<h2>Vergelijking per model en per WK</h2>
+{svg_delta(experimenten)}
+</section>
+
+<section id="kalibratie">
+<h2>Kalibratie</h2>
+{svg_kalibratie(experimenten)}
+</section>
+
+<section id="roi">
+<h2>Winstverloop (ROI-curves)</h2>
+{svg_roi_curves(experimenten)}
+</section>
+
+<section id="protocol">
+<h2>Protocol en waarom deze keuzes</h2>
+{protocol_html}
+</section>
+
+<section id="ideeen">
+<h2>Wat kunnen we nog tunen? Ideeën</h2>
+{sectie_lijst(inhoud.get("ideeen"), "Nog geen ideeën (inhoud/ideeen.json).")}
+</section>
+
+<section id="roadmap">
+<h2>Roadmap tot en met het WK (11-12-2026 t/m 3-1-2027)</h2>
+{sectie_roadmap(inhoud.get("roadmap"))}
+</section>
+
+<section id="live">
+<h2>WK 2026/27 live</h2>
+{sectie_live(live)}
+<h3>Voor vrienden</h3>
+<p><a href="vrienden.html">Vriendenpagina</a>: {e(VRIENDEN_LEEG)}</p>
+</section>
+
+<section id="sentiment">
+<h2>X-sentimentmeter (ontwerp)</h2>
+{sectie_sentiment(inhoud.get("sentiment"))}
+</section>
+
+<section id="bronnen">
+<h2>Bronnen en onderzoek</h2>
+{sectie_bronnen()}
+{sectie_onderzoek(inhoud.get("onderzoek"))}
+</section>
+
+<section id="bijlage">
+<h2>Bijlage: eerdere terugtests</h2>
+<details><summary>Kerncijfers, grafieken en methode van de eerdere terugtests (vorm, rating, vergelijking)</summary>
+<h3>Kerncijfers per test-WK</h3>
 <p>Log-loss en Brier: <strong>lager is beter</strong>. Verschil = model − markt; positief betekent dat de markt
 beter voorspelt (<span class="badge slecht">markt wint</span>). Markt = slotodds met proportionele margecorrectie;
 Shin klein eronder. ROI bij vaste inzet 1 met 90%-interval (bootstrap per ronde). Drempel en reden komen uit de
 train-jaren.</p>
 {tabel_kerncijfers(runs, totalen)}
-</section>
-
-<section>
-<h2>Grafieken</h2>
 <h3>Log-loss: model tegenover markt</h3>
 {svg_logloss(runs)}
 <h3>ROI met 90%-interval</h3>
 {svg_roi(runs)}
 <h3>Winstverloop</h3>
 {svg_verloop(runs)}
-</section>
 {extra_html}
-<section>
-<h2>WK 2026/27 live</h2>
-{sectie_live(live)}
-</section>
-
-<section>
-<h2>Methode</h2>
+<h3>Methode</h3>
 {sectie_methode(runs)}
-</section>
-
-<section>
-<h2>Bronnen</h2>
-{sectie_bronnen()}
+</details>
 </section>
 
 <footer>
@@ -664,6 +1180,7 @@ train-jaren.</p>
 <a href="data.json">data.json</a></p>
 </footer>
 </main>
+<script>{SORTEER_JS}</script>
 </body>
 </html>
 """
@@ -674,6 +1191,8 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--resultaten", type=Path, default=basis / "resultaten")
     parser.add_argument("--uit", type=Path, default=basis / "site")
+    parser.add_argument("--inhoud", type=Path, default=basis / "inhoud")
+    parser.add_argument("--protocol", type=Path, default=basis / "docs" / "protocol.md")
     args = parser.parse_args(argv)
 
     verzameld = verzamel(args.resultaten)
@@ -681,8 +1200,15 @@ def main(argv=None) -> int:
     sha = os.environ.get("GITHUB_SHA") or None
     nu = dt.datetime.now(dt.timezone.utc)
     args.uit.mkdir(parents=True, exist_ok=True)
-    (args.uit / "index.html").write_text(bouw_html(verzameld, live, nu, sha), encoding="utf-8")
-    data = {"gegenereerd": nu.isoformat(timespec="seconds"), "commit": sha, **verzameld, "live": live}
+    exp = lees_experimenten(args.resultaten)
+    inhoud = lees_inhoud(args.inhoud)
+    protocol = args.protocol.read_text(encoding="utf-8") if args.protocol.exists() else None
+    (args.uit / "index.html").write_text(bouw_html(verzameld, live, nu, sha, exp, inhoud, protocol),
+                                         encoding="utf-8")
+    (args.uit / "vrienden.html").write_text(VRIENDEN_HTML.format(leeg=e(VRIENDEN_LEEG), disclaimer=e(DISCLAIMER)),
+                                            encoding="utf-8")
+    data = {"gegenereerd": nu.isoformat(timespec="seconds"), "commit": sha, **verzameld, "live": live,
+            "inhoud": inhoud}
     (args.uit / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"{len(verzameld['runs'])} runs → {args.uit / 'index.html'}")
     return 0

@@ -67,8 +67,9 @@ def _controleer_html(tekst: str):
     p.feed(tekst)
     assert not p.fouten
     assert p.stapel == []
-    # geen externe requests: geen scripts, stylesheets, afbeeldingen of url()
-    assert not re.search(r"<(script|link|img|iframe)\b", tekst)
+    # geen externe requests: alleen inline scripts, geen stylesheets, afbeeldingen of url()
+    assert not re.search(r"<(link|img|iframe)\b", tekst)
+    assert not re.search(r"<script\b[^>]*\bsrc", tekst)
     assert "url(" not in tekst
     assert not re.search(r'\ssrc=', tekst)
 
@@ -170,3 +171,52 @@ def test_echte_resultaten(bd, tmp_path):
     v = bd.verzamel(echte)
     assert v["runs"]
     _controleer_html(bd.bouw_html(v, bd.lees_live(echte)))
+
+
+def _experimenten():
+    u = {"train": [2024], "test": [2025], "soort": "walk-forward", "n": 94, "logloss": 0.64, "brier": 0.22,
+         "logloss_markt": 0.63, "brier_markt": 0.21, "verschil_markt": 0.01, "verschil_se": 0.02,
+         "ruis": "binnen de ruis", "helling": 0.8, "bets": 3, "underdog_bets": 2, "winst": 1.0, "roi": 0.33,
+         "roi_90": [-0.5, 0.9], "verloop": [-1.0, 1.5, 1.0], "drempel": 1.1, "drempel_reden": "x",
+         "kalibratie": [{"van": 0.5, "tot": 0.6, "n": 10, "kans": 0.55, "freq": 0.5},
+                        {"van": 0.6, "tot": 0.7, "n": 0, "kans": None, "freq": None}]}
+    reg = [{"id": "E006", "naam": "Vorm <x>", "model": "vorm", "hypothese": "h", "soort": "model",
+            "na_test_aangepast": {"waarde": True, "toelichting": "t"}},
+           {"id": "E019", "naam": "GBM", "model": "gbm", "hypothese": "h2", "soort": "model",
+            "na_test_aangepast": {"waarde": False}}]
+    return {"register": reg, "resultaten": [
+        {"id": "E006", "model": "vorm", "status": "ok", "uitkomsten": [u, dict(u, soort="richting")],
+         "beoordeling": {"succes": False}},
+        {"id": "E019", "model": "gbm", "status": "niet gedraaid", "fout": "geen sklearn", "uitkomsten": []}]}
+
+
+def test_experimenten_en_inhoud(bd, resultaten, tmp_path):
+    _schrijf(resultaten / "experimenten.json", _experimenten())
+    inhoud = tmp_path / "inhoud"
+    inhoud.mkdir()
+    _schrijf(inhoud / "aanbeveling.json", {"titel": "Advies", "punten": ["niet wedden <nu>"]})
+    _schrijf(inhoud / "onderzoek.json", {"items": [{"naam": "Bron", "url": "https://voorbeeld.nl", "kosten": "0"}]})
+    proto = tmp_path / "protocol.md"
+    proto.write_text("# Protocol\n\nTekst met [link](model-rating.md) en **vet**.\n\n- een\n- twee\n1. eerst\n",
+                     encoding="utf-8")
+    uit = tmp_path / "site"
+    bd.main(["--resultaten", str(resultaten), "--uit", str(uit), "--inhoud", str(inhoud), "--protocol", str(proto)])
+    pagina = (uit / "index.html").read_text(encoding="utf-8")
+    _controleer_html(pagina)
+    assert "niet wedden &lt;nu&gt;" in pagina
+    assert "Vorm &lt;x&gt;" in pagina and 'class="mislukt"' in pagina and "geen sklearn" in pagina
+    assert "table class=\"sorteerbaar\"" in pagina and "<script>" in pagina
+    assert "dl-titel" in pagina and "svg role=\"img\" class=\"klein\"" not in pagina
+    assert 'class="klein"' in pagina and "rc-titel" in pagina
+    assert "<li>een</li>" in pagina and "<ol><li>eerst</li></ol>" in pagina
+    assert "blob/main/docs/model-rating.md" in pagina
+    assert 'href="https://voorbeeld.nl"' in pagina and "vrienden.html" in pagina
+    assert (uit / "vrienden.html").exists()
+    # experimenten.json is geen run-bestand
+    assert len(bd.verzamel(resultaten)["runs"]) == 3
+
+
+def test_markdown_html(bd):
+    h = bd.markdown_html("## Kop\n\nRegel een\nregel twee\n\n- a\n  vervolg\n- `b`\n")
+    assert "<h4>Kop</h4>" in h and "<p>Regel een regel twee</p>" in h
+    assert "<li>a vervolg</li>" in h and "<code>b</code>" in h

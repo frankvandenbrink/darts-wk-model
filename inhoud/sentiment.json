@@ -1,0 +1,20 @@
+{
+ "titel": "X-sentimentmeter (ontwerp)",
+ "status": "Alleen een ontwerp. Er wordt nu niets van X opgehaald; bouwen pas vlak voor het WK.",
+ "idee": "Tijdens het WK een meter per wedstrijd en per speler: hoe positief of negatief wordt er op X over een speler gepraat in de 24 uur vóór aanvang? Leuk voor fans op de pagina, en als experiment: zit er informatie in (blessure, ziekte, privé, vorm op de oefenborden) die nog niet in de odds zit?",
+ "aanpak": [
+  "Bron: alleen de officiële X-API via de koppeling die Frank al heeft, binnen de voorwaarden en limieten van X. Geen scraping.",
+  "Zoekvraag per wedstrijd: spelersnamen en bijnamen plus #WorldDartsChampionship / #PDCWorlds, alleen berichten vóór de aanvangstijd (tijdstempel opslaan).",
+  "Score: per bericht positief/neutraal/negatief (eenvoudig taalmodel of woordenlijst, NL en EN), gewogen naar bereik; per speler een netto score en het aantal berichten.",
+  "Op de pagina: een meter per wedstrijd (balk van rood naar groen), de trend tijdens het toernooi en een paar geanonimiseerde voorbeeldzinnen. Geen gebruikersnamen tonen.",
+  "Experiment: vooraf registreren (bijv. E030) met hypothese 'sentimentverschil voegt iets toe aan de marktlogit'; toetsen als extra feature naast de markt, criterium log-loss lager dan de markt na het hele WK.",
+  "Ook leuk voor fans: 'publiek vs model vs markt', wie had het vaakst gelijk?"
+ ],
+ "risicos": [
+  "Zeer weinig berichten over spelers buiten de top 32: de meter is dan ruis.",
+  "Sentiment volgt vaak de uitslag in plaats van eraan vooraf te gaan (lookahead-gevaar): strikt alleen berichten vóór de aanvangstijd.",
+  "Populaire spelers (Littler, Van Gerwen) krijgen veel meer aandacht; corrigeren voor volume.",
+  "Sarcasme en darts-jargon ('bottled it', 'Bully Boy') lastig voor eenvoudige sentimentanalyse.",
+  "Privacy: alleen geaggregeerde cijfers publiceren, geen accounts noemen."
+ ]
+}

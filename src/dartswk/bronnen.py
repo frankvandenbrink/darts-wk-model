@@ -2,14 +2,14 @@
 
 - Wikipedia: wikitext van het WK-artikel (CC BY-SA 4.0).
 - Dartsorakel: geaggregeerde averages en checkout% per speler over 3/6/12 maanden vóór het WK.
-- Oddsportal: resultatenpagina's met slotodds; alleen leesbaar met een echte browser (playwright).
 
-Controleer zelf de gebruiksvoorwaarden van Oddsportal en Dartsorakel voordat je ophaalt.
+Oddsportal wordt niet (meer) opgehaald: de gebruiksvoorwaarden van Oddsportal verbieden scrapen. De ophaalcode is
+verwijderd; bestaande lokale bestanden data/cache/oddsportal_<jaar>.txt worden alleen nog geparst (parse.py).
+Zie data/BRONNEN.md. Controleer zelf de gebruiksvoorwaarden van Dartsorakel voordat je ophaalt.
 """
 from __future__ import annotations
 
 import json
-import os
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -56,46 +56,6 @@ def fetch_orakel(jaar: int, cache: Path) -> None:
             d = r.json()
             fn.write_text(json.dumps(dict(van=str(van), tot=str(tot), data=d["data"])), encoding="utf-8")
             print(f"  {jaar} {naam} {m} mnd: {len(d['data'])} spelers")
-
-
-def fetch_oddsportal(jaar: int, cache: Path) -> None:
-    fn = cache / f"oddsportal_{jaar}.txt"
-    if fn.exists():
-        return
-    import asyncio
-
-    try:
-        from playwright.async_api import async_playwright
-    except ImportError as e:  # pragma: no cover
-        raise RuntimeError("playwright ontbreekt: pip install -e '.[odds]' && playwright install chromium") from e
-
-    base = f"https://www.oddsportal.com/darts/world/{config.JAREN[jaar].oddsportal}/results/"
-    chrome = os.environ.get("DARTSWK_CHROME")  # bijv. /usr/bin/google-chrome; leeg = playwright-chromium
-
-    async def main():
-        out = []
-        async with async_playwright() as p:
-            kw = dict(headless=True, args=["--no-sandbox"])
-            if chrome:
-                kw["executable_path"] = chrome
-            b = await p.chromium.launch(**kw)
-            ctx = await b.new_context(user_agent=UA)
-            for n in range(1, 8):
-                pg = await ctx.new_page()
-                await pg.goto(base + (f"#/page/{n}/" if n > 1 else ""), wait_until="domcontentloaded", timeout=60000)
-                await pg.wait_for_timeout(4000)
-                for _ in range(12):
-                    await pg.mouse.wheel(0, 4000)
-                    await pg.wait_for_timeout(700)
-                t = await pg.inner_text("body")
-                await pg.close()
-                if t.count("Finished") == 0:
-                    break
-                out.append(f"=====PAGE {n}\n" + t)
-            await b.close()
-        fn.write_text("\n".join(out), encoding="utf-8")
-
-    asyncio.run(main())
 
 
 EVENTS_UA = "dartswk/0.3 (hobbyproject, terugtest PDC WK; beleefde ophaler met pauzes en cache)"
@@ -152,7 +112,5 @@ def fetch(jaren: list[int], cache: Path | None = None) -> None:
         print(f"WK{jaar}")
         fetch_wiki(jaar, cache)
         fetch_orakel(jaar, cache)
-        try:
-            fetch_oddsportal(jaar, cache)
-        except Exception as e:  # noqa: BLE001 - odds zijn optioneel; meld en ga door
-            print(f"  oddsportal mislukt voor {jaar}: {e}")
+        if not (cache / f"oddsportal_{jaar}.txt").exists():
+            print(f"  geen lokale Oddsportal-cache voor {jaar}; die wordt niet opgehaald (gebruiksvoorwaarden)")

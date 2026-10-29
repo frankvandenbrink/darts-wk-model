@@ -1,0 +1,12 @@
+{
+ "items": [
+  "Meer toetsdata: dezelfde modellen toetsen op Pro Tour- en majorwedstrijden zodra er rechtmatig verkregen odds zijn (eigen logboek).",
+  "Elo: het gekozen K ligt op de rand van het grid (0.005); een kleiner K registreren als nieuw experiment (niet stil aanpassen).",
+  "Glicko: q (groei van onzekerheid) en v0 fijner; onzekerheid ook gebruiken om minder in te zetten.",
+  "Kelly-fractie (¼) op de marktblend in plaats van vaste inzet 1.",
+  "Shin- of power-margecorrectie als input van de blend in plaats van proportioneel.",
+  "Set-uitslagen (3-0, 3-1, 3-2) toetsen tegen de exacte set-DP: dat kan zonder odds.",
+  "Hold-kans per speler (throw-first) schatten uit legstanden met wie begon, als die data rechtmatig beschikbaar is.",
+  "Betere data voor de rating: de paywall niet omzeilen, wel nagaan of een abonnement de voorwaarden toestaat."
+ ]
+}

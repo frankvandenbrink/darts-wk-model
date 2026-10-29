@@ -1,0 +1,10 @@
+{
+ "items": [
+  {"datum": "november 2026", "wat": "Experimentkader af; aanbeveling schrijven; kiezen welk model (of: geen) live gevolgd wordt."},
+  {"datum": "eind november 2026", "wat": "Hypothesen voor WK 2026/27 vastleggen in het register vóór de loting; eigen odds-logboek klaarzetten."},
+  {"datum": "begin december 2026", "wat": "Loting bekend: voorspellingen ronde 1 berekenen en vastleggen in resultaten/live_2027.json."},
+  {"datum": "11 december 2026", "wat": "Start WK 2026/27. Per speeldag: voorspellingen vóór aanvang vastleggen, uitslagen bijwerken, dashboard herbouwen."},
+  {"datum": "24–26 december 2026", "wat": "Kerstpauze: tussenbalans (log-loss tegen de markt na ronde 1–3)."},
+  {"datum": "3 januari 2027", "wat": "Finale. Daarna: WK 2027 toevoegen als testjaar (walk-forward train 2024–2026 → test 2027) en de vooraf vastgelegde criteria beoordelen."}
+ ]
+}

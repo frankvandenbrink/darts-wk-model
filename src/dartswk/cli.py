@@ -1,4 +1,4 @@
-"""Opdrachtregel: dartswk fetch | fetch-events | dataset | terugtest | vergelijk."""
+"""Opdrachtregel: dartswk fetch | fetch-events | dataset | terugtest | vergelijk | experimenten."""
 from __future__ import annotations
 
 import argparse
@@ -25,6 +25,21 @@ def _vergelijk(a):
     md = markdown(v)
     fj, fm = schrijf("vergelijking", v, md)
     print(md)
+    print(f"geschreven: {fj}, {fm}")
+
+
+def _experimenten(a):
+    import json
+
+    from .experimenten import draai, markdown, samenvoegen
+    v = draai(a.ids)
+    map_ = config.resultaten_map()
+    map_.mkdir(parents=True, exist_ok=True)
+    fj, fm = map_ / "experimenten.json", map_ / "experimenten.md"
+    if a.ids:
+        v = samenvoegen(v, fj)
+    fj.write_text(json.dumps(v, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    fm.write_text(markdown(v), encoding="utf-8")
     print(f"geschreven: {fj}, {fm}")
 
 
@@ -73,7 +88,7 @@ def main(argv=None):
     p = argparse.ArgumentParser(prog="dartswk", description="Terugtest dartsmodel PDC WK (hobbyproject, geen advies)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    f = sub.add_parser("fetch", help="haal ruwe brondata op naar data/cache/")
+    f = sub.add_parser("fetch", help="haal Wikipedia en Dartsorakel-aggregaten op naar data/cache/ (geen Oddsportal)")
     f.add_argument("--jaren", type=int, nargs="+", default=alle, choices=alle)
     f.set_defaults(func=_fetch)
 
@@ -95,6 +110,10 @@ def main(argv=None):
 
     v = sub.add_parser("vergelijk", help="alle modellen over alle splits -> resultaten/vergelijking.*")
     v.set_defaults(func=_vergelijk)
+
+    x = sub.add_parser("experimenten", help="draai het experimentregister -> resultaten/experimenten.*")
+    x.add_argument("--ids", nargs="+", help="alleen deze experimenten (bijv. E014 E015); standaard alles")
+    x.set_defaults(func=_experimenten)
 
     a = p.parse_args(argv)
     a.func(a)

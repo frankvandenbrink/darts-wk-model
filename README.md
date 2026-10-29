@@ -58,7 +58,7 @@ markt. Zie [docs/model-rating.md](docs/model-rating.md).
 | Bron | Wat | In de repo? |
 |---|---|---|
 | Wikipedia (CC BY-SA 4.0) | uitslagen, rondes, in-wedstrijd-averages | **Ja**: `data/wedstrijden_WK<jaar>.csv`, bronvermelding in [data/BRONNEN.md](data/BRONNEN.md) |
-| Oddsportal | slotodds | **Nee**. Alleen ophalen via `dartswk fetch` |
+| Oddsportal | slotodds | **Nee**. Alleen de bestaande lokale cache; ophalen is verwijderd (zie hieronder) |
 | Dartsorakel | geaggregeerde averages en checkout% | **Nee**. Alleen ophalen via `dartswk fetch` |
 | Dartsorakel | evenementenlijst en resultaatpagina's (legstanden) | **Nee**. Alleen ophalen via `dartswk fetch-events` (≥ 1,5 s pauze, cache) |
 
@@ -66,19 +66,21 @@ Ruwe bestanden komen in `data/cache/` (staat in `.gitignore`). Wie Oddsportal of
 verantwoordelijk voor het naleven van hun gebruiksvoorwaarden. In `resultaten/` staan alleen samengevatte cijfers,
 geen odds per wedstrijd.
 
+**Oddsportal:** de gebruiksvoorwaarden van Oddsportal verbieden scrapen. De ophaalcode is daarom verwijderd en er
+wordt vanaf nu geen nieuwe Oddsportal-data opgehaald. De terugtest gebruikt alleen de odds die al lokaal in
+`data/cache/` stonden. Zie [data/BRONNEN.md](data/BRONNEN.md).
+
 ## Installatie
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e '.[dev]'          # met tests
-.venv/bin/pip install -e '.[odds]'         # alleen nodig om Oddsportal op te halen (playwright)
-.venv/bin/playwright install chromium      # of: export DARTSWK_CHROME=/usr/bin/google-chrome
 ```
 
 ## Commando's
 
 ```bash
-dartswk fetch --jaren 2024 2025 2026                     # ruwe data naar data/cache/ (slaat bestaande over)
+dartswk fetch --jaren 2024 2025 2026                     # Wikipedia + Dartsorakel naar data/cache/ (geen Oddsportal)
 dartswk dataset                                          # data/wedstrijden_WK<jaar>.csv (alleen Wikipedia)
 dartswk terugtest --model vorm --train 2026 --test 2025  # afstemmen op 2026, toetsen op 2025
 dartswk terugtest --model vorm --train 2025 --test 2026
@@ -86,6 +88,7 @@ dartswk terugtest --model vorm --walk-forward --jaren 2024 2025 2026
 dartswk fetch-events                                     # Dartsorakel-events 2022-2025 (beleefd, gecachet)
 dartswk terugtest --model rating --walk-forward --jaren 2024 2025 2026
 dartswk vergelijk                                        # alle modellen, alle splits -> resultaten/vergelijking.*
+dartswk experimenten [--ids E014 E015]                   # register draaien -> resultaten/experimenten.*
 pytest                                                   # draait zonder netwerk en zonder data/cache
 ```
 
@@ -149,6 +152,18 @@ Niet het hoofdresultaat; opgenomen omdat 1.05 vooraf als regel genoemd was.
 | 2026 → 2025 | 56 | +51.7% | [−7.0%, +77.5%] |
 | 2025 → 2026 | 81 | −20.3% | [−45.1%, +9.3%] |
 | Walk-forward totaal (2025+2026) | 132 | −4.1% | [−22.7%, +14.9%] |
+
+### Experimenten (register E001–E023)
+
+Sinds 29-10-2026 draait elk model via een vast protocol ([docs/protocol.md](docs/protocol.md)): hypothese en
+criterium vooraf in [experimenten/register.json](experimenten/register.json), afstemmen alleen op train,
+walk-forward als hoofdresultaat, controles (markt, markt-vlak, blind underdog/favoriet, munt) altijd mee, en elke run
+in [experimenten/runlog.jsonl](experimenten/runlog.jsonl). Uitkomsten: [resultaten/experimenten.md](resultaten/experimenten.md).
+
+Kort: **geen enkel experiment haalt het criterium** (walk-forward log-loss in beide testjaren > 1 se onder de markt).
+De beste modellen (logistische regressie met onbestrafte marktlogit, marktblend met krimp, Glicko-achtig in 2025)
+liggen binnen de ruis van de markt. De rating-, Elo- en Glicko-modellen zonder marktinput (E007, E008, E010–E016) zijn in 2026 meer dan 2 se slechter dan de markt.
+GBM is niet gedraaid (geen sklearn).
 
 ## Dashboard
 
