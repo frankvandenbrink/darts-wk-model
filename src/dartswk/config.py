@@ -16,7 +16,7 @@ SETS_PER_RONDE = {"1": 3, "2": 3, "3": 4, "4": 4, "QF": 5, "SF": 6, "F": 7}
 class WK:
     start: str          # eerste speeldag (ISO); vormdata loopt tot en met de dag ervoor
     wiki: str           # titel van het Engelstalige Wikipedia-artikel
-    oddsportal: str     # seizoen-slug op oddsportal.com/darts/world/<slug>/results/
+    oddsportal: str     # seizoen-slug van de bestaande cache (alleen documentatie; er wordt niets opgehaald)
     spelers: int        # grootte van het speelschema
     sets_per_ronde: dict = field(default_factory=lambda: dict(SETS_PER_RONDE))
 

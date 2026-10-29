@@ -31,3 +31,11 @@ Wijzigingen: alleen de speelschema-tabel is overgenomen, omgezet naar CSV en aan
 | `avg1_achteraf`, `avg2_achteraf` | three-dart average **in de wedstrijd zelf**. Pas achteraf bekend: nooit als feature gebruiken |
 
 `data/cache/` (ruwe Wikipedia-, Oddsportal- en Dartsorakel-bestanden) wordt niet gecommit.
+
+## Oddsportal: geen nieuwe data meer
+
+De slotodds in `data/cache/oddsportal_<jaar>.txt` (WK 2024–2026) zijn eerder opgehaald. De gebruiksvoorwaarden van
+Oddsportal verbieden scrapen. Daarom is de ophaalcode (`fetch_oddsportal` en de playwright-afhankelijkheid) op
+29-10-2026 uit het pakket verwijderd en wordt er **vanaf nu geen nieuwe Oddsportal-data meer opgehaald**. Alleen de
+bestaande lokale cache wordt nog geparst (`parse.parse_oddsportal`). Die cache wordt niet gecommit of herverspreid.
+Voor het WK 2026/27 komen odds uit een eigen logboek (odds die je zelf bij je bookmaker ziet), niet uit scraping.

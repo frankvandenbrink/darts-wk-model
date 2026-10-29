@@ -58,7 +58,7 @@ markt. Zie [docs/model-rating.md](docs/model-rating.md).
 | Bron | Wat | In de repo? |
 |---|---|---|
 | Wikipedia (CC BY-SA 4.0) | uitslagen, rondes, in-wedstrijd-averages | **Ja**: `data/wedstrijden_WK<jaar>.csv`, bronvermelding in [data/BRONNEN.md](data/BRONNEN.md) |
-| Oddsportal | slotodds | **Nee**. Alleen ophalen via `dartswk fetch` |
+| Oddsportal | slotodds | **Nee**. Alleen de bestaande lokale cache; ophalen is verwijderd (zie hieronder) |
 | Dartsorakel | geaggregeerde averages en checkout% | **Nee**. Alleen ophalen via `dartswk fetch` |
 | Dartsorakel | evenementenlijst en resultaatpagina's (legstanden) | **Nee**. Alleen ophalen via `dartswk fetch-events` (≥ 1,5 s pauze, cache) |
 
@@ -66,19 +66,21 @@ Ruwe bestanden komen in `data/cache/` (staat in `.gitignore`). Wie Oddsportal of
 verantwoordelijk voor het naleven van hun gebruiksvoorwaarden. In `resultaten/` staan alleen samengevatte cijfers,
 geen odds per wedstrijd.
 
+**Oddsportal:** de gebruiksvoorwaarden van Oddsportal verbieden scrapen. De ophaalcode is daarom verwijderd en er
+wordt vanaf nu geen nieuwe Oddsportal-data opgehaald. De terugtest gebruikt alleen de odds die al lokaal in
+`data/cache/` stonden. Zie [data/BRONNEN.md](data/BRONNEN.md).
+
 ## Installatie
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e '.[dev]'          # met tests
-.venv/bin/pip install -e '.[odds]'         # alleen nodig om Oddsportal op te halen (playwright)
-.venv/bin/playwright install chromium      # of: export DARTSWK_CHROME=/usr/bin/google-chrome
 ```
 
 ## Commando's
 
 ```bash
-dartswk fetch --jaren 2024 2025 2026                     # ruwe data naar data/cache/ (slaat bestaande over)
+dartswk fetch --jaren 2024 2025 2026                     # Wikipedia + Dartsorakel naar data/cache/ (geen Oddsportal)
 dartswk dataset                                          # data/wedstrijden_WK<jaar>.csv (alleen Wikipedia)
 dartswk terugtest --model vorm --train 2026 --test 2025  # afstemmen op 2026, toetsen op 2025
 dartswk terugtest --model vorm --train 2025 --test 2026
