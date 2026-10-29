@@ -150,6 +150,15 @@ Niet het hoofdresultaat; opgenomen omdat 1.05 vooraf als regel genoemd was.
 | 2025 → 2026 | 81 | −20.3% | [−45.1%, +9.3%] |
 | Walk-forward totaal (2025+2026) | 132 | −4.1% | [−22.7%, +14.9%] |
 
+## Dashboard
+
+De tussenstanden staan op <https://frankvandenbrink.github.io/darts-wk-model/>. De pagina is statisch en wordt
+gebouwd door `scripts/bouw_dashboard.py` (alleen standaardbibliotheek) uit `resultaten/*.json`. De workflow
+`.github/workflows/pages.yml` bouwt en publiceert hem bij elke push naar `main` die `resultaten/`, het script,
+deze README of de workflow wijzigt, en handmatig via *Run workflow*. Lokaal: `python scripts/bouw_dashboard.py`,
+daarna `site/index.html` openen. Tijdens het WK 2026/27 komen voorspellingen en uitslagen in
+`resultaten/live_2027.json`; het schema staat bovenin het script.
+
 ## Conclusie
 
 Het vormmodel voorspelt slechter dan de markt. In de walk-forward verliest het in beide testjaren op log-loss
