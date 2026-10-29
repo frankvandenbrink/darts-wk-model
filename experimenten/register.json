@@ -1,0 +1,675 @@
+{
+ "toelichting": "Register van experimenten. Hypothese en criterium worden vóór het draaien geschreven. Wijzig je ze na een run, zet dan na_test_aangepast.waarde op true met toelichting. Zie docs/protocol.md.",
+ "experimenten": [
+  {
+   "id": "E001",
+   "naam": "Markt (proportioneel)",
+   "datum": "2026-10-29",
+   "soort": "controle",
+   "model": "markt",
+   "features": [
+    "slotodds"
+   ],
+   "grid": {},
+   "hypothese": "Referentie. De proportioneel genormaliseerde slotodds zijn de benchmark.",
+   "criterium": {
+    "tekst": "controle: geen criterium; dient als referentie",
+    "regel": null
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E002",
+   "naam": "Markt vlakker (logit·a, a op train)",
+   "datum": "2026-10-29",
+   "soort": "controle",
+   "model": "markt-vlak",
+   "features": [
+    "slotodds"
+   ],
+   "grid": {
+    "a": "logistische regressie op train"
+   },
+   "hypothese": "Controle: als dit wint van de markt, komt winst van modellen die de markt 'vlakker' maken uit de favourite-longshot-kanteling en niet uit informatie.",
+   "criterium": {
+    "tekst": "controle: geen criterium; dient als referentie",
+    "regel": null
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E003",
+   "naam": "Blind op de underdog",
+   "datum": "2026-10-29",
+   "soort": "controle",
+   "model": "blind-underdog",
+   "features": [
+    "slotodds"
+   ],
+   "grid": {},
+   "hypothese": "Controle: altijd de underdog, inzet 1. Laat zien hoeveel ROI een jaar met veel upsets 'gratis' geeft.",
+   "criterium": {
+    "tekst": "controle: geen criterium; dient als referentie",
+    "regel": null
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E004",
+   "naam": "Blind op de favoriet",
+   "datum": "2026-10-29",
+   "soort": "controle",
+   "model": "blind-favoriet",
+   "features": [
+    "slotodds"
+   ],
+   "grid": {},
+   "hypothese": "Controle: altijd de favoriet, inzet 1. Verwacht ongeveer −marge.",
+   "criterium": {
+    "tekst": "controle: geen criterium; dient als referentie",
+    "regel": null
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E005",
+   "naam": "Munt (p = 0.5)",
+   "datum": "2026-10-29",
+   "soort": "controle",
+   "model": "munt",
+   "features": [],
+   "grid": {},
+   "hypothese": "Controle: log-loss ln 2 = 0.6931. Elk model moet hier ruim onder zitten.",
+   "criterium": {
+    "tekst": "controle: geen criterium; dient als referentie",
+    "regel": null
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E006",
+   "naam": "Vormmodel",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "vorm",
+   "features": [
+    "avg 3/6/12 mnd",
+    "checkout% 3/6/12 mnd"
+   ],
+   "grid": {
+    "bron": "config.GRID"
+   },
+   "hypothese": "Het vormmodel voorspelt niet beter dan de markt (verwachting op basis van eerdere runs).",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": "De testcijfers van dit model waren al bekend uit resultaten/vergelijking.md vóór het register bestond; dit is een herregistratie, geen vooraf vastgelegde toets."
+   },
+   "test_vooraf_bekend": true
+  },
+  {
+   "id": "E007",
+   "naam": "Ratingmodel (BT op legs)",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "rating",
+   "features": [
+    "legstanden Dartsorakel-events vóór WK-start"
+   ],
+   "grid": {
+    "bron": "config.RATING_GRID"
+   },
+   "hypothese": "Bradley-Terry op legs voorspelt niet beter dan de markt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": true,
+    "toelichting": "Grid is twee keer verbreed na het zien van train- en testresultaten (docs/model-rating.md). De testcijfers van dit model waren al bekend uit resultaten/vergelijking.md vóór het register bestond; dit is een herregistratie, geen vooraf vastgelegde toets."
+   },
+   "test_vooraf_bekend": true
+  },
+  {
+   "id": "E008",
+   "naam": "Rating + Platt",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "rating-platt",
+   "features": [
+    "rating"
+   ],
+   "grid": {
+    "c": "op train"
+   },
+   "hypothese": "Platt verandert weinig omdat k al op log-loss is afgestemd.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": "De testcijfers van dit model waren al bekend uit resultaten/vergelijking.md vóór het register bestond; dit is een herregistratie, geen vooraf vastgelegde toets."
+   },
+   "test_vooraf_bekend": true
+  },
+  {
+   "id": "E009",
+   "naam": "Rating + markt (logistisch)",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "rating+markt",
+   "features": [
+    "logit markt",
+    "logit rating"
+   ],
+   "grid": {
+    "a,b": "op train"
+   },
+   "hypothese": "De combinatie komt dicht bij de markt maar niet eronder.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": "De testcijfers van dit model waren al bekend uit resultaten/vergelijking.md vóór het register bestond; dit is een herregistratie, geen vooraf vastgelegde toets."
+   },
+   "test_vooraf_bekend": true
+  },
+  {
+   "id": "E010",
+   "naam": "Rating + averages",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "rating+avg",
+   "features": [
+    "rating",
+    "gekrompen eventaverage"
+   ],
+   "grid": {
+    "g": [
+     0.0,
+     0.02,
+     0.04,
+     0.08
+    ]
+   },
+   "hypothese": "Averages bovenop de rating helpen een beetje, niet genoeg om de markt te verslaan.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": "De testcijfers van dit model waren al bekend uit resultaten/vergelijking.md vóór het register bestond; dit is een herregistratie, geen vooraf vastgelegde toets."
+   },
+   "test_vooraf_bekend": true
+  },
+  {
+   "id": "E011",
+   "naam": "BT, halfwaarde vast 180 d",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "bt-halfwaarde",
+   "features": [
+    "legstanden"
+   ],
+   "grid": {
+    "halfwaarde": [
+     180
+    ]
+   },
+   "hypothese": "Sterk tijdsverval (180 d) is slechter dan geen verval, omdat recente data grotendeels ontbreekt (paywall).",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E012",
+   "naam": "BT, halfwaarde vast 365 d",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "bt-halfwaarde",
+   "features": [
+    "legstanden"
+   ],
+   "grid": {
+    "halfwaarde": [
+     365
+    ]
+   },
+   "hypothese": "Halfwaarde 365 d zit tussen 180 d en geen verval in; niet beter dan de markt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E013",
+   "naam": "BT, halfwaarde vast 730 d",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "bt-halfwaarde",
+   "features": [
+    "legstanden"
+   ],
+   "grid": {
+    "halfwaarde": [
+     730
+    ]
+   },
+   "hypothese": "Halfwaarde 730 d is ongeveer gelijk aan geen verval; niet beter dan de markt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E014",
+   "naam": "Elo op legs/uitslag",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "elo",
+   "features": [
+    "legstanden, chronologisch"
+   ],
+   "grid": {
+    "K": [
+     0.005,
+     0.01,
+     0.02,
+     0.04
+    ],
+    "marge": [
+     true,
+     false
+    ],
+    "onbekend": [
+     -0.6,
+     -0.3,
+     0.0
+    ],
+    "k": [
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "hypothese": "Elo (sequentieel, recente wedstrijden tellen vanzelf zwaarder) is vergelijkbaar met BT en niet beter dan de markt; de marge-variant (legs) wordt op train gekozen boven alleen de uitslag.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E015",
+   "naam": "Glicko-achtig (variantie per speler)",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "glicko",
+   "features": [
+    "legstanden, chronologisch"
+   ],
+   "grid": {
+    "K": [
+     0.0
+    ],
+    "marge": [
+     true
+    ],
+    "v0": [
+     0.05,
+     0.15,
+     0.4
+    ],
+    "q": [
+     0.0,
+     0.1
+    ],
+    "onbekend": [
+     -0.6,
+     -0.3,
+     0.0
+    ],
+    "k": [
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "hypothese": "Onzekerheid per speler maakt voorspellingen voor spelers met weinig data vlakker; daardoor betere kalibratie (helling dichter bij 1) dan Elo, maar nog steeds niet beter dan de markt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E016",
+   "naam": "Legmodel met vrije hold-kans",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "hold",
+   "features": [
+    "rating",
+    "hold-basis"
+   ],
+   "grid": {
+    "hold": [
+     0.55,
+     0.6,
+     0.65,
+     0.7,
+     0.75
+    ],
+    "k": [
+     0.4,
+     0.5,
+     0.6,
+     0.8,
+     1.0,
+     1.2,
+     1.5
+    ]
+   },
+   "hypothese": "De hold-basis maakt nauwelijks uit (< 0.002 log-loss); geen verbetering t.o.v. rating met hold 0.60.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E017",
+   "naam": "Logistische regressie met markt (L2)",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "logreg",
+   "features": [
+    "rating",
+    "avg 12m",
+    "co 12m",
+    "logit markt",
+    "logit markt × (sets−3)"
+   ],
+   "grid": {
+    "features": [
+     "rating",
+     "avg",
+     "co",
+     "markt",
+     "markt_x_ronde"
+    ],
+    "niet_bestraft": [
+     "markt"
+    ],
+    "lambda": [
+     0.1,
+     0.3,
+     1,
+     3,
+     10,
+     30,
+     100
+    ]
+   },
+   "hypothese": "Met de markt onbestraft en de andere features gekrompen (lambda via CV op train) komt het model op of iets boven de markt, niet significant eronder.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E018",
+   "naam": "Logistische regressie zonder markt (L2)",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "logreg",
+   "features": [
+    "rating",
+    "avg 12m",
+    "co 12m"
+   ],
+   "grid": {
+    "features": [
+     "rating",
+     "avg",
+     "co"
+    ],
+    "lambda": [
+     0.1,
+     0.3,
+     1,
+     3,
+     10,
+     30,
+     100
+    ]
+   },
+   "hypothese": "Een lineaire combinatie van rating en vorm is beter dan elk afzonderlijk, maar slechter dan de markt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E019",
+   "naam": "Kleine GBM",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "gbm",
+   "features": [
+    "rating",
+    "avg",
+    "co",
+    "markt"
+   ],
+   "grid": {
+    "n_estimators": [
+     50
+    ],
+    "max_depth": [
+     2
+    ]
+   },
+   "hypothese": "Niet gedraaid.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false,
+   "status": "niet_gedraaid",
+   "reden_niet_gedraaid": "niet gedraaid: geen sklearn (en geen grote pakketten installeren)"
+  },
+  {
+   "id": "E020",
+   "naam": "Marktblend met krimp op b",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "blend-krimp",
+   "features": [
+    "logit markt",
+    "logit rating"
+   ],
+   "grid": {
+    "lambda": [
+     0,
+     1,
+     3,
+     10,
+     30,
+     100,
+     1000
+    ]
+   },
+   "hypothese": "Krimp van b naar 0 (lambda via CV op train) brengt de blend dichter bij de markt dan rating+markt, maar niet significant eronder.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E021",
+   "naam": "Vorm + Platt",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "platt",
+   "features": [
+    "vorm"
+   ],
+   "grid": {
+    "basis": "vorm"
+   },
+   "hypothese": "Platt op het vormmodel verandert weinig (k is al op log-loss afgestemd).",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E022",
+   "naam": "Vorm + isotoon",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "isotoon",
+   "features": [
+    "vorm"
+   ],
+   "grid": {
+    "basis": "vorm"
+   },
+   "hypothese": "Isotone kalibratie overfit bij ~100 wedstrijden; slechter dan Platt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  },
+  {
+   "id": "E023",
+   "naam": "Rating + isotoon",
+   "datum": "2026-10-29",
+   "soort": "model",
+   "model": "isotoon",
+   "features": [
+    "rating"
+   ],
+   "grid": {
+    "basis": "rating"
+   },
+   "hypothese": "Isotone kalibratie op de rating overfit; slechter dan rating-platt.",
+   "criterium": {
+    "tekst": "walk-forward log-loss lager dan de markt (proportioneel) in beide testjaren (2025 en 2026), verschil > 1 se",
+    "regel": "verschil_lt_markt",
+    "factor_se": 1.0
+   },
+   "na_test_aangepast": {
+    "waarde": false,
+    "toelichting": ""
+   },
+   "test_vooraf_bekend": false
+  }
+ ]
+}
