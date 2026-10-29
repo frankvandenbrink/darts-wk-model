@@ -18,6 +18,7 @@ import hashlib
 import itertools
 import json
 import math
+import subprocess
 import time
 import traceback
 from dataclasses import dataclass
@@ -28,11 +29,11 @@ from pathlib import Path
 import numpy as np
 
 from . import config, kalibratie, rating, vorm
-from .evaluatie import (bets, bootstrap_geclusterd, brier, drempeltabel, kies_drempel, logloss,
-                        markt_proportioneel, roi)
+from .evaluatie import (MARGE, bets, bootstrap_geclusterd, brier, drempeltabel, kies_drempel, kies_kant,
+                        logloss, markt_proportioneel, roi)
 from .kalibratie import fit_logit, helling
 from .rating import logistic, logit, wedstrijdkans_uit_d
-from .setmodel import wedstrijd_kans
+from .setmodel import setstand_verdeling, wedstrijd_kans
 
 SPLITS = [  # (train, test, soort); walk-forward eerst
     ([2024], [2025], "walk-forward"),
@@ -379,11 +380,19 @@ def m_isotoon(grid):
 
 # ================================================================ marktblend met krimp op b
 def m_blend(grid):
-    """logit p = a*logit(markt) + b*logit(p_rating); alleen b krijgt een ridge-straf (naar 0), lambda via CV."""
+    """logit p = a*logit(markt) + b*logit(p_rating); alleen b krijgt een ridge-straf (naar 0), lambda via CV.
+
+    grid["marge"] kiest de margecorrectie van de marktinput (standaard proportioneel, E024: Shin).
+    """
+    marge = MARGE[grid.get("marge", "proportioneel")]
+
+    def feats(r, basis):
+        return [logit(marge(r["odd1"], r["odd2"])), logit(rating.kans(r, basis))]
+
     def afstemmen(rows):
         rows = [r for r in rows if r["odd1"] is not None]
         basis = rating.afstemmen(rows)
-        X = np.array([kalibratie.combi_features(r, basis) for r in rows])
+        X = np.array([feats(r, basis) for r in rows])
         y = np.array(_y(rows), dtype=float)
         masker = np.array([0.0, 1.0])
         lam = _kies_lambda(X, y, rows, grid["lambda"], masker)
@@ -391,7 +400,7 @@ def m_blend(grid):
         return _p(basis=basis, lam=lam, a=round(float(a), 4), b=round(float(b), 4))
 
     def kans(r, prm):
-        lm, lr = kalibratie.combi_features(r, prm["basis"])
+        lm, lr = feats(r, prm["basis"])
         return logistic(prm["a"] * lm + prm["b"] * lr)
     return afstemmen, kans
 
@@ -452,6 +461,7 @@ def metrics(rows, ps, bl) -> dict:
         h = None  # bijv. munt: alle logits 0
     r = roi(bl)
     lo, hi = bootstrap_geclusterd(bl, n=config.BOOTSTRAP_N)
+    clusters = len({(b["jaar"], b["ronde"]) for b in bl})
     verloop, som = [], 0.0
     for b in bl:
         som += b["resultaat"]
@@ -471,6 +481,7 @@ def metrics(rows, ps, bl) -> dict:
         winst=round(sum(b["resultaat"] for b in bl), 2),
         roi=None if r is None else round(r, 4),
         roi_90=[None if lo is None else round(lo, 3), None if hi is None else round(hi, 3)],
+        clusters=clusters,
         verloop=verloop,
     )
 
@@ -501,6 +512,138 @@ def draai_split(exp: dict, train: list[int], test: list[int], soort: str, data: 
                 drempel_reden=reden, **metrics(te, p_te, bl))
 
 
+# ================================================================ E027: inzetbeleid in euro's
+def _maxdrawdown(saldi: list[float]) -> float:
+    piek, dd = saldi[0] if saldi else 0.0, 0.0
+    for x in saldi:
+        piek = max(piek, x)
+        dd = max(dd, piek - x)
+    return round(dd, 2)
+
+
+def _week(datum: str) -> str:
+    """Maandag van de speelweek (ma–zo) als ISO-datum."""
+    d = date.fromisoformat(datum)
+    return str(date.fromordinal(d.toordinal() - d.weekday()))
+
+
+def simuleer_kelly(bl: list[dict], start: float, fractie: float) -> dict:
+    """Fractionele Kelly: inzet = fractie * (p*o - 1)/(o - 1) * kapitaal, op volgorde van speeldatum."""
+    kap, saldi, inzet_tot = start, [start], 0.0
+    for b in bl:
+        f = max(0.0, fractie * (b["p"] * b["odd"] - 1) / (b["odd"] - 1))
+        inzet = round(f * kap, 2)
+        inzet_tot += inzet
+        kap += inzet * (b["odd"] - 1) if b["gewonnen"] else -inzet
+        saldi.append(round(kap, 2))
+    return dict(start=start, eind=round(kap, 2), winst=round(kap - start, 2), ingezet=round(inzet_tot, 2),
+                max_drawdown=_maxdrawdown(saldi), verloop=saldi[1:])
+
+
+def simuleer_weekbudget(bl: list[dict], inzet: float, budget: float) -> dict:
+    """Vaste inzet; per week (ma–zo) hoogstens `budget` inzetten. Bets die niet meer passen vallen af."""
+    winst, saldi, per_week, overgeslagen, geplaatst = 0.0, [0.0], {}, 0, 0
+    for b in bl:
+        w = per_week.setdefault(_week(b["datum"]), dict(ingezet=0.0, winst=0.0, op=False))
+        if w["ingezet"] + inzet > budget + 1e-9:
+            w["op"] = True
+            overgeslagen += 1
+            continue
+        w["ingezet"] += inzet
+        r = inzet * (b["odd"] - 1) if b["gewonnen"] else -inzet
+        w["winst"] += r
+        winst += r
+        geplaatst += 1
+        saldi.append(round(winst, 2))
+    weken = [dict(week=k, ingezet=round(v["ingezet"], 2), winst=round(v["winst"], 2), budget_op=v["op"])
+             for k, v in sorted(per_week.items())]
+    return dict(inzet=inzet, budget=budget, bets=geplaatst, overgeslagen=overgeslagen,
+                ingezet=round(sum(w["ingezet"] for w in weken), 2), eind=round(winst, 2),
+                max_drawdown=_maxdrawdown(saldi), weken_budget_op=sum(w["budget_op"] for w in weken),
+                weken=weken)
+
+
+def draai_inzet(exp: dict, train: list[int], test: list[int], soort: str, data: dict) -> dict:
+    """Dezelfde bets als de basis (drempel op train), daarna ¼-Kelly en vaste inzet met weekbudget."""
+    g = exp["grid"]
+    tr = _sorteer([r for j in train for r in data[j] if r["odd1"] is not None])
+    te = _sorteer([r for j in test for r in data[j] if r["odd1"] is not None])
+    afstemmen, kans = MODELTYPES[g["basis"]](g)
+    prm = afstemmen(tr)
+    drempel, reden = kies_drempel(drempeltabel(tr, [kans(r, prm) for r in tr], config.DREMPELS),
+                                  config.MIN_BETS_DREMPEL)
+    bl = []
+    for r in te:
+        p = kans(r, prm)
+        k = kies_kant(p, r["odd1"], r["odd2"], drempel)
+        if k is None:
+            continue
+        bl.append(dict(datum=r["datum"], odd=r[f"odd{k}"], p=p if k == 1 else 1 - p, gewonnen=r["winnaar"] == k))
+    return dict(train=train, test=test, soort=soort, drempel=drempel, drempel_reden=reden, bets=len(bl),
+                vast_1=round(sum((b["odd"] - 1) if b["gewonnen"] else -1 for b in bl), 2),
+                kelly=simuleer_kelly(bl, g["startkapitaal"], g["kelly_fractie"]),
+                weekbudget=[simuleer_weekbudget(bl, i, g["weekbudget"]) for i in g["vaste_inzet"]])
+
+
+# ================================================================ E028: setstanden
+def _d_uit_kans(p: float, n: int) -> float:
+    """Legverschil d (logit-schaal) zodat de exacte wedstrijdkans first to n sets gelijk is aan p."""
+    lo, hi = -6.0, 6.0
+    for _ in range(40):
+        m = (lo + hi) / 2
+        if wedstrijdkans_uit_d(m, n) < p:
+            lo = m
+        else:
+            hi = m
+    return (lo + hi) / 2
+
+
+def binomiale_setstanden(p: float, n: int) -> dict:
+    """Naïef: elke set onafhankelijk met vaste setkans q, q zo gekozen dat P(wedstrijd) = p."""
+    def verdeling(q):
+        uit = {}
+        for k in range(n):  # verliezer heeft k sets
+            c = math.comb(n - 1 + k, k)
+            uit[(n, k)] = c * q ** n * (1 - q) ** k
+            uit[(k, n)] = c * (1 - q) ** n * q ** k
+        return uit
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        q = (lo + hi) / 2
+        if sum(v for (a, b), v in verdeling(q).items() if a == n) < p:
+            lo = q
+        else:
+            hi = q
+    return verdeling((lo + hi) / 2)
+
+
+def draai_setstand(exp: dict, train: list[int], test: list[int], soort: str, data: dict) -> dict:
+    """Log-loss van de exacte setstand: set-DP vs binomiaal, beide met de marktkans als wedstrijdkans.
+
+    Er wordt niets afgestemd (hold vast 0.60), dus train wordt niet gebruikt."""
+    hold = exp["grid"].get("hold", config.HOLD)
+    te = [r for j in test for r in data[j] if r["odd1"] is not None and not r.get("walkover")
+          and r.get("sets1") is not None and max(r["sets1"], r["sets2"]) == r["setsnodig"]]
+    dp, nf, ll_w = [], [], []
+    for r in te:
+        p, n = _markt(r), r["setsnodig"]
+        ha, hb = rating.hold_uit_legkans(round(_d_uit_kans(p, n), 4), hold)
+        v_dp = setstand_verdeling(round(ha, 5), round(hb, 5), n)
+        v_nf = binomiale_setstanden(p, n)
+        s = (int(r["sets1"]), int(r["sets2"]))
+        dp.append(-math.log(max(v_dp.get(s, 0.0), 1e-12)))
+        nf.append(-math.log(max(v_nf.get(s, 0.0), 1e-12)))
+        ll_w.append(logloss(p, 1 if r["winnaar"] == 1 else 0))
+    d = np.array(dp) - np.array(nf)
+    return dict(train=train, test=test, soort=soort, n=len(te), logloss_dp=round(float(np.mean(dp)), 4),
+                logloss_naief=round(float(np.mean(nf)), 4), logloss_winnaar=round(float(np.mean(ll_w)), 4),
+                verschil_naief=round(float(d.mean()), 4),
+                verschil_se=round(float(d.std(ddof=1) / math.sqrt(len(d))), 4))
+
+
+SPECIAAL = {"inzet": draai_inzet, "setstand": draai_setstand}
+
+
 # ================================================================ register, log, criterium
 def laad_register(pad: Path | None = None) -> list[dict]:
     reg = json.loads((pad or register_pad()).read_text(encoding="utf-8"))
@@ -516,6 +659,25 @@ def laad_register(pad: Path | None = None) -> list[dict]:
 def vingerafdruk(exp: dict) -> str:
     kern = {k: exp.get(k) for k in ("model", "features", "grid", "hypothese", "criterium")}
     return hashlib.sha256(json.dumps(kern, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:12]
+
+
+def context_vingerafdruk() -> str:
+    """Hash van wat buiten het register de uitkomst bepaalt: splits, config-grids, drempels en bootstrap."""
+    kern = dict(splits=SPLITS, grid=config.GRID, rating_grid=config.RATING_GRID, drempels=config.DREMPELS,
+                min_bets=config.MIN_BETS_DREMPEL, hold=config.HOLD, bootstrap=config.BOOTSTRAP_N)
+    return hashlib.sha256(json.dumps(kern, sort_keys=True).encode()).hexdigest()[:12]
+
+
+def git_staat() -> dict:
+    """Commit en of het register niet-gecommitte wijzigingen heeft (dan is 'vooraf vastgelegd' niet aantoonbaar)."""
+    def git(*a):
+        try:
+            return subprocess.run(["git", *a], cwd=config.basis(), capture_output=True, text=True,
+                                  timeout=10).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            return ""
+    return dict(commit=git("rev-parse", "--short", "HEAD") or None,
+                register_gewijzigd=bool(git("status", "--porcelain", "--", "experimenten/register.json")))
 
 
 def lees_log(pad: Path | None = None) -> list[dict]:
@@ -536,18 +698,33 @@ def protocolcheck(exp: dict, eerdere: list[dict]) -> str | None:
     """Waarschuwing als hypothese/criterium/grid gewijzigd zijn na een eerdere run zonder dat te melden."""
     if not exp["hypothese"].strip() or not exp["criterium"].get("tekst", "").strip():
         raise ValueError(f"{exp['id']}: eerst hypothese en criterium vastleggen, dan pas testjaren evalueren")
-    vorige = [x["vingerafdruk"] for x in eerdere if x["id"] == exp["id"] and x.get("vingerafdruk")]
-    if vorige and vorige[0] != vingerafdruk(exp) and not exp["na_test_aangepast"]["waarde"]:
-        return ("hypothese, criterium of grid is gewijzigd na een eerdere run, maar na_test_aangepast staat op "
-                "false")
-    return None
+    nta = exp["na_test_aangepast"]
+    if nta["waarde"] and not nta.get("toelichting", "").strip():
+        raise ValueError(f"{exp['id']}: na_test_aangepast is true maar zonder toelichting")
+    eigen = [x for x in eerdere if x["id"] == exp["id"]]
+    # Vergelijk met de eerste run: anders zou een tweede run een stille wijziging 'witwassen'.
+    vorige = [x["vingerafdruk"] for x in eigen if x.get("vingerafdruk")]
+    w = []
+    if vorige and vorige[0] != vingerafdruk(exp) and not nta["waarde"]:
+        w.append("hypothese, criterium of grid is gewijzigd na een eerdere run, maar na_test_aangepast staat op false")
+    ctx = [x["context"] for x in eigen if x.get("context")]
+    if ctx and ctx[0] != context_vingerafdruk() and not nta["waarde"]:
+        w.append("splits, config-grid, drempels of bootstrap zijn gewijzigd sinds de eerste run, maar "
+                 "na_test_aangepast staat op false")
+    return "; ".join(w) or None
 
 
 def beoordeel(exp: dict, uitkomsten: list[dict]) -> dict:
     """Criterium op de walk-forward-stappen: succes als in elk testjaar verschil < -factor*se."""
     c = exp["criterium"]
+    if c.get("regel") == "verschil_lt_naief":
+        f = c.get("factor_se", 1.0)
+        wf = [u for u in uitkomsten if u["soort"] == "walk-forward"]
+        return dict(succes=bool(wf) and all(u["verschil_naief"] < -f * u["verschil_se"] for u in wf),
+                    toelichting="; ".join(f"WK{u['test'][0]}: {u['verschil_naief']:+.4f} (se {u['verschil_se']:.4f})"
+                                          for u in wf))
     if c.get("regel") != "verschil_lt_markt":
-        return dict(succes=None, toelichting="geen toetsbaar criterium (controle)")
+        return dict(succes=None, toelichting="geen toetsbaar criterium (controle of beschrijvend)")
     f = c.get("factor_se", 1.0)
     wf = [u for u in uitkomsten if u["soort"] == "walk-forward"]
     ok = [u["verschil_markt"] < -f * u["verschil_se"] for u in wf]
@@ -567,6 +744,7 @@ def draai(ids: list[str] | None = None, splits=None) -> dict:
     splits = splits or SPLITS
     data, _ = laad(sorted({j for tr, te, _ in splits for j in tr + te}))
     eerdere = lees_log()
+    staat = git_staat()
     uit = []
     for exp in reg:
         t0 = time.time()
@@ -576,7 +754,8 @@ def draai(ids: list[str] | None = None, splits=None) -> dict:
             if exp.get("status") == "niet_gedraaid":
                 res.update(status="niet gedraaid", fout=exp.get("reden_niet_gedraaid", ""), uitkomsten=[])
             else:
-                res["uitkomsten"] = [draai_split(exp, tr, te, s, data) for tr, te, s in splits]
+                f = SPECIAAL.get(exp["model"], draai_split)
+                res["uitkomsten"] = [f(exp, tr, te, s, data) for tr, te, s in splits]
                 res["status"] = "ok"
                 res["beoordeling"] = beoordeel(exp, res["uitkomsten"])
         except Exception as fout:  # noqa: BLE001 - mislukkingen worden gelogd en gerapporteerd
@@ -584,8 +763,10 @@ def draai(ids: list[str] | None = None, splits=None) -> dict:
                        traceback=traceback.format_exc(limit=3))
         res["duur_s"] = round(time.time() - t0, 1)
         log(dict(tijd=datetime.now(timezone.utc).isoformat(timespec="seconds"), id=exp["id"], status=res["status"],
-                 vingerafdruk=res["vingerafdruk"], fout=res.get("fout"), duur_s=res["duur_s"],
-                 samenvatting={f"{'+'.join(map(str, u['train']))}->{u['test'][0]}": u["verschil_markt"]
+                 vingerafdruk=res["vingerafdruk"], context=context_vingerafdruk(), **staat,
+                 fout=res.get("fout"), duur_s=res["duur_s"],
+                 samenvatting={f"{'+'.join(map(str, u['train']))}->{u['test'][0]}":
+                               u.get("verschil_markt", u.get("verschil_naief", u.get("vast_1")))
                                for u in res["uitkomsten"]}))
         print(f"{exp['id']} {exp['model']}: {res['status']} ({res['duur_s']} s)")
         uit.append(res)
@@ -621,13 +802,15 @@ def markdown(v: dict) -> str:
          "Gegenereerd door `dartswk experimenten` (protocol: [docs/protocol.md](../docs/protocol.md)). "
          "Verschil = log-loss model − markt (proportioneel) per wedstrijd met standaardfout; < 0 = model beter. "
          f"'Binnen de ruis' = |verschil| ≤ {RUIS_SE:g}·se. ROI bij inzet 1, 90%-interval met bootstrap per (jaar, "
-         "ronde). Helling = c in logit P(winst) = c·logit(p) (1 = goed, < 1 = te stellig).", "",
+         "ronde); 'Clusters' = aantal (jaar, ronde)-clusters met bets. Een WK heeft hoogstens 7 rondes, dus hoogstens 7 clusters per testjaar; dan is het "
+         "interval grof en kan het tot ±100% reiken. Helling = c in logit P(winst) = c·logit(p) (1 = goed, < 1 = te stellig).", "",
          "## Walk-forward (hoofdresultaat)", "",
-         "| Id | Model | Test | n | Log-loss | Markt | Verschil (se) | Oordeel | Brier | Helling | Bets | ROI [90%] |",
-         "|---|---|---|---|---|---|---|---|---|---|---|---|"]
-    for r in v["resultaten"]:
+         "| Id | Model | Test | n | Log-loss | Markt | Verschil (se) | Oordeel | Brier | Helling | Bets | ROI [90%] | Clusters |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    gewoon = [r for r in v["resultaten"] if r["model"] not in SPECIAAL]
+    for r in gewoon:
         if r["status"] != "ok":
-            L.append(f"| {r['id']} | {r['model']} | – | – | – | – | – | **{r['status']}**: {r.get('fout', '')} | – | – | – | – |")
+            L.append(f"| {r['id']} | {r['model']} | – | – | – | – | – | **{r['status']}**: {r.get('fout', '')} | – | – | – | – | – |")
             continue
         for u in r["uitkomsten"]:
             if u["soort"] != "walk-forward":
@@ -635,15 +818,40 @@ def markdown(v: dict) -> str:
             h = "–" if u["helling"] is None else f"{u['helling']:.2f}"
             L.append(f"| {r['id']} | {r['model']} | {u['test'][0]} | {u['n']} | {u['logloss']:.4f} | "
                      f"{u['logloss_markt']:.4f} | {u['verschil_markt']:+.4f} ({u['verschil_se']:.4f}) | {u['ruis']} | "
-                     f"{u['brier']:.4f} | {h} | {u['bets']} | {_pct(u['roi'])} {_ci(u['roi_90'])} |")
+                     f"{u['brier']:.4f} | {h} | {u['bets']} | {_pct(u['roi'])} {_ci(u['roi_90'])} | {u.get('clusters', '–')} |")
     L += ["", "## Vaste richtingen (ter vergelijking; afstemmen op een later jaar is niet walk-forward)", "",
           "| Id | Model | Train → test | Log-loss | Verschil (se) | Bets | ROI [90%] |", "|---|---|---|---|---|---|---|"]
-    for r in v["resultaten"]:
+    for r in gewoon:
         for u in r.get("uitkomsten", []):
             if u["soort"] == "richting":
                 L.append(f"| {r['id']} | {r['model']} | {'+'.join(map(str, u['train']))} → {u['test'][0]} | "
                          f"{u['logloss']:.4f} | {u['verschil_markt']:+.4f} ({u['verschil_se']:.4f}) | {u['bets']} | "
                          f"{_pct(u['roi'])} {_ci(u['roi_90'])} |")
+    for r in v["resultaten"]:
+        if r["model"] == "setstand" and r["status"] == "ok":
+            L += ["", f"## {r['id']}: setstanden (log-loss van de exacte eindstand in sets)", "",
+                  "Marktkans (proportioneel) → legverschil → exacte set-DP, tegen een binomiale verdeling met dezelfde "
+                  "wedstrijdkans. Niets afgestemd (hold 0,60).", "",
+                  "| Train → test | Soort | n | Set-DP | Binomiaal | Verschil (se) | Log-loss winnaar |",
+                  "|---|---|---|---|---|---|---|"]
+            for u in r["uitkomsten"]:
+                L.append(f"| {'+'.join(map(str, u['train']))} → {u['test'][0]} | {u['soort']} | {u['n']} | "
+                         f"{u['logloss_dp']:.4f} | {u['logloss_naief']:.4f} | {u['verschil_naief']:+.4f} "
+                         f"({u['verschil_se']:.4f}) | {u['logloss_winnaar']:.4f} |")
+        if r["model"] == "inzet" and r["status"] == "ok":
+            g = reg[r["id"]]["grid"]
+            L += ["", f"## {r['id']}: inzetbeleid in euro's (bets van de marktblend)", "",
+                  f"¼-Kelly met start €{g['startkapitaal']}; vaste inzet met hoogstens €{g['weekbudget']} per week "
+                  "(ma–zo, speeldatum). Drawdown = grootste daling vanaf een piek.", "",
+                  "| Train → test | Soort | Bets | Inzet 1 (eenheden) | ¼-Kelly eind (drawdown) | "
+                  + " | ".join(f"€{i} vast: winst (drawdown, weken budget op)" for i in g["vaste_inzet"]) + " |",
+                  "|---|---|---|---|---|" + "---|" * len(g["vaste_inzet"])]
+            for u in r["uitkomsten"]:
+                k = u["kelly"]
+                L.append(f"| {'+'.join(map(str, u['train']))} → {u['test'][0]} | {u['soort']} | {u['bets']} | "
+                         f"{u['vast_1']:+.2f} | €{k['eind']:.2f} (€{k['max_drawdown']:.2f}) | "
+                         + " | ".join(f"€{w['eind']:+.2f} (€{w['max_drawdown']:.2f}, {w['weken_budget_op']}; "
+                                      f"{w['overgeslagen']} overgeslagen)" for w in u["weekbudget"]) + " |")
     L += ["", "## Hypothesen, criteria en beoordeling", ""]
     for r in v["resultaten"]:
         e = reg[r["id"]]

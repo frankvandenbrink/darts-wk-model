@@ -220,3 +220,30 @@ def test_markdown_html(bd):
     h = bd.markdown_html("## Kop\n\nRegel een\nregel twee\n\n- a\n  vervolg\n- `b`\n")
     assert "<h4>Kop</h4>" in h and "<p>Regel een regel twee</p>" in h
     assert "<li>a vervolg</li>" in h and "<code>b</code>" in h
+
+
+def test_inzet_setstand_werkwijze(bd, resultaten, tmp_path):
+    exp = _experimenten()
+    week = lambda w, x, op: {"week": w, "ingezet": 10.0, "winst": x, "budget_op": op}
+    wb = {"inzet": 5, "budget": 50, "bets": 3, "overgeslagen": 1, "ingezet": 15.0, "eind": 4.0,
+          "max_drawdown": 5.0, "weken_budget_op": 1, "weken": [week("2024-12-16", -5.0, True), week("2024-12-23", 9.0, False)]}
+    kelly = {"start": 100, "eind": 103.0, "winst": 3.0, "ingezet": 12.0, "max_drawdown": 2.0, "verloop": [103.0]}
+    exp["register"] += [{"id": "E027", "naam": "Inzet", "model": "inzet", "hypothese": "h", "grid": {"weekbudget": 50},
+                         "na_test_aangepast": {"waarde": False}},
+                        {"id": "E028", "naam": "Setstanden", "model": "setstand", "hypothese": "h",
+                         "na_test_aangepast": {"waarde": False}}]
+    exp["resultaten"] += [
+        {"id": "E027", "model": "inzet", "status": "ok", "uitkomsten": [
+            {"train": [2024], "test": [2025], "soort": "walk-forward", "bets": 3, "vast_1": 1.0, "kelly": kelly,
+             "weekbudget": [wb]}]},
+        {"id": "E028", "model": "setstand", "status": "ok", "beoordeling": {"succes": False}, "uitkomsten": [
+            {"train": [2024], "test": [2025], "soort": "walk-forward", "n": 94, "logloss_dp": 1.85,
+             "logloss_naief": 1.855, "logloss_winnaar": 0.63, "verschil_naief": -0.0035, "verschil_se": 0.0028}]}]
+    _schrijf(resultaten / "experimenten.json", exp)
+    uit = tmp_path / "site"
+    bd.main(["--resultaten", str(resultaten), "--uit", str(uit)])
+    pagina = (uit / "index.html").read_text(encoding="utf-8")
+    _controleer_html(pagina)
+    assert "iw-titel" in pagina and "€5 vast" in pagina and "(vs naïef)" in pagina
+    assert "blob/main/docs/review-ronde2.md" in pagina and "blob/main/docs/onderzoek-odds-en-toto.md" in pagina
+    assert 'id="werkwijze"' in pagina and "Laatst bijgewerkt" in pagina

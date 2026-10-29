@@ -93,7 +93,7 @@ def test_register_geldig():
     if reg is None:
         pytest.skip("geen register in de werkmap")
     for e in reg:
-        assert e["model"] in x.MODELTYPES, e["id"]
+        assert e["model"] in x.MODELTYPES or e["model"] in x.SPECIAAL, e["id"]
 
 
 def test_log_schrijft_jsonl(tmp_path):
@@ -102,3 +102,37 @@ def test_log_schrijft_jsonl(tmp_path):
     x.log({"id": "E901", "status": "ok"}, pad)
     assert [r["id"] for r in x.lees_log(pad)] == ["E900", "E901"]
     assert json.loads(pad.read_text().splitlines()[0])["status"] == "mislukt"
+
+
+def test_protocol_toelichting_verplicht():
+    with pytest.raises(ValueError):
+        x.protocolcheck(_exp(na_test_aangepast={"waarde": True, "toelichting": " "}), [])
+
+
+def test_protocol_eerste_run_telt_en_context():
+    e = _exp(hypothese="nieuw")
+    eerdere = [dict(id="E900", vingerafdruk=x.vingerafdruk(_exp())), dict(id="E900", vingerafdruk=x.vingerafdruk(e))]
+    assert x.protocolcheck(e, eerdere) is not None        # tweede run wast de wijziging niet wit
+    oud = [dict(id="E900", vingerafdruk=x.vingerafdruk(_exp()), context="andere")]
+    assert "config" in x.protocolcheck(_exp(), oud)
+    goed = [dict(id="E900", vingerafdruk=x.vingerafdruk(_exp()), context=x.context_vingerafdruk())]
+    assert x.protocolcheck(_exp(), goed) is None
+
+
+def test_weekbudget_en_kelly():
+    bl = [dict(datum="2024-12-16", odd=2.0, p=0.6, gewonnen=False) for _ in range(12)]  # maandag, 12 x €5 > €50
+    bl.append(dict(datum="2024-12-23", odd=3.0, p=0.5, gewonnen=True))
+    w = x.simuleer_weekbudget(bl, 5, 50)
+    assert w["bets"] == 11 and w["overgeslagen"] == 2 and w["weken_budget_op"] == 1
+    assert w["eind"] == -50 + 10 and w["max_drawdown"] == 50
+    k = x.simuleer_kelly(bl[:1], 100, 0.25)
+    assert k["ingezet"] == 5.0 and k["eind"] == 95.0     # 0.25 * (1.2-1)/1 * 100
+
+
+def test_setstanden_som_en_wedstrijdkans():
+    from dartswk.setmodel import setstand_verdeling, wedstrijd_kans
+    v = setstand_verdeling(0.66, 0.58, 4)
+    assert abs(sum(v.values()) - 1) < 1e-12
+    assert abs(sum(p for (a, _), p in v.items() if a == 4) - wedstrijd_kans(0.66, 0.58, 4)) < 1e-12
+    b = x.binomiale_setstanden(0.7, 3)
+    assert abs(sum(p for (a, _), p in b.items() if a == 3) - 0.7) < 1e-9
