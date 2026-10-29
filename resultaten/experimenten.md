@@ -233,6 +233,145 @@ Uitslagtypen (verwacht volgens het model / werkelijk), per testjaar:
 | 2026 | 25.7 / 32 | 25.6 / 25 | 18.6 / 11 | 3.5 / 4 | 5.0 / 6 | 4.7 / 4 | 3.8 / 3 | 0.3 / 1 | 0.6 / 0 | 0.7 / 2 | 0.6 / 0 | 0.5 / 0 | 0.1 / 0 | 0.2 / 1 | 0.3 / 0 | 0.3 / 1 | 0.3 / 0 | 0.2 / 0 | 0.0 / 0 | 0.1 / 1 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 5.2 / 9 | 9.3 / 8 | 10.6 / 10 | 0.7 / 1 | 1.6 / 2 | 2.3 / 2 | 2.5 / 2 | 0.1 / 0 | 0.2 / 1 | 0.3 / 0 | 0.4 / 0 | 0.4 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.0 / 0 | 0.0 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 |
 | 2024 | 16.3 / 19 | 17.2 / 21 | 13.0 / 8 | 3.1 / 4 | 4.7 / 5 | 4.6 / 5 | 3.7 / 3 | 0.3 / 0 | 0.6 / 2 | 0.7 / 0 | 0.7 / 0 | 0.5 / 0 | 0.1 / 1 | 0.2 / 0 | 0.3 / 1 | 0.3 / 0 | 0.3 / 0 | 0.2 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 1 | 0.1 / 0 | 0.1 / 0 | 3.6 / 4 | 6.5 / 7 | 7.4 / 5 | 0.7 / 0 | 1.5 / 2 | 2.2 / 2 | 2.4 / 2 | 0.1 / 0 | 0.1 / 0 | 0.2 / 0 | 0.3 / 1 | 0.3 / 1 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.2 / 0 | 0.2 / 0 | 0.0 / 0 | 0.0 / 0 | 0.0 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 | 0.1 / 0 |
 
+## E032: correct score, Correct score: dagvorm σ apart voor first to 3 en first to ≥4
+
+Combinatie gekozen op train (log-loss van de setstand, 49 combinaties); getoetst tegen de basis (set-DP, hold 0,60, σ 0,3).
+
+| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |
+|---|---|---|---|---|---|---|
+| 2024 → 2025 | walk-forward | 94 | hold 0.6, sigma3 0.4, sigma4 0.3 | 1.8401 | 1.8415 | -0.0014 (0.0067) |
+| 2024+2025 → 2026 | walk-forward | 126 | hold 0.6, sigma3 0.4, sigma4 0.2 | 1.6666 | 1.6674 | -0.0008 (0.0081) |
+| 2026 → 2025 | richting | 94 | hold 0.6, sigma3 0.4, sigma4 0.3 | 1.8401 | 1.8415 | -0.0014 (0.0067) |
+| 2025 → 2026 | richting | 126 | hold 0.6, sigma3 0.4, sigma4 0.2 | 1.6666 | 1.6674 | -0.0008 (0.0081) |
+| 2025 → 2024 | richting | 94 | hold 0.6, sigma3 0.4, sigma4 0.2 | 1.6971 | 1.6960 | +0.0012 (0.0091) |
+| 2025+2026 → 2024 | richting | 94 | hold 0.6, sigma3 0.4, sigma4 0.3 | 1.6956 | 1.6960 | -0.0003 (0.0064) |
+
+## E033: correct score, Correct score: σ per wedstrijd uit het spelersprofiel (niveau en vormschommeling)
+
+Combinatie gekozen op train (log-loss van de setstand, 75 combinaties); getoetst tegen de basis (set-DP, hold 0,60, σ 0,3).
+
+| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |
+|---|---|---|---|---|---|---|
+| 2024 → 2025 | walk-forward | 94 | hold 0.6, sigma0 0.3, beta_niveau 0.4, beta_vol 0.4 | 1.8431 | 1.8415 | +0.0016 (0.0115) |
+| 2024+2025 → 2026 | walk-forward | 126 | hold 0.6, sigma0 0.3, beta_niveau 0.2, beta_vol 0.4 | 1.6645 | 1.6674 | -0.0030 (0.0095) |
+| 2026 → 2025 | richting | 94 | hold 0.6, sigma0 0.4, beta_niveau -0.4, beta_vol 0.4 | 1.8408 | 1.8415 | -0.0007 (0.0165) |
+| 2025 → 2026 | richting | 126 | hold 0.6, sigma0 0.3, beta_niveau 0.2, beta_vol 0.4 | 1.6643 | 1.6674 | -0.0031 (0.0102) |
+| 2025 → 2024 | richting | 94 | hold 0.6, sigma0 0.3, beta_niveau 0.2, beta_vol 0.4 | 1.6948 | 1.6960 | -0.0012 (0.0118) |
+| 2025+2026 → 2024 | richting | 94 | hold 0.6, sigma0 0.4, beta_niveau -0.2, beta_vol 0.4 | 1.6959 | 1.6960 | -0.0000 (0.0143) |
+
+## E034: correct score, Correct score: holdkans afhankelijk van het niveau van de spelers
+
+Combinatie gekozen op train (log-loss van de setstand, 5 combinaties); getoetst tegen de basis (set-DP, hold 0,60, σ 0,3).
+
+| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |
+|---|---|---|---|---|---|---|
+| 2024 → 2025 | walk-forward | 94 | hold 0.6, sigma 0.3, gamma 0.2 | 1.8416 | 1.8415 | +0.0001 (0.0002) |
+| 2024+2025 → 2026 | walk-forward | 126 | hold 0.6, sigma 0.3, gamma -0.2 | 1.6676 | 1.6674 | +0.0002 (0.0001) |
+| 2026 → 2025 | richting | 94 | hold 0.6, sigma 0.3, gamma 0.4 | 1.8416 | 1.8415 | +0.0001 (0.0005) |
+| 2025 → 2026 | richting | 126 | hold 0.6, sigma 0.3, gamma -0.4 | 1.6676 | 1.6674 | +0.0002 (0.0003) |
+| 2025 → 2024 | richting | 94 | hold 0.6, sigma 0.3, gamma -0.4 | 1.6968 | 1.6960 | +0.0008 (0.0004) |
+| 2025+2026 → 2024 | richting | 94 | hold 0.6, sigma 0.3, gamma 0.4 | 1.6961 | 1.6960 | +0.0001 (0.0003) |
+
+## E035: correct score, Correct score: momentum tussen sets
+
+Combinatie gekozen op train (log-loss van de setstand, 20 combinaties); getoetst tegen de basis (set-DP, hold 0,60, σ 0,3).
+
+| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |
+|---|---|---|---|---|---|---|
+| 2024 → 2025 | walk-forward | 94 | hold 0.6, sigma 0.3, kappa 0.0 | 1.8415 | 1.8415 | +0.0000 (0.0000) |
+| 2024+2025 → 2026 | walk-forward | 126 | hold 0.6, sigma 0.3, kappa 0.0 | 1.6674 | 1.6674 | +0.0000 (0.0000) |
+| 2026 → 2025 | richting | 94 | hold 0.6, sigma 0.3, kappa 0.1 | 1.8467 | 1.8415 | +0.0052 (0.0106) |
+| 2025 → 2026 | richting | 126 | hold 0.6, sigma 0.1, kappa 0.1 | 1.6748 | 1.6674 | +0.0074 (0.0048) |
+| 2025 → 2024 | richting | 94 | hold 0.6, sigma 0.1, kappa 0.1 | 1.7065 | 1.6960 | +0.0106 (0.0060) |
+| 2025+2026 → 2024 | richting | 94 | hold 0.6, sigma 0.2, kappa 0.1 | 1.7034 | 1.6960 | +0.0075 (0.0036) |
+
+## E036: correct score, Correct score: tie-break bij 5-5 in de beslissende set (bull opnieuw vs wissel)
+
+Combinatie gekozen op train (log-loss van de setstand, 2 combinaties); getoetst tegen de basis (set-DP, hold 0,60, σ 0,3).
+
+| Train → test | Soort | n | Gekozen | Log-loss | Basis | Verschil (se) |
+|---|---|---|---|---|---|---|
+| 2024 → 2025 | walk-forward | 94 | hold 0.6, sigma 0.3, tiebreak wissel | 1.8415 | 1.8415 | +0.0000 (0.0000) |
+| 2024+2025 → 2026 | walk-forward | 126 | hold 0.6, sigma 0.3, tiebreak wissel | 1.6674 | 1.6674 | +0.0000 (0.0000) |
+| 2026 → 2025 | richting | 94 | hold 0.6, sigma 0.3, tiebreak bull | 1.8415 | 1.8415 | -0.0000 (0.0000) |
+| 2025 → 2026 | richting | 126 | hold 0.6, sigma 0.3, tiebreak bull | 1.6674 | 1.6674 | -0.0000 (0.0000) |
+| 2025 → 2024 | richting | 94 | hold 0.6, sigma 0.3, tiebreak bull | 1.6960 | 1.6960 | -0.0000 (0.0000) |
+| 2025+2026 → 2024 | richting | 94 | hold 0.6, sigma 0.3, tiebreak bull | 1.6960 | 1.6960 | -0.0000 (0.0000) |
+
+## E037: correct score, selectieregel tegen een boekmakermodel
+
+Eigen model tegen aangenomen boekodds (set-DP met σ_boek plus marge; geen echte CS-odds). Per cel: bets / trefkans / ROI bij inzet 1 [90%-interval, bootstrap per (jaar, ronde)]. Totaal over de unieke testjaren (2024, 2025, 2026). Niets afgestemd.
+
+| σ_boek | Marge | Regel | WK2025 | WK2026 | Totaal |
+|---|---|---|---|---|---|
+| 0 | 15% proportioneel | kans | 94 / 23.4% / -12.3% [-30.8%, +23.5%] | 126 / 33.3% / +10.2% [-28.6%, +33.7%] | 314 / 29.9% / +4.2% [-13.6%, +20.6%] |
+| 0 | 15% proportioneel | ev | 94 / 16.0% / -33.0% [-59.7%, -20.9%] | 126 / 26.2% / +11.1% [-42.5%, +94.3%] | 314 / 21.3% / -16.3% [-43.0%, +8.5%] |
+| 0 | 15% proportioneel | ev110 | 31 / 3.2% / -50.0% [-100.0%, -16.3%] | 31 / 3.2% / +29.5% [-100.0%, +276.5%] | 92 / 2.2% / -39.5% [-100.0%, +43.0%] |
+| 0 | 20% proportioneel | kans | 94 / 23.4% / -16.0% [-33.7%, +18.3%] | 126 / 33.3% / +5.6% [-31.6%, +28.1%] | 314 / 29.9% / -0.1% [-17.2%, +15.6%] |
+| 0 | 20% proportioneel | ev | 94 / 16.0% / -35.8% [-61.3%, -24.2%] | 126 / 26.2% / +6.5% [-44.9%, +86.2%] | 314 / 21.3% / -19.8% [-45.4%, +4.0%] |
+| 0 | 20% proportioneel | ev110 | 31 / 3.2% / -52.1% [-100.0%, -19.8%] | 31 / 3.2% / +24.1% [-100.0%, +260.8%] | 92 / 2.2% / -42.0% [-100.0%, +37.0%] |
+| 0 | 25% proportioneel | kans | 94 / 23.4% / -19.3% [-36.3%, +13.6%] | 126 / 33.3% / +1.4% [-34.3%, +23.0%] | 314 / 29.9% / -4.1% [-20.5%, +11.0%] |
+| 0 | 25% proportioneel | ev | 94 / 16.0% / -38.4% [-62.9%, -27.2%] | 126 / 26.2% / +2.2% [-47.1%, +78.8%] | 314 / 21.3% / -23.0% [-47.6%, -0.1%] |
+| 0 | 25% proportioneel | ev110 | 30 / 3.3% / -52.5% [-100.0%, -18.6%] | 30 / 3.3% / +23.2% [-100.0%, +246.4%] | 90 / 2.2% / -43.1% [-100.0%, +33.5%] |
+| 0 | 15% macht | kans | 94 / 23.4% / -10.1% [-29.0%, +26.0%] | 126 / 33.3% / +13.2% [-26.6%, +37.1%] | 314 / 29.9% / +6.9% [-11.3%, +23.7%] |
+| 0 | 15% macht | ev | 94 / 19.1% / -16.0% [-37.4%, +16.8%] | 126 / 29.4% / +11.6% [-0.7%, +29.6%] | 314 / 25.2% / +1.3% [-15.0%, +19.2%] |
+| 0 | 15% macht | ev110 | 31 / 12.9% / -1.8% [-100.0%, +73.0%] | 31 / 16.1% / +23.1% [-44.9%, +49.3%] | 92 / 15.2% / +15.1% [-25.4%, +59.5%] |
+| 0 | 20% macht | kans | 94 / 23.4% / -13.1% [-31.4%, +21.7%] | 126 / 33.3% / +9.4% [-29.1%, +32.4%] | 314 / 29.9% / +3.3% [-14.3%, +19.5%] |
+| 0 | 20% macht | ev | 94 / 19.1% / -19.3% [-39.7%, +11.4%] | 126 / 29.4% / +7.4% [-4.5%, +23.9%] | 314 / 25.2% / -2.6% [-18.3%, +14.4%] |
+| 0 | 20% macht | ev110 | 31 / 12.9% / -6.4% [-100.0%, +64.3%] | 31 / 16.1% / +17.1% [-47.4%, +41.8%] | 92 / 15.2% / +9.7% [-28.6%, +51.8%] |
+| 0 | 25% macht | kans | 94 / 23.4% / -16.0% [-33.7%, +17.6%] | 126 / 33.3% / +5.9% [-31.3%, +28.1%] | 314 / 29.9% / -0.0% [-17.1%, +15.5%] |
+| 0 | 25% macht | ev | 94 / 19.1% / -22.4% [-41.9%, +6.5%] | 126 / 29.4% / +3.5% [-7.8%, +18.7%] | 314 / 25.2% / -6.2% [-21.2%, +9.9%] |
+| 0 | 25% macht | ev110 | 24 / 12.5% / -27.7% [-100.0%, -1.4%] | 22 / 13.6% / -35.8% [-76.7%, +3.9%] | 71 / 15.5% / -7.8% [-43.8%, +32.9%] |
+| 0.3 | 15% proportioneel | kans | 94 / 23.4% / -20.3% [-37.5%, +12.5%] | 126 / 33.3% / -2.2% [-37.6%, +18.4%] | 314 / 29.9% / -6.5% [-22.4%, +8.3%] |
+| 0.3 | 15% proportioneel | ev | 94 / 23.4% / -20.3% [-37.5%, +12.5%] | 126 / 33.3% / -2.2% [-37.6%, +18.4%] | 314 / 29.9% / -6.5% [-22.4%, +8.3%] |
+| 0.3 | 15% proportioneel | ev110 | 0 | 0 | 0 |
+| 0.3 | 20% proportioneel | kans | 94 / 23.4% / -23.7% [-40.1%, +7.8%] | 126 / 33.3% / -6.3% [-40.2%, +13.4%] | 314 / 29.9% / -10.4% [-25.7%, +3.8%] |
+| 0.3 | 20% proportioneel | ev | 94 / 23.4% / -23.7% [-40.1%, +7.8%] | 126 / 33.3% / -6.3% [-40.2%, +13.4%] | 314 / 29.9% / -10.4% [-25.7%, +3.8%] |
+| 0.3 | 20% proportioneel | ev110 | 0 | 0 | 0 |
+| 0.3 | 25% proportioneel | kans | 94 / 23.4% / -26.7% [-42.5%, +3.5%] | 126 / 33.3% / -10.0% [-42.6%, +8.9%] | 314 / 29.9% / -13.9% [-28.6%, -0.3%] |
+| 0.3 | 25% proportioneel | ev | 94 / 23.4% / -26.7% [-42.5%, +3.5%] | 126 / 33.3% / -10.0% [-42.6%, +8.9%] | 314 / 29.9% / -13.9% [-28.6%, -0.3%] |
+| 0.3 | 25% proportioneel | ev110 | 0 | 0 | 0 |
+| 0.3 | 15% macht | kans | 94 / 23.4% / -17.7% [-35.3%, +15.8%] | 126 / 33.3% / +1.4% [-35.1%, +22.5%] | 314 / 29.9% / -3.2% [-19.6%, +12.0%] |
+| 0.3 | 15% macht | ev | 94 / 23.4% / -17.7% [-35.3%, +15.8%] | 126 / 33.3% / +1.4% [-35.1%, +22.5%] | 314 / 29.9% / -3.2% [-19.6%, +12.0%] |
+| 0.3 | 15% macht | ev110 | 0 | 0 | 0 |
+| 0.3 | 20% macht | kans | 94 / 23.4% / -20.3% [-37.3%, +12.0%] | 126 / 33.3% / -1.7% [-37.0%, +18.7%] | 314 / 29.9% / -6.2% [-22.1%, +8.5%] |
+| 0.3 | 20% macht | ev | 94 / 23.4% / -20.3% [-37.3%, +12.0%] | 126 / 33.3% / -1.7% [-37.0%, +18.7%] | 314 / 29.9% / -6.2% [-22.1%, +8.5%] |
+| 0.3 | 20% macht | ev110 | 0 | 0 | 0 |
+| 0.3 | 25% macht | kans | 94 / 23.4% / -22.7% [-39.2%, +8.5%] | 126 / 33.3% / -4.6% [-38.7%, +15.2%] | 314 / 29.9% / -9.0% [-24.4%, +5.2%] |
+| 0.3 | 25% macht | ev | 94 / 23.4% / -22.7% [-39.2%, +8.5%] | 126 / 33.3% / -4.6% [-38.7%, +15.2%] | 314 / 29.9% / -9.0% [-24.4%, +5.2%] |
+| 0.3 | 25% macht | ev110 | 0 | 0 | 0 |
+
+## E038: correct score, beslissende sets (n−1 : n−1) verwacht vs echt
+
+Per cel: verwacht / echt (z = (echt − verwacht)/se). Wedstrijdkans = marktkans.
+
+| Test | Model | Totaal | first to 3 | first to 4 | first to 5 | first to 6 | first to 7 |
+|---|---|---|---|---|---|---|---|
+| 2024 | sigma 0.0 | 28.1 / 19 (-2.1) | 20.4 / 13 (-2.0) | 6.2 / 5 (-0.6) | 0.9 / 1 (+0.1) | 0.4 / 0 (-0.7) | 0.2 / 0 (-0.5) |
+| 2024 | sigma 0.3 | 23.6 / 19 (-1.1) | 17.5 / 13 (-1.3) | 5.0 / 5 (+0.0) | 0.7 / 1 (+0.4) | 0.3 / 0 (-0.6) | 0.2 / 0 (-0.4) |
+| 2024 | sigma 0.0, kappa 0.3 | 20.6 / 19 (-0.4) | 14.9 / 13 (-0.6) | 4.6 / 5 (+0.2) | 0.7 / 1 (+0.5) | 0.3 / 0 (-0.6) | 0.2 / 0 (-0.5) |
+| 2025 | sigma 0.0 | 27.9 / 18 (-2.3) | 19.9 / 10 (-2.7) | 6.5 / 8 (+0.7) | 1.0 / 0 (-1.1) | 0.4 / 0 (-0.7) | 0.2 / 0 (-0.5) |
+| 2025 | sigma 0.3 | 23.4 / 18 (-1.3) | 17.0 / 10 (-2.0) | 5.2 / 8 (+1.4) | 0.7 / 0 (-1.0) | 0.3 / 0 (-0.6) | 0.1 / 0 (-0.4) |
+| 2025 | sigma 0.0, kappa 0.3 | 20.5 / 18 (-0.6) | 14.6 / 10 (-1.4) | 4.8 / 8 (+1.6) | 0.7 / 0 (-0.9) | 0.3 / 0 (-0.6) | 0.1 / 0 (-0.4) |
+| 2026 | sigma 0.0 | 36.9 / 26 (-2.2) | 29.2 / 21 (-1.8) | 6.2 / 5 (-0.6) | 0.9 / 0 (-1.1) | 0.4 / 0 (-0.7) | 0.2 / 0 (-0.5) |
+| 2026 | sigma 0.3 | 31.1 / 26 (-1.1) | 24.9 / 21 (-0.9) | 5.0 / 5 (-0.0) | 0.7 / 0 (-0.9) | 0.3 / 0 (-0.6) | 0.1 / 0 (-0.4) |
+| 2026 | sigma 0.0, kappa 0.3 | 27.1 / 26 (-0.2) | 21.3 / 21 (-0.1) | 4.6 / 5 (+0.2) | 0.7 / 0 (-0.9) | 0.3 / 0 (-0.6) | 0.1 / 0 (-0.4) |
+
+Achteraf (beschrijvend, nooit als feature): legverschil d = c·(avg1 − avg2) met de averages van de wedstrijd zelf, σ 0; c = 0.095 (max. likelihood op WK 2022, 2023, 2024, 2025, 2026, n = 502).
+
+| Groep | n | Verwacht / echt (z) |
+|---|---|---|
+| first to 3 | 350 | 89.0 / 77 (-1.5) |
+| first to 4 | 117 | 22.6 / 35 (+3.0) |
+| first to 5 | 20 | 3.5 / 3 (-0.3) |
+| first to 6 | 10 | 1.0 / 0 (-1.1) |
+| first to 7 | 5 | 0.8 / 0 (-1.0) |
+| WK2022 | 92 | 21.2 / 29 (+2.0) |
+| WK2023 | 95 | 22.9 / 23 (+0.0) |
+| WK2024 | 95 | 22.0 / 19 (-0.8) |
+| WK2025 | 94 | 24.2 / 18 (-1.5) |
+| WK2026 | 126 | 26.6 / 26 (-0.1) |
+
 ## Hypothesen, criteria en beoordeling
 
 ### E001: Markt (proportioneel)
@@ -449,6 +588,55 @@ Uitslagtypen (verwacht volgens het model / werkelijk), per testjaar:
 
 - Hypothese (2026-10-29): Wie elke wedstrijd de meest waarschijnlijke setstand kiest, raakt in R1/R2 (first to 3) zo'n 30-40% en in latere rondes minder. Tegen eerlijke odds (1/kans) is de ROI rond 0; bij de gebruikelijke correct-score-marges van 15-25% is de ROI duidelijk negatief. Het model heeft alleen de markt als input, dus het vindt geen structurele waarde.
 - Criterium: beschrijvend: trefkans, ROI tegen eerlijke odds en tegen odds met marge, kalibratie per uitslagtype (geen toets) → n.v.t. (geen toetsbaar criterium (controle of beschrijvend))
+- Na test aangepast: nee
+- Status: ok
+
+### E032: Correct score: dagvorm σ apart voor first to 3 en first to ≥4
+
+- Hypothese (2026-10-29): De 3-2-afwijking zit vooral in first to 3; first to 4 was al goed gekalibreerd. Een aparte σ per format past beter dan één globale σ 0,3.
+- Criterium: log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3) → niet gehaald (WK2025: -0.0014 (se 0.0067); WK2026: -0.0008 (se 0.0081))
+- Na test aangepast: nee
+- Status: ok
+
+### E033: Correct score: σ per wedstrijd uit het spelersprofiel (niveau en vormschommeling)
+
+- Hypothese (2026-10-29): Spelers met een lager niveau of wisselvallige vorm hebben meer dagvorm; een σ per wedstrijd verbetert de log-loss ten opzichte van één globale σ.
+- Criterium: log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3) → niet gehaald (WK2025: +0.0016 (se 0.0115); WK2026: -0.0030 (se 0.0095))
+- Na test aangepast: ja (Na de eerste run (en de code-review) bleek de bisectie op d0 bij σ ≥ ~0,7 de marktkans niet te halen; door scheve z_vol liep σ per wedstrijd op tot 1,3–5,2. Gerepareerd: bisectiegrenzen vast op [D_MIN, D_MAX], z afgekapt op ±2 en σ per wedstrijd op ≤ 0,6. Eerste run (zonder afkapping): WK2025 +0,0032 (se 0,0067), WK2026 −0,0050 (se 0,0044) → niet gehaald.)
+- Status: ok
+
+### E034: Correct score: holdkans afhankelijk van het niveau van de spelers
+
+- Hypothese (2026-10-29): Sterke spelers houden vaker hun eigen leg (hogere hold), wat sets 'dichter' maakt. Een niveau-afhankelijke hold verbetert de setstandvoorspelling een beetje.
+- Criterium: log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3) → niet gehaald (WK2025: +0.0001 (se 0.0002); WK2026: +0.0002 (se 0.0001))
+- Na test aangepast: nee
+- Status: ok
+
+### E035: Correct score: momentum tussen sets
+
+- Hypothese (2026-10-29): Een deel van het te weinig 2-2/3-2 komt door momentum binnen de wedstrijd (wie een set wint, wint vaker de volgende). Momentum plus dagvorm past beter dan alleen dagvorm.
+- Criterium: log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3) → niet gehaald (WK2025: +0.0000 (se 0.0000); WK2026: +0.0000 (se 0.0000))
+- Na test aangepast: nee
+- Status: ok
+
+### E036: Correct score: tie-break bij 5-5 in de beslissende set (bull opnieuw vs wissel)
+
+- Hypothese (2026-10-29): Het verschil is verwaarloosbaar (< 0,0005 log-loss); de regel volgt het echte PDC-reglement (bull opnieuw).
+- Criterium: beschrijvend: verschil in log-loss tussen de twee tie-break-regels → n.v.t. (geen toetsbaar criterium (controle of beschrijvend))
+- Na test aangepast: nee
+- Status: ok
+
+### E037: Correct score: selectieregel 'beste setstand per wedstrijd' (hoogste kans vs EV-ratio)
+
+- Hypothese (2026-10-29): Tegen een boekmaker die setstanden met onafhankelijke legs prijst, levert de EV-regel (vooral whitewashes) een hogere ROI dan de kans-regel, maar met een lagere trefkans. Tegen een boekmaker die dagvorm al inprijst is de ROI ongeveer −marge. Bij 15-25% marge is geen enkele regel aantoonbaar winstgevend.
+- Criterium: beschrijvend: trefkans en ROI per regel, boekmodel en marge, 90%-interval (bootstrap per jaar en ronde) → n.v.t. (geen toetsbaar criterium (controle of beschrijvend))
+- Na test aangepast: nee
+- Status: ok
+
+### E038: Correct score: waarom is 3-2 te vaak voorspeld? (diagnose)
+
+- Hypothese (2026-10-29): Het tekort aan beslissende sets komt door dagvorm: met de averages van de wedstrijd zelf als legkans verdwijnt het grootste deel van de afwijking. Een fout in de regels (2 legs verschil, sudden death) is niet de oorzaak, want die speelt alleen in de beslissende set zelf.
+- Criterium: beschrijvend: (echt − verwacht)/se van het aantal beslissende sets per model en per format → n.v.t. (geen toetsbaar criterium (controle of beschrijvend))
 - Na test aangepast: nee
 - Status: ok
 

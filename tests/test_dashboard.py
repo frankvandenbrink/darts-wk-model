@@ -272,3 +272,30 @@ def test_correct_score_sectie(bd, resultaten, tmp_path):
     assert 'id="correct-score"' in pagina and 'href="#correct-score"' in pagina
     assert "21.3% (26.0%)" in pagina and "fav 3-2" in pagina and "dartswk cs-odds" in pagina
     assert "6.61" in pagina  # eerlijke odd 3-0 bij 50%, σ 0,3
+
+
+def test_correct_score_finetune(bd, resultaten, tmp_path):
+    exp = _experimenten()
+    exp["register"] += [{"id": i, "naam": i, "model": m, "hypothese": "h", "na_test_aangepast": {"waarde": False}}
+                        for i, m in (("E032", "cs-tune"), ("E037", "cs-selectie"), ("E038", "cs-diagnose"))]
+    wf = {"train": [2024], "test": [2025], "soort": "walk-forward", "n": 94}
+    exp["resultaten"] += [
+        {"id": "E032", "model": "cs-tune", "status": "ok", "beoordeling": {"succes": False}, "uitkomsten": [
+            dict(wf, gekozen={"hold": 0.6, "sigma3": 0.4, "sigma4": 0.3}, logloss_dp=1.84, logloss_naief=1.8415,
+                 verschil_naief=-0.0014, verschil_se=0.0067, basis="hold 0,60, σ 0,3")]},
+        {"id": "E037", "model": "cs-selectie", "status": "ok", "beoordeling": {"succes": None}, "uitkomsten": [
+            dict(wf, combinaties=[{"sigma_boek": 0.0, "methode": "proportioneel", "marge": m, "regel": "kans",
+                                   "bets": 94, "raak": 22, "trefkans": 0.234, "roi": -0.123, "gem_odd": 3.7}
+                                  for m in (0.15, 0.2)])]},
+        {"id": "E038", "model": "cs-diagnose", "status": "ok", "beoordeling": {"succes": None}, "uitkomsten": [
+            dict(wf, achteraf=None, configs=[{"config": {"sigma": 0.3},
+                                              "totaal": {"n": 94, "verwacht": 23.4, "echt": 18, "z": -1.3},
+                                              "per_format": {"3": {"n": 70, "verwacht": 17.0, "echt": 10}}}])]}]
+    _schrijf(resultaten / "experimenten.json", exp)
+    uit = tmp_path / "site"
+    bd.main(["--resultaten", str(resultaten), "--uit", str(uit)])
+    pagina = (uit / "index.html").read_text(encoding="utf-8")
+    _controleer_html(pagina)
+    assert "σ ft3 0.4" in pagina and "−0.0014 ± 0.0067" in pagina
+    assert "Selectieregel" in pagina and "23.4%" in pagina and "−12.3%" in pagina
+    assert "23.4 / 18" in pagina and "Wat kan nog getuned worden" in pagina
