@@ -724,7 +724,7 @@ def beoordeel(exp: dict, uitkomsten: list[dict]) -> dict:
                     toelichting="; ".join(f"WK{u['test'][0]}: {u['verschil_naief']:+.4f} (se {u['verschil_se']:.4f})"
                                           for u in wf))
     if c.get("regel") != "verschil_lt_markt":
-        return dict(succes=None, toelichting="geen toetsbaar criterium (controle)")
+        return dict(succes=None, toelichting="geen toetsbaar criterium (controle of beschrijvend)")
     f = c.get("factor_se", 1.0)
     wf = [u for u in uitkomsten if u["soort"] == "walk-forward"]
     ok = [u["verschil_markt"] < -f * u["verschil_se"] for u in wf]
