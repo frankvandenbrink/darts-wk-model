@@ -77,6 +77,19 @@ def _terugtest(a):
     print(f"geschreven: {fj}, {fm}")
 
 
+def _cs_odds(a):
+    from .correctscore import standen, verdeling
+    from .evaluatie import markt_proportioneel
+    p = markt_proportioneel(a.odd1, a.odd2)
+    v = verdeling(p, a.sets, a.hold, a.sigma)
+    print(f"Marktkans speler 1 (zonder marge): {p:.3f}; first to {a.sets} sets")
+    print(f"{'stand':>6} {'kans':>7} {'eerlijk':>8} {'min. odd (+' + format(a.buffer, '.0%') + ')':>16}")
+    for st in standen(a.sets):
+        q = v[st]
+        print(f"{st[0]}-{st[1]:<4} {q:7.1%} {1 / q:8.2f} {(1 + a.buffer) / q:16.2f}")
+    return 0
+
+
 def _meld(meld):
     for j, ms in meld.items():
         r = f"WK{j}: " + ("; ".join(ms) if ms else "geen meldingen")
@@ -114,6 +127,15 @@ def main(argv=None):
     x = sub.add_parser("experimenten", help="draai het experimentregister -> resultaten/experimenten.*")
     x.add_argument("--ids", nargs="+", help="alleen deze experimenten (bijv. E014 E015); standaard alles")
     x.set_defaults(func=_experimenten)
+
+    c = sub.add_parser("cs-odds", help="eerlijke correct-score-odds (sets) uit de wedstrijdodds")
+    c.add_argument("odd1", type=float, help="odd speler 1 (wedstrijdwinnaar)")
+    c.add_argument("odd2", type=float, help="odd speler 2")
+    c.add_argument("--sets", type=int, required=True, help="sets nodig om te winnen (R1/R2 3, R3/R4 4, KF 5, HF 6, F 7)")
+    c.add_argument("--hold", type=float, default=0.6)
+    c.add_argument("--sigma", type=float, default=0.0, help="dagvorm-spreiding (E030)")
+    c.add_argument("--buffer", type=float, default=0.10, help="vereiste voorsprong boven eerlijk (standaard 10%%)")
+    c.set_defaults(func=_cs_odds)
 
     a = p.parse_args(argv)
     a.func(a)

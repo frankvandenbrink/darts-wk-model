@@ -875,6 +875,104 @@
         "toelichting": ""
       },
       "test_vooraf_bekend": false
+    },
+    {
+      "id": "E029",
+      "naam": "Correct score: basis-holdkans afgestemd op train",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-hold",
+      "features": [
+        "marktkans (proportioneel) omgezet naar legkans"
+      ],
+      "grid": {
+        "hold": [
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75
+        ],
+        "sigma": 0.0
+      },
+      "hypothese": "Een op train afgestemde basis-holdkans verandert de log-loss van de exacte setstand t.o.v. hold 0,60 met minder dan 1 se; de wedstrijdkans ligt vast door de markt, dus hold verschuift alleen de verdeling binnen winst en verlies een beetje.",
+      "criterium": {
+        "tekst": "log-loss van de setstand lager dan de basis (set-DP, hold 0,60, σ 0, zoals E028) in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se",
+        "regel": "verschil_lt_naief",
+        "factor_se": 1.0
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": false
+    },
+    {
+      "id": "E030",
+      "naam": "Correct score: dagvorm-spreiding",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-dagvorm",
+      "features": [
+        "marktkans (proportioneel) omgezet naar legkans",
+        "legverschil d ~ N(d0, σ²) per wedstrijd"
+      ],
+      "grid": {
+        "hold": 0.6,
+        "sigma": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6
+        ]
+      },
+      "hypothese": "Spelers hebben goede en slechte dagen: legs binnen een wedstrijd zijn niet onafhankelijk. Een normaal verdeeld legverschil per wedstrijd (σ op train, d0 zo dat de wedstrijdkans gelijk blijft aan de markt) geeft vaker 3-0's en verlaagt de setstand-log-loss t.o.v. σ = 0 met meer dan 1 se in beide testjaren.",
+      "criterium": {
+        "tekst": "log-loss van de setstand lager dan de basis (set-DP, hold 0,60, σ 0, zoals E028) in beide walk-forward-testjaren (2025 en 2026), verschil > 1 se",
+        "regel": "verschil_lt_naief",
+        "factor_se": 1.0
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": false
+    },
+    {
+      "id": "E031",
+      "naam": "Correct score: strategie 'meest waarschijnlijke setstand' en break-even-marge",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-strategie",
+      "features": [
+        "setstandverdeling uit de marktkans (hold 0,60, σ 0)"
+      ],
+      "grid": {
+        "hold": 0.6,
+        "sigma": 0.0,
+        "marges": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25
+        ]
+      },
+      "hypothese": "Wie elke wedstrijd de meest waarschijnlijke setstand kiest, raakt in R1/R2 (first to 3) zo'n 30-40% en in latere rondes minder. Tegen eerlijke odds (1/kans) is de ROI rond 0; bij de gebruikelijke correct-score-marges van 15-25% is de ROI duidelijk negatief. Het model heeft alleen de markt als input, dus het vindt geen structurele waarde.",
+      "criterium": {
+        "tekst": "beschrijvend: trefkans, ROI tegen eerlijke odds en tegen odds met marge, kalibratie per uitslagtype (geen toets)",
+        "regel": "geen"
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": false
     }
   ]
 }
