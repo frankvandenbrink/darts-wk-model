@@ -973,6 +973,314 @@
         "toelichting": ""
       },
       "test_vooraf_bekend": false
+    },
+    {
+      "id": "E032",
+      "naam": "Correct score: dagvorm σ apart voor first to 3 en first to ≥4",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-tune",
+      "features": [
+        "σ per format: σ3 (ronde 1-2) en σ4 (ronde 3 en later)"
+      ],
+      "grid": {
+        "basis": {
+          "hold": 0.6,
+          "sigma": 0.3
+        },
+        "hold": [
+          0.6
+        ],
+        "sigma3": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6
+        ],
+        "sigma4": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6
+        ]
+      },
+      "hypothese": "De 3-2-afwijking zit vooral in first to 3; first to 4 was al goed gekalibreerd. Een aparte σ per format past beter dan één globale σ 0,3.",
+      "criterium": {
+        "tekst": "log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3)",
+        "regel": "verschil_lt_naief",
+        "factor_se": 1.0
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": true,
+      "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."
+    },
+    {
+      "id": "E033",
+      "naam": "Correct score: σ per wedstrijd uit het spelersprofiel (niveau en vormschommeling)",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-tune",
+      "features": [
+        "σ = σ0·exp(β_niveau·z_niveau + β_vol·z_vol)",
+        "z_niveau: gestandaardiseerd gemiddelde 12m-average van beide spelers",
+        "z_vol: gestandaardiseerd gemiddelde |avg3m − avg12m| (vormschommeling); standaardisatie op train"
+      ],
+      "grid": {
+        "basis": {
+          "hold": 0.6,
+          "sigma": 0.3
+        },
+        "hold": [
+          0.6
+        ],
+        "sigma0": [
+          0.2,
+          0.3,
+          0.4
+        ],
+        "beta_niveau": [
+          -0.4,
+          -0.2,
+          0.0,
+          0.2,
+          0.4
+        ],
+        "beta_vol": [
+          -0.4,
+          -0.2,
+          0.0,
+          0.2,
+          0.4
+        ]
+      },
+      "hypothese": "Spelers met een lager niveau of wisselvallige vorm hebben meer dagvorm; een σ per wedstrijd verbetert de log-loss ten opzichte van één globale σ.",
+      "criterium": {
+        "tekst": "log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3)",
+        "regel": "verschil_lt_naief",
+        "factor_se": 1.0
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": true,
+      "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."
+    },
+    {
+      "id": "E034",
+      "naam": "Correct score: holdkans afhankelijk van het niveau van de spelers",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-tune",
+      "features": [
+        "logit(hold) = logit(0,60) + γ·z_niveau (12m-averages, standaardisatie op train)",
+        "σ 0,3"
+      ],
+      "grid": {
+        "basis": {
+          "hold": 0.6,
+          "sigma": 0.3
+        },
+        "hold": [
+          0.6
+        ],
+        "sigma": [
+          0.3
+        ],
+        "gamma": [
+          -0.4,
+          -0.2,
+          0.0,
+          0.2,
+          0.4
+        ]
+      },
+      "hypothese": "Sterke spelers houden vaker hun eigen leg (hogere hold), wat sets 'dichter' maakt. Een niveau-afhankelijke hold verbetert de setstandvoorspelling een beetje.",
+      "criterium": {
+        "tekst": "log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3)",
+        "regel": "verschil_lt_naief",
+        "factor_se": 1.0
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": true,
+      "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."
+    },
+    {
+      "id": "E035",
+      "naam": "Correct score: momentum tussen sets",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-tune",
+      "features": [
+        "κ: legverschil verschuift met +κ voor de winnaar van de vorige set",
+        "samen met σ op train gekozen"
+      ],
+      "grid": {
+        "basis": {
+          "hold": 0.6,
+          "sigma": 0.3
+        },
+        "hold": [
+          0.6
+        ],
+        "sigma": [
+          0.0,
+          0.1,
+          0.2,
+          0.3
+        ],
+        "kappa": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4
+        ]
+      },
+      "hypothese": "Een deel van het te weinig 2-2/3-2 komt door momentum binnen de wedstrijd (wie een set wint, wint vaker de volgende). Momentum plus dagvorm past beter dan alleen dagvorm.",
+      "criterium": {
+        "tekst": "log-loss van de setstand in beide walk-forward-testjaren (2025, 2026) meer dan 1 se lager dan de huidige standaard (hold 0,60, σ 0,3)",
+        "regel": "verschil_lt_naief",
+        "factor_se": 1.0
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": true,
+      "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."
+    },
+    {
+      "id": "E036",
+      "naam": "Correct score: tie-break bij 5-5 in de beslissende set (bull opnieuw vs wissel)",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-tune",
+      "features": [
+        "tiebreak 'wissel' (huidig) of 'bull' (opnieuw om de bull: 50/50 wie begint)"
+      ],
+      "grid": {
+        "basis": {
+          "hold": 0.6,
+          "sigma": 0.3
+        },
+        "hold": [
+          0.6
+        ],
+        "sigma": [
+          0.3
+        ],
+        "tiebreak": [
+          "wissel",
+          "bull"
+        ]
+      },
+      "hypothese": "Het verschil is verwaarloosbaar (< 0,0005 log-loss); de regel volgt het echte PDC-reglement (bull opnieuw).",
+      "criterium": {
+        "tekst": "beschrijvend: verschil in log-loss tussen de twee tie-break-regels",
+        "regel": "geen"
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": true,
+      "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."
+    },
+    {
+      "id": "E037",
+      "naam": "Correct score: selectieregel 'beste setstand per wedstrijd' (hoogste kans vs EV-ratio)",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-selectie",
+      "features": [
+        "eigen model: hold 0,60, σ 0,3",
+        "boekmakermodel (aanname, geen echte CS-odds): set-DP met σ_boek ∈ {0; 0,3}, marge proportioneel of 'macht' (longshots meer marge)",
+        "regel 'kans': hoogste eigen kans; regel 'ev': hoogste eigen kans / boekkans; 'ev≥1,10': alleen spelen als EV ≥ 1,10"
+      ],
+      "grid": {
+        "hold": 0.6,
+        "sigma": 0.3,
+        "sigma_boek": [
+          0.0,
+          0.3
+        ],
+        "marge_methode": [
+          "proportioneel",
+          "macht"
+        ],
+        "marges": [
+          0.15,
+          0.2,
+          0.25
+        ],
+        "regels": [
+          "kans",
+          "ev",
+          "ev110"
+        ]
+      },
+      "hypothese": "Tegen een boekmaker die setstanden met onafhankelijke legs prijst, levert de EV-regel (vooral whitewashes) een hogere ROI dan de kans-regel, maar met een lagere trefkans. Tegen een boekmaker die dagvorm al inprijst is de ROI ongeveer −marge. Bij 15-25% marge is geen enkele regel aantoonbaar winstgevend.",
+      "criterium": {
+        "tekst": "beschrijvend: trefkans en ROI per regel, boekmodel en marge, 90%-interval (bootstrap per jaar en ronde)",
+        "regel": "geen"
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": true,
+      "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."
+    },
+    {
+      "id": "E038",
+      "naam": "Correct score: waarom is 3-2 te vaak voorspeld? (diagnose)",
+      "datum": "2026-10-29",
+      "soort": "setstand",
+      "model": "cs-diagnose",
+      "features": [
+        "verwacht vs echt aantal wedstrijden dat de beslissende set haalt (n−1 : n−1), per format en per favorietkans",
+        "modellen: σ 0; σ 0,3; σ 0 met κ 0,3",
+        "diagnose met de averages in de wedstrijd zelf (achteraf, nooit als feature) op WK 2022-2026, inclusief WK 2022/2023 uit de gecachte Dartsorakel-pagina's"
+      ],
+      "grid": {
+        "hold": 0.6,
+        "configs": [
+          {
+            "sigma": 0.0
+          },
+          {
+            "sigma": 0.3
+          },
+          {
+            "sigma": 0.0,
+            "kappa": 0.3
+          }
+        ]
+      },
+      "hypothese": "Het tekort aan beslissende sets komt door dagvorm: met de averages van de wedstrijd zelf als legkans verdwijnt het grootste deel van de afwijking. Een fout in de regels (2 legs verschil, sudden death) is niet de oorzaak, want die speelt alleen in de beslissende set zelf.",
+      "criterium": {
+        "tekst": "beschrijvend: (echt − verwacht)/se van het aantal beslissende sets per model en per format",
+        "regel": "geen"
+      },
+      "na_test_aangepast": {
+        "waarde": false,
+        "toelichting": ""
+      },
+      "test_vooraf_bekend": true,
+      "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."
     }
   ]
 }
