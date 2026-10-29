@@ -1069,8 +1069,8 @@
         "factor_se": 1.0
       },
       "na_test_aangepast": {
-        "waarde": false,
-        "toelichting": ""
+        "waarde": true,
+        "toelichting": "Na de eerste run (en de code-review) bleek de bisectie op d0 bij σ ≥ ~0,7 de marktkans niet te halen; door scheve z_vol liep σ per wedstrijd op tot 1,3–5,2. Gerepareerd: bisectiegrenzen vast op [D_MIN, D_MAX], z afgekapt op ±2 en σ per wedstrijd op ≤ 0,6. Eerste run (zonder afkapping): WK2025 +0,0032 (se 0,0067), WK2026 −0,0050 (se 0,0044) → niet gehaald."
       },
       "test_vooraf_bekend": true,
       "test_vooraf_bekend_toelichting": "Ja: de setstanden van WK 2024-2026 zijn in E031 al bekeken (kalibratie per uitslagtype, 3-2 te vaak voorspeld). Deze ronde is daardoor geïnspireerd; parameters worden wel alleen op train gekozen."

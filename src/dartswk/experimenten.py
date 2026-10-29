@@ -749,7 +749,9 @@ def _cs_rij_param(r: dict, c: dict, z: tuple) -> tuple:
         s = c["sigma3" if r["setsnodig"] == 3 else "sigma4"]
         s = c["sigma"] if s is None else s
     elif c["sigma0"] is not None:
-        s = c["sigma0"] * math.exp(c["beta_niveau"] * zn + c["beta_vol"] * zv)
+        # z afgekapt op ±2 en σ op ≤ 0,6 (na test toegevoegd, zie register E033)
+        zn_, zv_ = (max(-2.0, min(2.0, x)) for x in (zn, zv))
+        s = min(0.6, c["sigma0"] * math.exp(c["beta_niveau"] * zn_ + c["beta_vol"] * zv_))
     else:
         s = c["sigma"]
     return logistic(logit(c["hold"]) + c["gamma"] * zn), round(s, 4), c["kappa"], c["tiebreak"]

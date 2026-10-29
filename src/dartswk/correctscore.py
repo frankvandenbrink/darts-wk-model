@@ -139,7 +139,7 @@ def _interp(n: int, hold: float, d: np.ndarray, kappa: float = 0.0, tiebreak: st
 @lru_cache(maxsize=200_000)
 def _verdeling(p: float, n: int, hold: float, sigma: float, kappa: float, tiebreak: str) -> tuple:
     ds, _, winst = _tabel(n, hold, kappa, tiebreak)
-    lo, hi = D_MIN + 4 * sigma, D_MAX - 4 * sigma
+    lo, hi = D_MIN, D_MAX  # binnenin wordt d geclipt; vaste grenzen werken ook bij grote σ
     for _ in range(50):  # bisectie op d0 alleen via de wedstrijdkans (stijgt monotoon in d)
         mid = (lo + hi) / 2
         if (np.interp(np.clip(mid + sigma * _GH_X, D_MIN, D_MAX), ds, winst) * _GH_W).sum() < p:
