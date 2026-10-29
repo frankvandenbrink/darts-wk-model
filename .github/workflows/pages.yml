@@ -7,6 +7,9 @@ on:
       - "resultaten/**"
       - "scripts/bouw_dashboard.py"
       - "README.md"
+      - "inhoud/**"
+      - "docs/**"
+      - "experimenten/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 

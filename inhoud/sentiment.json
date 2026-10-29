@@ -1,0 +1,14 @@
+{
+ "titel": "X-sentimentmeter (ontwerp)",
+ "status": "Alleen een ontwerp. Er wordt niets van X opgehaald.",
+ "idee": "Meten of de stemming over een speler op X (blessure, vorm, privéomstandigheden) informatie bevat die nog niet in de odds zit.",
+ "aanpak": [
+  "Placeholder: Frank vult aan.",
+  "Eerst nagaan of de voorwaarden en kosten van de X-API dit toestaan; geen scraping.",
+  "Vooraf registreren als experiment (hypothese, criterium) en alleen toetsen als feature naast de marktlogit."
+ ],
+ "risicos": [
+  "Zeer weinig berichten over spelers buiten de top 32.",
+  "Sentiment volgt vaak de uitslag in plaats van eraan vooraf te gaan (lookahead-gevaar: alleen berichten vóór de aanvangstijd)."
+ ]
+}

@@ -1,0 +1,6 @@
+{
+ "toelichting": "Onderzoek naar databronnen. Placeholder met één voorbeeldregel; Frank vult aan.",
+ "items": [
+  {"naam": "Voorbeeld: Wikipedia (PDC WK-artikelen)", "url": "https://en.wikipedia.org/wiki/2026_PDC_World_Darts_Championship", "kosten": "gratis", "darts_dekking": "uitslagen en rondes van het WK; geen odds", "nl_bruikbaar": "ja", "voorwaarden": "CC BY-SA 4.0, naamsvermelding", "oordeel": "bruikbaar; al in gebruik"}
+ ]
+}
