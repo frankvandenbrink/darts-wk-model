@@ -9,7 +9,9 @@ PDC WK beter voorspelt dan de bookmakers, en of wedden op de verschillen met de 
 De terugtest gebruikt de WK's 2024, 2025 en 2026 (jaar van de finale).
 
 Dit pakket herstructureert het oude script en verwerkt de fixes uit sectie 2 van de review in
-[docs/review-claude.md](docs/review-claude.md).
+[docs/review-claude.md](docs/review-claude.md). Daarnaast is er een **ratingmodel op wedstrijdniveau** (review 4.1 en
+4.3): Bradley-Terry op legs met tegenstandercorrectie, tijdsweging en krimp, plus kalibratie en combinatie met de
+markt. Zie [docs/model-rating.md](docs/model-rating.md).
 
 ## Methode
 
@@ -32,6 +34,25 @@ Dit pakket herstructureert het oude script en verwerkt de fixes uit sectie 2 van
   naamvolgorde, umlaut, difflib) worden gemeld.
 - In-wedstrijd-averages van Wikipedia heten `avg*_achteraf` en worden nooit als feature gebruikt.
 
+### Ratingmodel (`--model rating`, details in [docs/model-rating.md](docs/model-rating.md))
+
+- **Data:** de uitslagen per wedstrijd (legstand) van Dartsorakel-events (Pro Tour, European Tour, majors, WK)
+  van 2022–2025, alleen events met een datum strikt vóór de WK-start (assert). Bij WK en World Grand Prix staat de
+  score in sets; daar telt alleen de uitslag.
+- **Rating:** P(a wint een leg van b) = logistic(r_a − r_b). Gewogen maximum likelihood met gewicht
+  0.5^(leeftijd/halfwaarde) en een ridge-prior λ die naar het veldgemiddelde krimpt. WK-spelers zonder data
+  krijgen de rating `onbekend`.
+- **Wedstrijdkans:** k·(r_a − r_b) wordt omgezet in hold-kansen rond 0.60 (de gemiddelde legkans blijft gelijk),
+  daarna de exacte set/match-DP.
+- **Afstemmen:** halfwaarde, λ, onbekend en k via grid search op log-loss (train). Daarna dezelfde drempel en
+  stopregel als hierboven.
+- **Varianten:**
+  - `rating-platt`: logit p = c·logit(p_rating).
+  - `rating+markt`: logit p = a·logit(markt) + b·logit(p_rating), met a en b op train gefit met logistische
+    regressie.
+  - `rating+avg`: met tegenstander-onafhankelijke averages erbij (ter info).
+  - `markt-krimp`: logit p = a·logit(markt), een controle zonder rating.
+
 ## Data en licenties
 
 | Bron | Wat | In de repo? |
@@ -39,6 +60,7 @@ Dit pakket herstructureert het oude script en verwerkt de fixes uit sectie 2 van
 | Wikipedia (CC BY-SA 4.0) | uitslagen, rondes, in-wedstrijd-averages | **Ja**: `data/wedstrijden_WK<jaar>.csv`, bronvermelding in [data/BRONNEN.md](data/BRONNEN.md) |
 | Oddsportal | slotodds | **Nee**. Alleen ophalen via `dartswk fetch` |
 | Dartsorakel | geaggregeerde averages en checkout% | **Nee**. Alleen ophalen via `dartswk fetch` |
+| Dartsorakel | evenementenlijst en resultaatpagina's (legstanden) | **Nee**. Alleen ophalen via `dartswk fetch-events` (≥ 1,5 s pauze, cache) |
 
 Ruwe bestanden komen in `data/cache/` (staat in `.gitignore`). Wie Oddsportal of Dartsorakel ophaalt, is zelf
 verantwoordelijk voor het naleven van hun gebruiksvoorwaarden. In `resultaten/` staan alleen samengevatte cijfers,
@@ -61,6 +83,9 @@ dartswk dataset                                          # data/wedstrijden_WK<j
 dartswk terugtest --model vorm --train 2026 --test 2025  # afstemmen op 2026, toetsen op 2025
 dartswk terugtest --model vorm --train 2025 --test 2026
 dartswk terugtest --model vorm --walk-forward --jaren 2024 2025 2026
+dartswk fetch-events                                     # Dartsorakel-events 2022-2025 (beleefd, gecachet)
+dartswk terugtest --model rating --walk-forward --jaren 2024 2025 2026
+dartswk vergelijk                                        # alle modellen, alle splits -> resultaten/vergelijking.*
 pytest                                                   # draait zonder netwerk en zonder data/cache
 ```
 
@@ -89,6 +114,31 @@ Op de traindata zelf: 2026 model 0.5669 tegen markt 0.5490; 2025 model 0.6171 te
 | 2025 | 2024 | w=0, L=6, k=0.04, kc=0.02 | 0.6461 | 0.6343 | 0.6371 | 1.15 | 34 (28 underdog) | +16.9% | [−24.9%, +43.6%] |
 | 2026 | 2024+2025 | w=0, L=6, k=0.04, kc=0 | 0.5725 | 0.5490 | 0.5498 | 1.30 | 37 (37 underdog) | −43.6% | [−100.0%, +11.7%] |
 | **Totaal** | | | **0.6039** | **0.5854** | 0.5871 | per stap | 71 | **−14.7%** (−10.41 units) | [−48.0%, +22.0%] |
+
+### Ratingmodel tegen vorm en markt
+
+Volledige tabellen (Brier, parameters, drempelkeuze, alle varianten): [resultaten/vergelijking.md](resultaten/vergelijking.md).
+Log-loss op het testjaar; ROI met de stopregel en een 90%-interval (bootstrap per ronde).
+
+| Train → test | n | Rating | Rating+markt | Vorm | Markt prop. | Markt Shin | Helling rating | Bets rating, ROI | Bets rating+markt, ROI |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026 → 2025 | 94 | 0.6494 | 0.6324 | 0.6179 | 0.6343 | 0.6371 | 0.77 | 39, +32.7% [−20.0, +75.2] | 7, −100.0% |
+| 2025 → 2026 | 126 | 0.6369 | 0.5806 | 0.5680 | 0.5490 | 0.5498 | 0.71 | 105, −6.7% [−55.0, +7.2] | 71, +12.9% [−55.3, +31.8] |
+| 2025 → 2024 | 94 | 0.6048 | 0.5798 | 0.5985 | 0.5698 | 0.5722 | 1.07 | 73, +7.7% [−18.3, +47.8] | 48, +12.8% [−22.5, +71.4] |
+| 2025+2026 → 2024 | 94 | 0.5997 | 0.5703 | 0.5973 | 0.5698 | 0.5722 | 1.37 | 45, +14.4% [−29.2, +118.5] | 19, +42.1% [−30.0, +220.0] |
+| WF 2024 → 2025 | 94 | 0.6888 | 0.6444 | 0.6461 | 0.6343 | 0.6371 | 0.45 | 47, +17.5% [−24.8, +63.0] | 64, +14.7% [−22.1, +54.4] |
+| WF 2024+2025 → 2026 | 126 | 0.6236 | 0.5610 | 0.5725 | 0.5490 | 0.5498 | 0.73 | 103, −4.1% [−61.6, +13.8] | 49, +35.8% [−39.1, +55.3] |
+| **WF totaal** | 220 | **0.6515** | **0.5966** | 0.6039 | **0.5854** | 0.5871 | 0.59 | 150, +2.7% [−26.6, +21.3] | 113, +23.8% [−9.4, +48.6] |
+
+- Brier, walk-forward totaal: rating 0.2213, rating+markt 0.2043, vorm 0.2062, markt 0.2010.
+- Helling: c in logit P(winst) = c·logit(p) op test; kleiner dan 1 betekent te stellig.
+- `rating+markt` gefit op train:
+  - b (rating) ligt tussen 0.12 en 0.52, met standaardfouten van 0.28–0.49;
+  - de LR-statistiek voor b = 0 is hoogstens 1.77 (kritieke waarde 3.84);
+  - a (markt) ligt tussen 0.40 en 0.86.
+- Controle `markt-krimp` (alleen de markt vlakker maken, zonder rating): walk-forward totaal log-loss 0.5854 en
+  56 bets met **+23.7%** ROI.
+- Blind op de underdog: 2024 −4.5%, 2025 +25.0%, 2026 +1.2%.
 
 ### Ter informatie: vaste drempel 1.05, zonder stopregel
 
@@ -120,6 +170,20 @@ afstemmen op 2026 niet gewed; de +51.7% op 2025 bij drempel 1.05 is dus geen res
 vastligt. Alle betrouwbaarheidsintervallen bevatten 0. **Er is geen aantoonbaar voordeel; wed niet met dit model.**
 Proportionele margecorrectie geeft de scherpste marktbenchmark; met Shin verandert de conclusie niet.
 
+**Ratingmodel:** geen verbetering. Het voorspelt in alle splits slechter dan de markt én dan het vormmodel
+(walk-forward 0.6515 tegen 0.6039 en 0.5854), en het is out-of-sample te stellig.
+
+- Gecombineerd met de markt komt het dichtbij (0.5966), maar niet onder de markt.
+- Het gewicht b van de rating is nergens significant.
+- De +23.8% ROI van `rating+markt` is geen aanwijzing voor voordeel. De controle zonder rating (`markt-krimp`)
+  haalt hetzelfde (+23.7%). De winst komt dus van een kanteling naar underdogs (90 van de 113 bets) in een
+  steekproef met het upsetjaar 2025, niet van de rating.
+- Er is geen lek gevonden. Het interval bevat 0.
+
+De waarschijnlijke hoofdoorzaak is de data: 133 van de 205 resultaatpagina's zijn een abonnementspagina. Vóór
+WK2026 is het laatste bruikbare event van maart 2025, en 21 van de 128 WK2026-spelers hebben geen data. Of een
+rating met volledige data wél iets toevoegt, is met deze cache niet te zeggen. **Wed ook niet met het ratingmodel.**
+
 ## Beperkingen
 
 - Drie toernooien, ~300 wedstrijden; de effectieve steekproef is eerder "drie toernooien". Om 5% ROI aan te tonen
@@ -129,7 +193,13 @@ Proportionele margecorrectie geeft de scherpste marktbenchmark; met Shin verande
   ([−9.1%, +85.9%]) en 2025 → 2026 ([−10.6%, +73.8%]) niet.
 - Odds zijn gemiddelde slotodds van Oddsportal, niet de odds die je bij je eigen bookmaker krijgt. De juistheid
   ervan is niet tegen een tweede bron gecontroleerd.
-- De vorm is niet gecorrigeerd voor tegenstander of niveau en krimpt niet bij weinig data (review 2.3).
+- De vorm is niet gecorrigeerd voor tegenstander of niveau en krimpt niet bij weinig data (review 2.3). Het
+  ratingmodel doet dat wel, maar heeft te weinig recente data.
+- Rating, dekking van de data: 65% van de Dartsorakel-resultaatpagina's is een paywall. Die wordt niet omzeild.
+  Bruikbare events: 2022 43/50, 2023 17/50, 2024 11/50, 2025 1/55. De dekking is dus scheef in de tijd, en
+  tijdsweging helpt daardoor niet: de grid kiest meestal "geen weging".
+- Het grid van het ratingmodel is twee keer verbreed na het bekijken van de eerste resultaten (op train én test),
+  omdat het optimum op de rand lag. Zie [docs/model-rating.md](docs/model-rating.md).
 - Bij train 2026 → test 2025 bevat het 12-maandenvenster van 2026 het WK 2025 zelf; die richting is daarom de
   minst eerlijke. Walk-forward heeft dat probleem niet.
 - Onbekend is of Dartsorakel `dateTo` op wedstrijd- of toernooidatum filtert.

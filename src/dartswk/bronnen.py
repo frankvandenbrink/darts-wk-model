@@ -98,6 +98,53 @@ def fetch_oddsportal(jaar: int, cache: Path) -> None:
     asyncio.run(main())
 
 
+EVENTS_UA = "dartswk/0.3 (hobbyproject, terugtest PDC WK; beleefde ophaler met pauzes en cache)"
+EVENTS_PAUZE = 1.5  # seconden tussen verzoeken (minimaal)
+
+
+def fetch_orakel_events(kalenderjaren: list[int], cache: Path | None = None, pauze: float = EVENTS_PAUZE) -> None:
+    """Evenementenlijst (/api/events, alle rankingtoernooien) en de resultaatpagina per event.
+
+    Beleefd: één verzoek tegelijk, minstens `pauze` seconden ertussen, nette User-Agent, en alles wat al in de
+    cache staat wordt niet opnieuw opgehaald. Abonnementspagina's (paywall) worden gemeld; de paywall wordt niet
+    omzeild. robots.txt van dartsorakel.com stond bij het schrijven alles toe; controleer zelf de voorwaarden.
+    """
+    import time
+
+    from .events import is_paywall
+
+    assert pauze >= 1.5, "minstens 1,5 s pauze tussen verzoeken"
+    cache = cache or config.cache_map()
+    basis = cache / "orakel_events"
+    (basis / "pages").mkdir(parents=True, exist_ok=True)
+    s = requests.Session()
+    s.headers["User-Agent"] = EVENTS_UA
+    laatst = [0.0]
+
+    def get(url, **kw):
+        wacht = laatst[0] + pauze - time.monotonic()
+        if wacht > 0:
+            time.sleep(wacht)
+        r = s.get(url, timeout=60, **kw)
+        laatst[0] = time.monotonic()
+        r.raise_for_status()
+        return r
+
+    for jaar in kalenderjaren:
+        fn = basis / f"events_{jaar}.json"
+        if not fn.exists():
+            r = get("https://dartsorakel.com/api/events", params=dict(year=jaar, organCal="All Rankings"))
+            fn.write_text(r.text, encoding="utf-8")
+        events = json.loads(fn.read_text(encoding="utf-8"))["data"]
+        paywall = 0
+        for ev in events:
+            pg = basis / "pages" / f"{ev['event_key']}.html"
+            if not pg.exists():
+                pg.write_text(get(ev["events_result_url"]).text, encoding="utf-8")
+            paywall += is_paywall(pg.read_text(encoding="utf-8"))
+        print(f"  {jaar}: {len(events)} events, waarvan {paywall} alleen een abonnementspagina (geen uitslagen)")
+
+
 def fetch(jaren: list[int], cache: Path | None = None) -> None:
     cache = cache or config.cache_map()
     cache.mkdir(parents=True, exist_ok=True)

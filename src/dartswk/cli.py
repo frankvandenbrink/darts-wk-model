@@ -1,15 +1,31 @@
-"""Opdrachtregel: dartswk fetch | dataset | terugtest."""
+"""Opdrachtregel: dartswk fetch | fetch-events | dataset | terugtest | vergelijk."""
 from __future__ import annotations
 
 import argparse
 import sys
 
 from . import config
+from .modellen import MODELLEN
 
 
 def _fetch(a):
     from .bronnen import fetch
     fetch(a.jaren)
+
+
+def _fetch_events(a):
+    from .bronnen import fetch_orakel_events
+    fetch_orakel_events(a.kalenderjaren)
+
+
+def _vergelijk(a):
+    from .terugtest import schrijf
+    from .vergelijk import markdown, vergelijk
+    v = vergelijk()
+    md = markdown(v)
+    fj, fm = schrijf("vergelijking", v, md)
+    print(md)
+    print(f"geschreven: {fj}, {fm}")
 
 
 def _dataset(a):
@@ -61,17 +77,24 @@ def main(argv=None):
     f.add_argument("--jaren", type=int, nargs="+", default=alle, choices=alle)
     f.set_defaults(func=_fetch)
 
+    e = sub.add_parser("fetch-events", help="haal Dartsorakel-evenementen en resultaatpagina's op (voor de rating)")
+    e.add_argument("--kalenderjaren", type=int, nargs="+", default=[2022, 2023, 2024, 2025])
+    e.set_defaults(func=_fetch_events)
+
     d = sub.add_parser("dataset", help="schrijf data/wedstrijden_WK<jaar>.csv (alleen Wikipedia)")
     d.add_argument("--jaren", type=int, nargs="+", default=alle, choices=alle)
     d.set_defaults(func=_dataset)
 
     t = sub.add_parser("terugtest", help="stem af op train, toets op test (of walk-forward)")
-    t.add_argument("--model", default="vorm", choices=["vorm"])
+    t.add_argument("--model", default="vorm", choices=sorted(MODELLEN))
     t.add_argument("--train", type=int, nargs="+", choices=alle)
     t.add_argument("--test", type=int, nargs="+", choices=alle)
     t.add_argument("--walk-forward", action="store_true", help="voor elk jaar t: afstemmen op jaren < t, toetsen op t")
     t.add_argument("--jaren", type=int, nargs="+", default=alle, choices=alle, help="jaren voor walk-forward")
     t.set_defaults(func=_terugtest)
+
+    v = sub.add_parser("vergelijk", help="alle modellen over alle splits -> resultaten/vergelijking.*")
+    v.set_defaults(func=_vergelijk)
 
     a = p.parse_args(argv)
     a.func(a)

@@ -57,6 +57,3 @@ def afstemmen(rows: list[dict]) -> VormParams:
         if best is None or ll < best[1]:
             best = (prm, ll)
     return best[0]
-
-
-MODELLEN = {"vorm": (afstemmen, kans)}

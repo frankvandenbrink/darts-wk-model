@@ -7,11 +7,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
+
 from . import config
 from .dataset import bouw
 from .evaluatie import (MARGE, bets, bootstrap_geclusterd, brier, drempeltabel, gemiddeld, kies_drempel,
                         logloss, roi)
-from .vorm import MODELLEN
+from .kalibratie import helling
+from .modellen import MODELLEN
 
 
 def laad(jaren: list[int]) -> tuple[dict[int, list[dict]], dict[int, list[str]]]:
@@ -48,6 +51,12 @@ def samenvatting(rows: list[dict], ps: list[float], drempel, bl: list[dict] | No
         q = [f(r["odd1"], r["odd2"]) for r in rows]
         uit[f"brier_markt_{naam}"] = round(gemiddeld(brier, q, ys), 4)
         uit[f"logloss_markt_{naam}"] = round(gemiddeld(logloss, q, ys), 4)
+    q = [MARGE["proportioneel"](r["odd1"], r["odd2"]) for r in rows]
+    dl = np.array([logloss(p, y) - logloss(x, y) for p, x, y in zip(ps, q, ys)])
+    uit["logloss_verschil_vs_markt"] = round(float(dl.mean()), 4)   # model - markt (prop.); < 0 = model beter
+    uit["logloss_verschil_se"] = round(float(dl.std(ddof=1) / np.sqrt(len(dl))), 4)
+    uit["helling_model"] = round(helling(ps, ys), 3)
+    uit["helling_markt_proportioneel"] = round(helling([MARGE["proportioneel"](r["odd1"], r["odd2"]) for r in rows], ys), 3)
     fav = [(r["odd1"] < r["odd2"]) == (y == 1) for r, y in zip(rows, ys) if r["odd1"] != r["odd2"]]
     uit["favoriet_won"] = f"{sum(fav)}/{len(fav)}"
     uit["drempel"] = drempel
@@ -94,7 +103,7 @@ def walk_forward(model: str, jaren: list[int], data: dict) -> dict:
 # ---------------------------------------------------------------- uitvoer
 def _schoon(d):
     if isinstance(d, dict):
-        return {k: _schoon(v) for k, v in d.items() if not k.startswith("_")}
+        return {k: _schoon(v) for k, v in d.items() if not str(k).startswith("_")}
     if isinstance(d, list):
         return [_schoon(x) for x in d]
     return d
@@ -108,20 +117,27 @@ def _ci(c):
     return "–" if c[0] is None else f"[{c[0]:+.1%}, {c[1]:+.1%}]"
 
 
+def prm_tekst(p: dict) -> str:
+    """Parameters plat als 'k=v, ...'; geneste basisparameters tussen haakjes."""
+    return ", ".join(f"{k}=({prm_tekst(v)})" if isinstance(v, dict) else f"{k}={v}" for k, v in p.items())
+
+
 def _jr(j):
     return "+".join(str(x) for x in j)
 
 
 KOP = ("| Set | Jaren | n | Log-loss model | Log-loss markt (prop.) | Log-loss markt (Shin) | Brier model | "
-       "Brier markt (prop.) | Drempel | Bets | Underdog | ROI | 90%-int. (geclusterd per ronde) |\n"
-       "|---|---|---|---|---|---|---|---|---|---|---|---|---|")
+       "Brier markt (prop.) | Helling model | Helling markt | Drempel | Bets | Underdog | ROI | "
+       "90%-int. (geclusterd per ronde) |\n"
+       "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|")
 
 
 def _regel(naam, jaren, s):
     d = s["drempel"]
     d = "niet wedden" if d is None else (d if isinstance(d, str) else f"{d:.2f}")
     return (f"| {naam} | {_jr(jaren)} | {s['n']} | {s['logloss_model']:.4f} | {s['logloss_markt_proportioneel']:.4f} | "
-            f"{s['logloss_markt_shin']:.4f} | {s['brier_model']:.4f} | {s['brier_markt_proportioneel']:.4f} | {d} | "
+            f"{s['logloss_markt_shin']:.4f} | {s['brier_model']:.4f} | {s['brier_markt_proportioneel']:.4f} | "
+            f"{s['helling_model']:.2f} | {s['helling_markt_proportioneel']:.2f} | {d} | "
             f"{s['bets']} | {s['underdog_bets']} | {_pct(s['roi'])} | {_ci(s['roi_90_geclusterd'])} |")
 
 
@@ -134,7 +150,7 @@ def markdown_terugtest(t: dict) -> str:
     p = t["parameters"]
     return "\n".join([
         f"# Terugtest model `{t['model']}`: train {_jr(t['train'])}, test {_jr(t['test'])}", "",
-        f"Parameters (afgestemd op log-loss, train): w={p['w']}, L={p['L']}, k={p['k']}, kc={p['kc']}", "",
+        f"Parameters (afgestemd op train): {prm_tekst(p)}", "",
         f"Drempelkeuze: {t['drempel_reden']}.", "",
         KOP, _regel("train", t["train"], t["train_resultaat"]), _regel("test", t["test"], t["test_resultaat"]), "",
         "## Drempeltabel train (basis voor de keuze)", "", _drempel_md(t["drempeltabel_train"]), "",
@@ -156,7 +172,7 @@ def markdown_walk_forward(wf: dict) -> str:
     regels += ["", "| Stap | Parameters | Drempelkeuze |", "|---|---|---|"]
     for s in wf["stappen"]:
         p = s["parameters"]
-        regels.append(f"| test {_jr(s['test'])} | w={p['w']}, L={p['L']}, k={p['k']}, kc={p['kc']} | {s['drempel_reden']} |")
+        regels.append(f"| test {_jr(s['test'])} | {prm_tekst(p)} | {s['drempel_reden']} |")
     regels += ["", f"## Ter informatie: vaste drempel {config.VASTE_DREMPEL:.2f} zonder stopregel (niet het hoofdresultaat)",
                "", KOP]
     for s in wf["stappen"]:
