@@ -1,6 +1,104 @@
 {
- "toelichting": "Onderzoek naar databronnen. Placeholder met één voorbeeldregel; Frank vult aan.",
+ "toelichting": "Onderzoek naar odds- en statsbronnen (29-10-2026). Volledige uitwerking met citaten: docs/onderzoek-odds-en-toto.md. Geen juridisch advies.",
  "items": [
-  {"naam": "Voorbeeld: Wikipedia (PDC WK-artikelen)", "url": "https://en.wikipedia.org/wiki/2026_PDC_World_Darts_Championship", "kosten": "gratis", "darts_dekking": "uitslagen en rondes van het WK; geen odds", "nl_bruikbaar": "ja", "voorwaarden": "CC BY-SA 4.0, naamsvermelding", "oordeel": "bruikbaar; al in gebruik"}
+  {
+   "naam": "TOTO (handmatig loggen)",
+   "url": "https://portal-spa-api.toto.nl/assets/3bd23cbf-f81e-4345-9f1e-091f124da687",
+   "kosten": "gratis",
+   "darts_dekking": "alle WK-wedstrijden, de odd die echt telt",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "Deelnemersreglement 1-10-2026: geen expliciet verbod op scrapen, maar art. 10 (IE- en databankrechten) en de disclaimer van Nederlandse Loterij (gebruik van informatie van webpagina's zonder schriftelijke toestemming niet toegestaan). Art. 17 f/g: account niet door anderen gebruiken.",
+   "oordeel": "Handmatig de odd van onze eigen bets loggen en tonen: ja. Automatisch ophalen of een oddstabel publiceren: nee."
+  },
+  {
+   "naam": "The Odds API",
+   "url": "https://the-odds-api.com/sports-odds-data/sports-apis.html",
+   "kosten": "gratis 500 credits/mnd; vanaf $30/mnd",
+   "darts_dekking": "geen darts in de sportlijst",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "duidelijke API-voorwaarden",
+   "oordeel": "niet bruikbaar voor darts"
+  },
+  {
+   "naam": "Betfair Exchange API",
+   "url": "https://developer.betfair.com/",
+   "kosten": "n.v.t.",
+   "darts_dekking": "ja",
+   "nl_bruikbaar": "nee: Betfair is sinds 30-9-2021 weg uit NL",
+   "voorwaarden": "geen VPN gebruiken; dat schendt de voorwaarden",
+   "oordeel": "niet bruikbaar"
+  },
+  {
+   "naam": "OpticOdds",
+   "url": "https://developer.opticodds.com/docs/odds-api-getting-started-guide",
+   "kosten": "op aanvraag (zakelijk)",
+   "darts_dekking": "ja, darts staat in de sportlijst",
+   "nl_bruikbaar": "ja (data)",
+   "voorwaarden": "zakelijke licentie",
+   "oordeel": "te duur voor een hobby"
+  },
+  {
+   "naam": "Sportradar Darts API",
+   "url": "https://developer.sportradar.com/darts/reference/darts-overview",
+   "kosten": "proef, daarna zakelijk",
+   "darts_dekking": "officiële PDC-partner: schema, uitslagen, stats, winkansen",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "zakelijke licentie",
+   "oordeel": "eventueel een proef; niet structureel"
+  },
+  {
+   "naam": "BSD / Bzzoiro Darts API",
+   "url": "https://sports.bzzoiro.com/docs/darts/",
+   "kosten": "Odds-API $5/mnd, sport-add-on $7/mnd",
+   "darts_dekking": "PDC-wedstrijden, legs, h2h, Elo, odds van 15 bookmakers (geen TOTO)",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "https://sports.bzzoiro.com/terms/ : geen ruwe data doorverkopen; herkomst 'public sources, third party providers'",
+   "oordeel": "beste goedkope kandidaat; eerst licentie op publiceren lezen en een maand proberen"
+  },
+  {
+   "naam": "API-Sports",
+   "url": "https://api-sports.io/",
+   "kosten": "gratis tier",
+   "darts_dekking": "geen darts",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "–",
+   "oordeel": "niet bruikbaar"
+  },
+  {
+   "naam": "sportsdata-mcp (open-source MCP-server, MIT)",
+   "url": "https://github.com/DanielTomaro13/sportsdata-mcp",
+   "kosten": "gratis",
+   "darts_dekking": "geen darts genoemd",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "voorwaarden per onderliggende provider",
+   "oordeel": "niet nodig voor darts"
+  },
+  {
+   "naam": "Wikipedia (PDC WK-artikelen)",
+   "url": "https://en.wikipedia.org/wiki/2026_PDC_World_Darts_Championship",
+   "kosten": "gratis",
+   "darts_dekking": "uitslagen, rondes, in-match averages; geen odds",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "CC BY-SA 4.0, naamsvermelding",
+   "oordeel": "in gebruik"
+  },
+  {
+   "naam": "Dartsorakel",
+   "url": "https://dartsorakel.com/",
+   "kosten": "deels gratis, deels paywall",
+   "darts_dekking": "averages, checkout%, uitslagen per event",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "paywall niet omzeilen; ruwe data niet herverspreiden",
+   "oordeel": "in gebruik (alleen het gratis deel)"
+  },
+  {
+   "naam": "Oddsportal",
+   "url": "https://www.oddsportal.com/",
+   "kosten": "gratis te bekijken",
+   "darts_dekking": "slotodds",
+   "nl_bruikbaar": "ja",
+   "voorwaarden": "voorwaarden verbieden scrapen",
+   "oordeel": "ophaalscript verwijderd; alleen bestaande lokale cache, geen nieuwe data"
+  }
  ]
 }
